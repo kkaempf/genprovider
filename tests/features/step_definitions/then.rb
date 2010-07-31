@@ -6,7 +6,7 @@ Then /^I should see an "([^"]*)" file$/ do |arg1| #"
   File.exists? arg1
 end
 
-Then /^comment lines should not exceed "([^"]*)" characters$/ do |arg1| #"
+Then /^comment lines should not exceed (\d+) characters$/ do |arg1| #"
   maxcolumn = arg1.to_i
   @output.scan(/^\s*\#.*$/).each do |l|
     return false if l.chomp.size > maxcolumn
@@ -15,9 +15,6 @@ Then /^comment lines should not exceed "([^"]*)" characters$/ do |arg1| #"
 end
 
 Then /^it should be accepted by "([^"]*)"$/ do |arg1| #"
-  if system(arg1, "output.rb")
-    $? == 0
-  else
-    false
-  end
+  res = system(arg1, "output.rb")
+  raise unless res && $? == 0
 end

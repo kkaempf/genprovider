@@ -5,7 +5,7 @@
 require 'rubygems'
 require "test/unit"
 
-PARENTNAME = File.expand_path(File.join(File.dirname(__FILE__),"..","..",".."))
-GENPROVIDER = File.join(PARENTNAME,"genprovider.rb")
-MOFDIR = File.join(File.dirname(__FILE__),"mof")
-OUTPUT = File.join(File.dirname(__FILE__),"output.rb")
+PARENT = File.expand_path(File.join(File.dirname(__FILE__),".."))
+TOPLEVEL = File.expand_path(File.join(PARENT,"..",".."))
+GENPROVIDER = File.join(TOPLEVEL,"genprovider.rb")
+MOFDIR = File.join(PARENT,"mof")
