@@ -3,3 +3,4 @@ core
 output.rb
 stdout.out
 stderr.out
+generated

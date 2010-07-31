@@ -16,8 +16,8 @@
 #   be quiet
 # -I <includedir>
 #   additional include directories to search
-# -o <output>
-#   provider file to write
+# -o <outputdir>
+#   directory to write generated files, defaults to 'generated'
 # <moffile>
 #   .mof files to read
 #
@@ -110,11 +110,12 @@ classes.each_value do |c|
   end
 end
 
+outdir = options[:output] || "generated"
 
 classes.each_value do |c|
   dcname = c.name.decamelize
-  out = Output.new "#{dcname}.rb"
+  out = Output.new File.join(outdir,"#{dcname}.rb")
   mkclass c, out
-  out = Output.new "#{dcname}_provider.rb"
+  out = Output.new File.join(outdir,"#{dcname}_provider.rb")
   mkprovider c, out
 end
