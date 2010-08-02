@@ -3,6 +3,21 @@
 #
 
 #
+# generate 'create_instance'
+#
+
+def mkcreate c, out
+  out.puts("def create_instance context, result, reference, newinst").inc
+    c.features.each do |f|
+     
+      # extract key props from newinst
+    end
+    out.printf "obj = #{c.name}.new"
+    keyargs c, true, out
+  out.puts.dec.puts("end")
+end
+
+#
 # generate provider code for class 'c'
 #
 
@@ -33,17 +48,18 @@ def mkprovider c, out
   raise "Unknown provider type" if providertypes.empty?
 
   out.puts("class #{c.name}Provider < #{providertypes.shift}").inc
-  out.puts "require '#{c.name.decamelize}'"
+  out.puts.puts "require '#{c.name.decamelize}'"
   out.puts
   providertypes.each do |t|
     out.puts "include #{t}IF"
   end
+  out.puts
+  out.puts("def initialize broker").inc
+  out.dec.puts "end"
   if c.instance?
+    mkcreate c, out
+  else
     out.puts "
-    def create_instance context, result, reference, newinst
-      # extract key props from newinst
-      # call #{c.name}.new(keyprops)
-    end
     def enum_instance_names context, result, reference
     end
     def enum_instances context, result, reference, properties
