@@ -30,6 +30,7 @@ require 'fileutils'
 require 'output'
 require 'mkclass'
 require 'mkprovider'
+require 'mkregistration'
 
 class String
   def decamelize
@@ -47,7 +48,15 @@ end
 cim_current = "/usr/share/mof/cim-current"
 
 moffiles, options = Mofparser.argv_handler "genprovider", ARGV
-RDoc::usage if moffiles.empty?
+if moffiles.empty?
+  $stderr.puts "No .mof files given"
+  exit 1
+end
+if options[:namespace].nil? || options[:namespace].empty?
+  $stderr.puts "Namespace required for registration"
+  exit 1
+end
+#RDoc::usage 
 
 options[:style] ||= :cim;
 options[:includes] ||= []
@@ -116,8 +125,12 @@ classes.each_value do |c|
   dcname = c.name.decamelize
   out = Output.new File.join(outdir,"#{dcname}.rb")
   mkclass c, out
+  # don't create providers for abstract base classes
+  next if c.name =~ /^CIM_/
+  
   out = Output.new File.join(outdir,"#{dcname}_provider.rb")
   providername = mkprovider c, out
   out = Output.new File.join(outdir,"#{dcname}.registration")
   mkregistration c, options[:namespace], providername, out
+
 end
