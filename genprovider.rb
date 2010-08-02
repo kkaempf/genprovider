@@ -117,5 +117,7 @@ classes.each_value do |c|
   out = Output.new File.join(outdir,"#{dcname}.rb")
   mkclass c, out
   out = Output.new File.join(outdir,"#{dcname}_provider.rb")
-  mkprovider c, out
+  providername = mkprovider c, out
+  out = Output.new File.join(outdir,"#{dcname}.registration")
+  mkregistration c, options[:namespace], providername, out
 end
