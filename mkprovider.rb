@@ -5,6 +5,8 @@
 #
 # generate provider code for class 'c'
 #
+# returns providername
+#
 
 def mkprovider c, out
   #
@@ -17,6 +19,7 @@ def mkprovider c, out
   out.comment
   out.comment "Provider #{providername} for class #{c.name}"
   out.comment
+  
   out.puts("require 'cmpi'").puts
   out.puts("module Cmpi").inc
 
@@ -61,6 +64,7 @@ def mkprovider c, out
   end
   out.dec.puts("end") # class
   out.dec.puts "end" # module
+  providername
 end
 
 #------------------------------------------------------------------
