@@ -6,6 +6,10 @@ Then /^I should see an "([^"]*)" file$/ do |arg1| #"
   File.exists? arg1
 end
 
+Then /^I should see an error message$/ do
+  File.stat("stderr.out").size > 0
+end
+
 Then /^comment lines should not exceed (\d+) characters$/ do |arg1| #"
   maxcolumn = arg1.to_i
   @output.scan(/^\s*\#.*$/).each do |l|
