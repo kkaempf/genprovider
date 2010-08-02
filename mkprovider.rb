@@ -27,10 +27,14 @@ def mkprovider c, out
   #
   # Header: class name, provider name (Class qualifier 'provider')
   #
-  providername = c.name
   p = c.qualifiers["provider", :string]
+  if p
+    p = p.value
+  else
+    p = c.name
+  end
+  providername = "#{p}Provider"
 
-  providername = p.value if p
   out.comment
   out.comment "Provider #{providername} for class #{c.name}"
   out.comment
@@ -50,7 +54,7 @@ def mkprovider c, out
 
   raise "Unknown provider type" if providertypes.empty?
 
-  out.puts("class #{c.name}Provider < #{providertypes.shift}").inc
+  out.puts("class #{providername} < #{providertypes.shift}").inc
   out.puts.puts "require '#{c.name.decamelize}'"
   out.puts
   providertypes.each do |t|
