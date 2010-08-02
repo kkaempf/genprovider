@@ -21,7 +21,7 @@ def keyargs c, first, out
     else
       out.write ","
     end
-    out.write(" ").write f.name
+    out.write(" ").write(f.name.decamelize)
   end
 end
 
@@ -74,7 +74,7 @@ def mkdef out, feature
 	out.write ", "
       end
       out.write p.name
-      out.write "_out" if p.qualifiers.include? :out
+      out.write "_out" if p.qualifiers.include?(:out,:bool)
     end
     out.write ")"
   end
