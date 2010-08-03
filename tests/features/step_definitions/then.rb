@@ -25,3 +25,8 @@ Then /^its output should be accepted by Ruby$/ do
     raise unless res && $? == 0
   end
 end
+
+Then /^I should see "([^"]*)" in enumerated class names$/ do |arg1| #"
+  out = `wbemecn http://localhost:5988`
+  raise unless out =~ Regexp.new(arg1)
+end
