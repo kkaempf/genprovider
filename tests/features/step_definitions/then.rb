@@ -18,7 +18,10 @@ Then /^comment lines should not exceed (\d+) characters$/ do |arg1| #"
   true
 end
 
-Then /^it should be accepted by "([^"]*)"$/ do |arg1| #"
-  res = system(arg1, "output.rb")
-  raise unless res && $? == 0
+Then /^its output should be accepted by Ruby$/ do
+  Dir.foreach("generated") do |f|
+    next unless f =~ /.rb$/
+    res = system "ruby", File.join("generated", f)
+    raise unless res && $? == 0
+  end
 end
