@@ -27,10 +27,10 @@ require File.join(File.dirname(__FILE__), "..", "mofparser","parser","mofparser"
 require 'pathname'
 require 'fileutils'
 
-require 'output'
-require 'mkclass'
-require 'mkprovider'
-require 'mkregistration'
+require File.join(File.dirname(__FILE__), 'output')
+require File.join(File.dirname(__FILE__), 'mkclass')
+require File.join(File.dirname(__FILE__), 'mkprovider')
+require File.join(File.dirname(__FILE__), 'mkregistration')
 
 class String
   def decamelize
@@ -120,6 +120,7 @@ classes.each_value do |c|
 end
 
 outdir = options[:output] || "generated"
+Dir.mkdir outdir
 
 classes.each_value do |c|
   dcname = c.name.decamelize

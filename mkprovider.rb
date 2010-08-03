@@ -29,7 +29,7 @@ def mkprovider c, out
   #
   p = c.qualifiers["provider", :string]
   if p
-    p = p.value
+    p = p.value.sub("cmpi:","").capitalize
   else
     p = c.name
   end
@@ -55,7 +55,7 @@ def mkprovider c, out
   raise "Unknown provider type" if providertypes.empty?
 
   out.puts("class #{providername} < #{providertypes.shift}").inc
-  out.puts.puts "require '#{c.name.decamelize}'"
+  out.puts("$: << '#{out.dir}'").puts "require '#{c.name.decamelize}'"
   out.puts
   providertypes.each do |t|
     out.puts "include #{t}IF"

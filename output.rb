@@ -7,8 +7,16 @@ class Output
     @file.write " " * @depth * @indent
   end
  public
+  attr_reader :name, :dir
   def initialize file
-    @file = file.kind_of?(IO) ? file : File.open(file, "w+")
+    if file.kind_of?(IO)
+      @file = file
+      @name = nil
+    else
+      @file = File.open(file, "w+")
+      @name = File.basename file
+      @dir = File.dirname file
+    end
     raise "Cannot create file at #{file}" unless @file
     @indent = 0
     @wrap = 75 # wrap at this column

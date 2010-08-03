@@ -138,6 +138,10 @@ def mkclass c, out
 
   mkdescription out, c
 
+  if c.superclass
+    out.puts "$: << '#{out.dir}'"
+    out.puts "require '#{c.superclass.decamelize}'"
+  end
   out.printf("class #{c.name}")
   out.write(" < #{c.superclass}") if c.superclass
   out.puts.inc
