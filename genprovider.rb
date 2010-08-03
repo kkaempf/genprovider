@@ -120,7 +120,7 @@ classes.each_value do |c|
 end
 
 outdir = options[:output] || "generated"
-Dir.mkdir outdir
+Dir.mkdir outdir rescue Errno::EEXIST
 
 classes.each_value do |c|
   dcname = c.name.decamelize
