@@ -129,8 +129,10 @@ classes.each_value do |c|
   # don't create providers for abstract base classes
   next if c.name =~ /^CIM_/
   
-  out = Output.new File.join(outdir,"#{dcname}_provider.rb")
-  providername = mkprovider c, out
+  providerprop = c.qualifiers["provider", :string]
+  providername = (providerprop ? providerprop.value.sub("cmpi:","").capitalize : c.name) + "Provider"
+  out = Output.new File.join(outdir,"#{providername.decamelize}.rb")
+  mkprovider c, providername, out
   out = Output.new File.join(outdir,"#{dcname}.registration")
   mkregistration c, options[:namespace], providername, out
 
