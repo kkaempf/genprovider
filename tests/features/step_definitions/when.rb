@@ -14,6 +14,20 @@ When /^I run genprovider with "([^"]*)"$/ do |arg1| #"
 end
 
 When /^I register this with sfcb$/ do
-  res = system "sudo", "/usr/sbin/provider-register.sh", "-t", "sfcb", "-r", "generated/#{@registration}", "-m", "#{File.join(MOFDIR, 'trivial.mof')}"
+  unless ENV['NO_REGISTER']
+    res = system "sudo", "/usr/sbin/provider-register.sh", "-t", "sfcb", "-n", "test/test", "-r", "generated/#{@registration}", "-m", "#{File.join(MOFDIR, 'trivial.mof')}"
+    raise unless $? == 0
+  end
+end
+
+When /^"([^"]*)" is registered$/ do |arg1| #"
+  out = `wbemecn http://localhost:5988`
+  raise unless out =~ Regexp.new(arg1)
+end
+
+Then /^I create an instance of "([^"]*)" with "([^"]*)" set to "([^"]*)"$/ do |arg1, arg2, arg3| #"
+  cmd = "wbemci 'http://localhost:5988/test/test:#{arg1}.#{arg2}=\"#{arg3}\"' '#{arg2}=\"#{arg3}\"'"
+  $stderr.puts "Calling #{cmd}"
+  out = `#{cmd}`
   raise unless $? == 0
 end

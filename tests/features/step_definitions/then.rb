@@ -30,3 +30,15 @@ Then /^I should see "([^"]*)" in enumerated class names$/ do |arg1| #"
   out = `wbemecn http://localhost:5988`
   raise unless out =~ Regexp.new(arg1)
 end
+
+Then /^I should see "([^"]*)" in namespace "([^"]*)"$/ do |arg1, arg2|
+  out = `wbemecn http://localhost:5988/#{arg2}`
+  raise unless out =~ Regexp.new(arg1)
+end
+  
+Then /^I should see "([^"]*)" in enumerated instance names$/ do |arg1| #"
+  out = `wbemein http://localhost:5988`
+  raise unless out =~ Regexp.new(arg1)
+end
+
+  

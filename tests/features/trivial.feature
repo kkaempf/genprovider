@@ -22,3 +22,9 @@ Feature: Ability to parse a mof and create a template
     Given I have a registration "cmpi_swig.registration"
     When I register this with sfcb
     Then I should see "Cmpi_Swig" in enumerated class names
+    And I should see "Cmpi_Swig" in namespace "test/test"
+  Scenario: Create an instance
+    Given "Cmpi_Swig" is registered
+    When I create an instance of "Cmpi_Swig" with "hello" set to "Hello, world"
+    Then I should see "Cmpi_Swig" in enumerated instance names
+    
