@@ -39,7 +39,7 @@ def mkprovider c, out
   out.comment "Provider #{providername} for class #{c.name}"
   out.comment
   
-  out.puts("require 'cmpi'").puts
+  out.puts("require 'cmpi/provider'").puts
   out.puts("module Cmpi").inc
 
   mkdescription out, c
