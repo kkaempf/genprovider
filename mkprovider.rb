@@ -14,6 +14,7 @@ def mkcreate c, out
     end
     out.printf "obj = #{c.name}.new"
     keyargs c, true, out
+    out.puts("result.return_objectpath reference").puts("result.done").puts("true")
   out.puts.dec.puts("end")
 end
 
@@ -23,20 +24,13 @@ end
 # returns providername
 #
 
-def mkprovider c, out
+def mkprovider c, name, out
   #
   # Header: class name, provider name (Class qualifier 'provider')
   #
-  p = c.qualifiers["provider", :string]
-  if p
-    p = p.value.sub("cmpi:","").capitalize
-  else
-    p = c.name
-  end
-  providername = "#{p}Provider"
 
   out.comment
-  out.comment "Provider #{providername} for class #{c.name}"
+  out.comment "Provider #{name} for class #{c.name}"
   out.comment
   
   out.puts("require 'cmpi/provider'").puts
@@ -54,7 +48,7 @@ def mkprovider c, out
 
   raise "Unknown provider type" if providertypes.empty?
 
-  out.puts("class #{providername} < #{providertypes.shift}").inc
+  out.puts("class #{name} < #{providertypes.shift}").inc
   out.puts("$: << '#{out.dir}'").puts "require '#{c.name.decamelize}'"
   out.puts
   providertypes.each do |t|
@@ -84,7 +78,6 @@ def mkprovider c, out
   end
   out.dec.puts("end") # class
   out.dec.puts "end" # module
-  providername
 end
 
 #------------------------------------------------------------------
