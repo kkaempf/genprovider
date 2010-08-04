@@ -15,7 +15,7 @@ class Output
     else
       @file = File.open(file, "w+")
       @name = File.basename file
-      @dir = File.dirname file
+      @dir = File.expand_path(File.dirname file)
     end
     raise "Cannot create file at #{file}" unless @file
     @indent = 0
