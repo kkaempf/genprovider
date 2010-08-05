@@ -12,7 +12,7 @@ def mkdescription out, element
   out.comment(p.value).comment if p
 end
 
-def keyargs c, first, out
+def keyargs c, out, first = true
   keyargs c.parent, first, out if c.parent
   c.features.each do |f|
     next unless f.key?
@@ -38,11 +38,11 @@ def mkinitialize c, out
   end
   out.comment
   out.printf "def initialize("
-  keyargs c, true, out
+  keyargs c, out
   out.puts(")").inc
   if c.superclass
     out.puts "super"
-    keyargs c.parent, true, out
+    keyargs c.parent, out
   end
   out.dec.puts("end")
 end

@@ -8,13 +8,12 @@
 
 def mkcreate c, out
   out.puts("def create_instance context, result, reference, newinst").inc
-    c.features.each do |f|
-     
-      # extract key props from newinst
-    end
-    out.printf "obj = #{c.name}.new"
-    keyargs c, true, out
-    out.puts("result.return_objectpath reference").puts("result.done").puts("true")
+  out.puts("@log.info \"create_instance ref #{reference}, newinst #{newinst}\"")
+  out.printf "obj = #{c.name}.new"
+  keyargs c, out
+  out.puts("result.return_objectpath reference")
+  out.puts("result.done")
+  out.puts("true")
   out.puts.dec.puts("end")
 end
 
@@ -33,6 +32,7 @@ def mkprovider c, name, out
   out.comment "Provider #{name} for class #{c.name}"
   out.comment
   
+  out.puts("require 'syslog'").puts
   out.puts("require 'cmpi/provider'").puts
   out.puts("module Cmpi").inc
 
@@ -56,6 +56,8 @@ def mkprovider c, name, out
   end
   out.puts
   out.puts("def initialize broker").inc
+  out.puts("@log = Syslog.open(\"#{providername}\")")
+  out.puts("@log.info 'Initializing #{self}'")
   out.dec.puts "end"
   if c.instance?
     mkcreate c, out
@@ -74,6 +76,8 @@ def mkprovider c, name, out
     # query : String
     # lang : String 
     def exec_query context, result, reference, query, lang
+    end
+    def cleanup context, terminating
     end"
   end
   out.dec.puts("end") # class
