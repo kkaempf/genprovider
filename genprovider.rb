@@ -34,14 +34,11 @@ require File.join(File.dirname(__FILE__), 'mkregistration')
 
 class String
   def decamelize
-    self.gsub(/[A-Z]+/) do |match|
-      # puts "#{$`}<#{match}>#{$'}"
-      if $`.empty? || $`[-1,1] == "_" || $'.empty? || $'[0,1] == "_"
-	match.downcase
-      else
-	"_#{match.downcase}"
-      end
-    end
+    # CamelCase -> under_score
+    self.gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+	 gsub(/([a-z\d])([A-Z])/,'\1_\2').
+	 tr("-", "_").
+	 downcase
   end
 end
 
