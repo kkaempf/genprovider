@@ -8,13 +8,14 @@
 
 def mkcreate c, out
   out.puts("def create_instance context, result, reference, newinst").inc
-  out.puts("@log.info \"create_instance ref #{reference}, newinst #{newinst}\"")
+  out.puts("@log.info \"create_instance ref \#{reference}, newinst \#{newinst.inspect}\"")
   out.printf "obj = #{c.name}.new"
   keyargs c, out
+  out.puts
   out.puts("result.return_objectpath reference")
   out.puts("result.done")
   out.puts("true")
-  out.puts.dec.puts("end")
+  out.dec.puts("end")
 end
 
 #
@@ -61,23 +62,32 @@ def mkprovider c, name, out
   out.dec.puts "end"
   if c.instance?
     mkcreate c, out
-  else
     out.puts "
     def enum_instance_names context, result, reference
+      @log.info \"enum_instance_names ref \#{reference}\"
+      result.return_objectpath reference
+      result.done
+      true
     end
     def enum_instances context, result, reference, properties
+      @log.info \"enum_instances ref \#{reference}, props \#{properties.inspect}\"
     end
     def get_instance context, result, reference, properties
+      @log.info \"get_instance ref \#{reference}, props \#{properties.inspect}\"
     end
     def set_instance context, result, reference, newinst, properties
+      @log.info \"set_instance ref \#{reference}, newinst \#{newinst.inspect}, props \#{properties.inspect}\"
     end
     def delete_instance context, result, reference
+      @log.info \"delete_instance ref \#{reference}\"
     end
     # query : String
     # lang : String 
     def exec_query context, result, reference, query, lang
+      @log.info \"exec_query ref \#{reference}, query \#{query}, lang \#{lang}\"
     end
     def cleanup context, terminating
+      @log.info \"cleanup terminating? \#{terminating}\"
     end"
   end
   out.dec.puts("end") # class
