@@ -25,9 +25,12 @@ When /^"([^"]*)" is registered$/ do |arg1| #"
   raise unless out =~ Regexp.new(arg1)
 end
 
-Then /^I create an instance of "([^"]*)" with "([^"]*)" set to "([^"]*)"$/ do |arg1, arg2, arg3| #"
+When /^I create an instance of "([^"]*)" with "([^"]*)" set to "([^"]*)"$/ do |arg1, arg2, arg3| #"
   cmd = "wbemci 'http://localhost:5988/test/test:#{arg1}.#{arg2}=\"#{arg3}\"' '#{arg2}=\"#{arg3}\"'"
   $stderr.puts "Calling #{cmd}"
   out = `#{cmd}`
   raise unless $? == 0
+end
+
+When /^I change the property "([^"]*)" to "([^"]*)"$/ do |arg1, arg2|
 end

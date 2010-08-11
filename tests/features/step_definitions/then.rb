@@ -37,8 +37,14 @@ Then /^I should see "([^"]*)" in namespace "([^"]*)"$/ do |arg1, arg2|
 end
   
 Then /^I should see "([^"]*)" in enumerated instance names$/ do |arg1| #"
+  $stderr.puts "Calling wbemein http://localhost:5988/test/test:#{arg1}"
   out = `wbemein http://localhost:5988/test/test:#{arg1}`
   raise unless out =~ Regexp.new(arg1)
 end
 
-  
+Then /^the instance of "([^"]*)" should have property "([^"]*)" set to "([^"]*)"$/ do |arg1, arg2, arg3| #"
+  out = `wbemein http://localhost:5988/test/test:#{arg1}`
+  out = `wbemgi http://#{out}`
+  raise unless out =~ Regexp.new(arg2)
+  raise unless out =~ Regexp.new(arg3)
+end

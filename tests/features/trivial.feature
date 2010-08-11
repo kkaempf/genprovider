@@ -27,4 +27,10 @@ Feature: Ability to parse a mof and create a template
     Given "Cmpi_Swig" is registered
     When I create an instance of "Cmpi_Swig" with "hello" set to "Hello, world"
     Then I should see "Cmpi_Swig" in enumerated instance names
-    
+    And the instance of "Cmpi_Swig" should have property "hello" set to "Hello, world"
+  Scenario: Change an instance
+    Given an instance of "Cmpi_Swig" with property "hello" set to "Hello, world"
+    When I change the property "hello" to "Goodbye, cruel world"
+    Then the instance of "Cmpi_Swig" should have property "hello" set to "Goodbye, cruel world"
+  Scenario: Delete an instance
+    Given an instance of "Cmpi_Swig" with property "hello" set to "Hello, world"

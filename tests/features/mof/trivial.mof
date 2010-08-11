@@ -39,6 +39,6 @@
 ]
 class Cmpi_Swig : CIM_ManagedElement
 { 
-  [Description ("A friendly greeting") ]
+  [Key, Description ("A friendly greeting") ]
   string hello;
 };
