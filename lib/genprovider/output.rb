@@ -1,6 +1,7 @@
 #
 # Output - a class to output generated code with indendation
 #
+module Genprovider
 class Output
  private
   def indent
@@ -77,4 +78,5 @@ class Output
     Kernel.printf @file, format, *args
     self
   end
+end
 end

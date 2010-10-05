@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 #
 # genprovider
 #
@@ -6,7 +6,7 @@
 #
 # == Usage
 #
-# genprovider.rb [-d] [-h] [-q] [-I <includedir>] [-o <output>] <moffile> [<moffile> ...]
+# genprovider [-d] [-h] [-q] [-n <namespace>] [-I <includedir>] [-o <output>] <moffile> [<moffile> ...]
 #
 # -d:
 #   turn on debugging
@@ -21,16 +21,20 @@
 # <moffile>
 #   .mof files to read
 #
+require 'rubygems'
 require 'rdoc/usage'
 
-require File.join(File.dirname(__FILE__), "..", "mofparser","parser","mofparser")
+require 'mof'
 require 'pathname'
 require 'fileutils'
 
-require File.join(File.dirname(__FILE__), 'output')
-require File.join(File.dirname(__FILE__), 'mkclass')
-require File.join(File.dirname(__FILE__), 'mkprovider')
-require File.join(File.dirname(__FILE__), 'mkregistration')
+require 'genprovider'
+
+module CIM
+  class Class
+    attr_accessor :parent
+  end
+end
 
 class String
   def decamelize
@@ -44,13 +48,13 @@ end
 
 cim_current = "/usr/share/mof/cim-current"
 
-moffiles, options = Mofparser.argv_handler "genprovider", ARGV
+moffiles, options = MOF::Parser.argv_handler "genprovider", ARGV
 if moffiles.empty?
   $stderr.puts "No .mof files given"
   exit 1
 end
 if options[:namespace].nil? || options[:namespace].empty?
-  $stderr.puts "Namespace required for registration"
+  $stderr.puts "Namespace (-n <namespace>) required for registration"
   exit 1
 end
 #RDoc::usage 
@@ -68,9 +72,12 @@ Dir.new(cim_current).each do |d|
 end
 
 moffiles.unshift "qualifiers.mof" unless moffiles.include? "qualifiers.mof"
-#moffiles.unshift "qualifiers_optional.mof" unless moffiles.include? "qualifiers_optional.mof"
+qualifiers_optional = "qualifiers_optional.mof"
+unless moffiles.include? qualifiers_optional
+  moffiles.unshift qualifiers_optional if File.readable?(File.join(cim_current, qualifiers_optional))
+end
 
-parser = Mofparser.new options
+parser = MOF::Parser.new options
 
 begin
   result = parser.parse moffiles
@@ -97,7 +104,7 @@ classes.each_value do |c|
   # parent unknown
   #  try parent.mof
   begin
-    parser = Mofparser.new options
+    parser = MOF::Parser.new options
     result = parser.parse ["qualifiers.mof", "#{c.superclass}.mof"]
     if result
       result.each_value do |r|
@@ -121,16 +128,16 @@ Dir.mkdir outdir rescue Errno::EEXIST
 
 classes.each_value do |c|
   dcname = c.name.decamelize
-  out = Output.new File.join(outdir,"#{dcname}.rb")
-  mkclass c, out
+  out = Genprovider::Output.new File.join(outdir,"#{dcname}.rb")
+  Genprovider::Class.new c, out
   # don't create providers for abstract base classes
   next if c.name =~ /^CIM_/
   
   providerprop = c.qualifiers["provider", :string]
   providername = (providerprop ? providerprop.value.sub("cmpi:","").capitalize : c.name) + "Provider"
-  out = Output.new File.join(outdir,"#{providername.decamelize}.rb")
-  mkprovider c, providername, out
-  out = Output.new File.join(outdir,"#{dcname}.registration")
-  mkregistration c, options[:namespace], providername, out
+  out = Genprovider::Output.new File.join(outdir,"#{providername.decamelize}.rb")
+  Genprovider::Provider.new c, providername, out
+  out = Genprovider::Output.new File.join(outdir,"#{dcname}.registration")
+  Genprovider::Registration.new c, options[:namespace], providername, out
 
 end

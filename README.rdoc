@@ -1,0 +1,36 @@
+= genprovider
+
+* http://github.com/kkaemof/genprovider
+
+== DESCRIPTION:
+
+* A generator for Ruby based CIM providers
+  Generates Ruby provider templates for use with cmpi-bindings
+
+== FEATURES/PROBLEMS:
+
+* Generates CIM class and provider templates from MOF files
+
+== SYNOPSIS:
+
+  genprovider.rb [-d] [-h] [-q] [-I <includedir>] [-o <output>] <moffile> [<moffile> ...]
+
+== REQUIREMENTS:
+
+* gems:
+  * cim
+  * mof
+
+* 'cmpi-bindings' (for provider execution)
+
+== INSTALL:
+
+* gem install gemprovider
+
+== LICENSE:
+
+(The Ruby License)
+
+Copyright (c) 2010 Klaus Kämpf <kkaempf@suse.de>
+
+See http://www.ruby-lang.org/en/LICENSE.txt for the full text

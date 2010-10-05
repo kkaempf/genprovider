@@ -3,3 +3,4 @@ core
 stdout.out
 stderr.out
 generated
+pkg
