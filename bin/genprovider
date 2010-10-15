@@ -27,7 +27,7 @@ require 'rdoc/usage'
 require 'mof'
 require 'pathname'
 require 'fileutils'
-
+$stderr.puts "PATH #{$:.join(':')}"
 require 'genprovider'
 
 module CIM
