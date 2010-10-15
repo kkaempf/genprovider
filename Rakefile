@@ -13,7 +13,7 @@ Hoe.plugin :cucumberfeatures
 $hoe = Hoe.spec 'genprovider' do
   self.developer 'Klaus Kämpf', 'kkaempf@suse.de'
   self.rubyforge_name       = self.name # TODO this is default value
-  self.extra_deps         = [['mof','>= 0.3.1']]
+  self.extra_deps         = [['cim','= 0.4.2'],['mof','= 0.3.1']]
 
 end
 
