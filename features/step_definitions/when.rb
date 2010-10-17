@@ -15,7 +15,7 @@ end
 
 When /^I register this with sfcb$/ do
   unless ENV['NO_REGISTER']
-    res = system "sudo", "/usr/sbin/provider-register.sh", "-t", "sfcb", "-n", "test/test", "-r", "generated/#{@registration}", "-m", "#{File.join(MOFDIR, 'trivial.mof')}"
+    res = system "sudo", "/usr/sbin/cmpi-provider-register", "-t", "sfcb", "-n", "test/test", "-r", "generated/#{@registration}", "-m", "#{File.join(MOFDIR, 'trivial.mof')}"
     raise unless $? == 0
   end
 end
