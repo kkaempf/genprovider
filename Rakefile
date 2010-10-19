@@ -17,6 +17,8 @@ $hoe = Hoe.spec 'genprovider' do
 
 end
 
+remove_task :default
+
 require 'newgem/tasks'
 Dir['tasks/**/*.rake'].each { |t| load t }
 
