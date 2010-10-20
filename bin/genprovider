@@ -53,8 +53,8 @@ if moffiles.empty?
   exit 1
 end
 if options[:namespace].nil? || options[:namespace].empty?
-  $stderr.puts "Namespace (-n <namespace>) required for registration"
-  exit 1
+  $stderr.puts "** skipping registration"
+  $stderr.puts "   Provide a namespace (-n <namespace>) to generate registration file"
 end
 #RDoc::usage 
 
@@ -127,16 +127,20 @@ Dir.mkdir outdir rescue Errno::EEXIST
 
 classes.each_value do |c|
   dcname = c.name.decamelize
-  out = Genprovider::Output.new File.join(outdir,"#{dcname}.rb")
-  Genprovider::Class.new c, out
-  # don't create providers for abstract base classes
+  Genprovider::Output.new File.join(outdir,"#{dcname}.rb"), options[:force] do |out|
+    Genprovider::Class.new c, out
+    # don't create providers for abstract base classes
+  end
   next if c.name =~ /^CIM_/
   
   providerprop = c.qualifiers["provider", :string]
   providername = (providerprop ? providerprop.value.sub("cmpi:","").capitalize : c.name) + "Provider"
-  out = Genprovider::Output.new File.join(outdir,"#{providername.decamelize}.rb")
-  Genprovider::Provider.new c, providername, out
-  out = Genprovider::Output.new File.join(outdir,"#{dcname}.registration")
-  Genprovider::Registration.new c, options[:namespace], providername, out
-
+  Genprovider::Output.new File.join(outdir,"#{providername.decamelize}.rb"), options[:force] do |out|
+    Genprovider::Provider.new c, providername, out
+  end
+  if options[:naemspace]
+    Genprovider::Output.new File.join(outdir,"#{dcname}.registration"), options[:force] do |out|
+      Genprovider::Registration.new c, options[:namespace], providername, out
+    end
+  end
 end

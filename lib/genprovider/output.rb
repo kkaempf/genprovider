@@ -5,23 +5,29 @@ module Genprovider
 class Output
  private
   def indent
-    @file.write " " * @depth * @indent
+    @file.write( " " * @depth * @indent ) if @newline
   end
  public
   attr_reader :name, :dir
-  def initialize file
+  def initialize file, force=false
     if file.kind_of?(IO)
       @file = file
       @name = nil
     else
+      if File.exist?(file) && !force
+	$stderr.puts "Not overwriting existing #{file}"
+	return
+      end
       @file = File.open(file, "w+")
       @name = File.basename file
       @dir = File.expand_path(File.dirname file)
     end
     raise "Cannot create file at #{file}" unless @file
+    @newline = true
     @indent = 0
     @wrap = 75 # wrap at this column
     @depth = 2 # indent depth
+    yield self if block_given?
   end
   def inc
     @indent += 1
@@ -34,11 +40,13 @@ class Output
   end
   def write str
     @file.write str
+    @newline = false
     self
   end
   def puts str=""
     indent
     @file.puts str
+    @newline = true
     self
   end
   def comment str=nil
@@ -76,6 +84,7 @@ class Output
   def printf format, *args
     indent
     Kernel.printf @file, format, *args
+    @newline = false
     self
   end
 end
