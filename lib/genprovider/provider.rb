@@ -8,9 +8,10 @@
 
 module Genprovider
   class Provider
+    LOG = "$stderr.puts" # "@log.info"
     def mkcreate c, out
       out.puts("def create_instance context, result, reference, newinst").inc
-      out.puts("@log.info \"create_instance ref \#{reference}, newinst \#{newinst.inspect}\"")
+      out.puts "#{LOG} \"create_instance ref \#{reference}, newinst \#{newinst.inspect}\""
       out.printf "obj = #{c.name}.new"
       first = true
       c.each_key do |key|
@@ -19,10 +20,78 @@ module Genprovider
 	out.printf " newinst[\"#{key.name}\"]"
       end
       out.puts
-      out.puts("result.return_objectpath reference")
-      out.puts("result.done")
-      out.puts("true")
-      out.dec.puts("end")
+      out.puts "result.return_objectpath reference"
+      out.puts "result.done"
+      out.puts "true"
+      out.dec.puts "end"
+    end
+
+    def mkenum_instance_names c, out
+      out.puts("def enum_instance_names context, result, reference").inc
+      out.puts "#{LOG} \"enum_instance_names ref \#{reference}\""
+      out.puts("#{c.name}.each_name do |key,val|").inc
+      out.puts "reference[key] = val"
+      out.puts "result.return_objectpath reference"
+      out.dec.puts "end"
+      out.puts "result.done"
+      out.puts "true"
+      out.dec.puts "end"
+    end
+
+    def mkenum_instances c, out
+      out.puts("def enum_instances context, result, reference, properties").inc
+      out.puts "#{LOG} \"enum_instance_names ref \#{reference}, props \#{properties.inspect}\""
+      out.puts("#{c.name}.each(properties) do |instance|").inc
+      out.puts "result.return_instance instance"
+      out.dec.puts "end"
+      out.puts "result.done"
+      out.puts "true"
+      out.dec.puts "end"
+    end
+
+    def mkget_instance c, out
+      out.puts("def get_instance context, result, reference, properties").inc
+      out.puts "#{LOG} \"get_instance ref \#{reference}, props \#{properties.inspect}\""
+      out.puts("#{c.name}.each(properties) do |instance|").inc
+      out.puts "result.return_instance instance"
+      out.puts "break # only return first instance"
+      out.dec.puts "end"
+      out.puts "result.done"
+      out.puts "true"
+      out.dec.puts "end"
+    end
+    
+    def mkset_instance c, out
+      out.puts("def set_instance context, result, reference, newinst, properties").inc
+      out.puts "#{LOG} \"set_instance ref \#{reference}, newinst \#{newinst.inspect}, props \#{properties.inspect}\""
+      out.puts "result.done"
+      out.puts "true"
+      out.dec.puts "end"
+    end
+    
+    def mkdelete_instance c, out
+      out.puts("def delete_instance context, result, reference").inc
+      out.puts "#{LOG} \"delete_instance ref \#{reference}\""
+      out.puts "result.done"
+      out.puts "true"
+      out.dec.puts "end"
+    end
+    
+    def mkquery c, out
+      out.comment "query : String"
+      out.comment "lang : String"
+      out.puts("def exec_query context, result, reference, query, lang").inc
+      out.puts "#{LOG} \"exec_query ref \#{reference}, query \#{query}, lang \#{lang}\""
+      out.puts "result.done" 
+      out.puts "true"
+      out.dec.puts "end"
+    end
+
+    def mkcleanup c, out
+      out.puts("def cleanup context, terminating").inc
+      out.puts "#{LOG} \"cleanup terminating? \#{terminating}\""
+      out.puts "true"
+      out.dec.puts "end"
     end
 
     #
@@ -64,40 +133,20 @@ module Genprovider
       end
       out.puts
       out.puts("def initialize broker").inc
-      out.puts("@log = Syslog.open(\"#{name}\")")
-      out.puts("@log.info 'Initializing #{self}'")
+#      out.puts("@log = Syslog.open(\"#{name}\")")
+      out.puts("#{LOG} 'Initializing #{self}'")
       out.dec.puts "end"
       if c.instance?
 	mkcreate c, out
-	out.puts "
-	def enum_instance_names context, result, reference
-	  @log.info \"enum_instance_names ref \#{reference}\"
-	  result.return_objectpath reference
-	  result.done
-	  true
-	end
-	def enum_instances context, result, reference, properties
-	  @log.info \"enum_instances ref \#{reference}, props \#{properties.inspect}\"
-	end
-	def get_instance context, result, reference, properties
-	  @log.info \"get_instance ref \#{reference}, props \#{properties.inspect}\"
-	end
-	def set_instance context, result, reference, newinst, properties
-	  @log.info \"set_instance ref \#{reference}, newinst \#{newinst.inspect}, props \#{properties.inspect}\"
-	end
-	def delete_instance context, result, reference
-	  @log.info \"delete_instance ref \#{reference}\"
-	end
-	# query : String
-	# lang : String 
-	def exec_query context, result, reference, query, lang
-	  @log.info \"exec_query ref \#{reference}, query \#{query}, lang \#{lang}\"
-	end
-	def cleanup context, terminating
-	  @log.info \"cleanup terminating? \#{terminating}\"
-	  end"
+	mkenum_instance_names c, out
+	mkenum_instances c, out
+	mkget_instance c, out
+	mkset_instance c, out
+	mkdelete_instance c, out
+	mkquery c, out
+	mkcleanup c, out
       end
-      out.dec.puts("end") # class
+      out.dec.puts "end" # class
       out.dec.puts "end" # module
     end
   end

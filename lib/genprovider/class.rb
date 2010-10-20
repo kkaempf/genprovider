@@ -20,9 +20,9 @@ module Genprovider
 	if first
 	  first = false
 	else
-	  out.write ","
+	  out.write ", "
 	end
-	out.write(" ").write(k.name.decamelize)
+	out.write(k.name.decamelize)
       end
     end
 
@@ -39,13 +39,27 @@ module Genprovider
       end
       out.comment
       out.printf "def initialize("
-				 Genprovider::Class.keyargs c, out
-				 out.puts(")").inc
+      Genprovider::Class.keyargs c, out
+      out.puts(")").inc
       if c.parent
 	out.printf "super("
 	Genprovider::Class.keyargs c.parent, out
 	out.puts ")"
       end
+      out.dec.puts("end")
+    end
+
+    #
+    # make static methods
+    #
+
+    def mkstatic c, out
+
+      out.puts("def self.each_name").inc
+      out.dec.puts("end")
+      out.puts("def self.each(properties = nil)").inc
+      out.dec.puts("end")
+      out.puts("def self.delete(properties = nil)").inc
       out.dec.puts("end")
     end
 
@@ -147,6 +161,8 @@ module Genprovider
       out.printf("class #{c.name}")
       out.write(" < #{c.superclass}") if c.superclass
       out.puts.inc
+      # class functions
+      mkstatic c, out
       # initializer
       mkinitialize c, out
       # normal properties
