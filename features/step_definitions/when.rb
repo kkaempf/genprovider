@@ -4,7 +4,7 @@ When /^I run genprovider with no arguments$/ do
 end
 
 When /^I pass "([^"]*)" to genprovider$/ do |arg1| #"
-  @output = `ruby -I #{LIBDIR} #{GENPROVIDER} -n test/test #{File.join(MOFDIR, arg1)} 2> stderr.out`
+  @output = `ruby -I #{LIBDIR} #{GENPROVIDER} -n test/test qualifiers.mof #{File.join(MOFDIR, arg1)} 2> stderr.out`
   raise unless $? == 0
 end
 
@@ -15,7 +15,7 @@ end
 
 When /^I register this with sfcb$/ do
   unless ENV['NO_REGISTER']
-    res = system "sudo", "/usr/sbin/cmpi-provider-register", "-t", "sfcb", "-n", "test/test", "-r", "generated/#{@registration}", "-m", "#{File.join(MOFDIR, 'trivial.mof')}"
+    res = system "sudo", "/usr/share/sblim-cmpi-base/provider-register.sh", "-t", "sfcb", "-n", "test/test", "-r", "generated/#{@registration}", "-m", "#{File.join(MOFDIR, 'trivial.mof')}"
     raise unless $? == 0
   end
 end
