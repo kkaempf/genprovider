@@ -12,7 +12,12 @@ module Genprovider
       out.puts("def create_instance context, result, reference, newinst").inc
       out.puts("@log.info \"create_instance ref \#{reference}, newinst \#{newinst.inspect}\"")
       out.printf "obj = #{c.name}.new"
-      Genprovider::Class.keyargs c, out
+      first = true
+      c.each_key do |key|
+	out.printf "," unless first
+	first = false
+	out.printf " newinst[\"#{key.name}\"]"
+      end
       out.puts
       out.puts("result.return_objectpath reference")
       out.puts("result.done")
