@@ -20,8 +20,8 @@ When /^I register this with sfcb$/ do
   end
 end
 
-When /^"([^"]*)" is registered$/ do |arg1| #"
-  out = `wbemecn http://localhost:5988`
+When /^"([^"]*)" is registered in namespace "([^"]*)"$/ do |arg1,arg2| #"
+  out = `wbemecn http://localhost:5988/#{arg2}`
   raise unless out =~ Regexp.new(arg1)
 end
 
