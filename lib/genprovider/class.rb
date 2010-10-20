@@ -16,14 +16,13 @@ module Genprovider
 
     def self.keyargs c, out, first = true
       keyargs c.parent, first, out if c.parent
-      c.features.each do |f|
-	next unless f.key?
+      c.each_key do |k|
 	if first
 	  first = false
 	else
 	  out.write ","
 	end
-	out.write(" ").write(f.name.decamelize)
+	out.write(" ").write(k.name.decamelize)
       end
     end
 
@@ -42,9 +41,10 @@ module Genprovider
       out.printf "def initialize("
 				 Genprovider::Class.keyargs c, out
 				 out.puts(")").inc
-      if c.superclass
-	out.puts "super"
+      if c.parent
+	out.printf "super("
 	Genprovider::Class.keyargs c.parent, out
+	out.puts ")"
       end
       out.dec.puts("end")
     end
