@@ -67,6 +67,7 @@ module Genprovider
       out.comment
       out.comment "YOUR CODE HERE"
       out.comment
+      out.puts "@@instances.delete_if { |ref| ref.to_s == reference.to_s }"
       out.end
     end
 
