@@ -49,6 +49,18 @@ class Output
     @newline = true
     self
   end
+  def def name, *args
+    if args.nil? || args.empty? || args[0].nil?
+      self.puts "def #{name}"
+    else
+      self.puts "def #{name}( #{args.join(', ')} )"
+    end
+    self.inc
+  end
+  def end
+    self.dec
+    self.puts "end"
+  end    
   def comment str=nil
     if str =~ /\\n/
       comment $`

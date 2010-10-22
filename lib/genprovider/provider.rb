@@ -2,96 +2,86 @@
 # provider.rb
 #
 
-#
-# generate 'create_instance'
-#
-
 module Genprovider
   class Provider
     LOG = "$stderr.puts" # "@log.info"
     def mkcreate c, out
-      out.puts("def create_instance context, result, reference, newinst").inc
+      out.def "create_instance", "context", "result", "reference", "newinst"
       out.puts "#{LOG} \"create_instance ref \#{reference}, newinst \#{newinst.inspect}\""
-      out.printf "obj = #{c.name}.new"
-      first = true
-      c.each_key do |key|
-	out.printf "," unless first
-	first = false
-	out.printf " newinst[\"#{key.name}\"]"
-      end
-      out.puts
+      out.puts "#{c.name}.new reference, newinst"
       out.puts "result.return_objectpath reference"
       out.puts "result.done"
       out.puts "true"
-      out.dec.puts "end"
+      out.end
     end
 
     def mkenum_instance_names c, out
-      out.puts("def enum_instance_names context, result, reference").inc
+      out.def "enum_instance_names", "context", "result", "reference"
       out.puts "#{LOG} \"enum_instance_names ref \#{reference}\""
-      out.puts("#{c.name}.each_name do |key,val|").inc
-      out.puts "reference[key] = val"
-      out.puts "result.return_objectpath reference"
-      out.dec.puts "end"
+      out.puts("#{c.name}.each_name(reference) do |ref|").inc
+      out.puts "result.return_objectpath ref"
+      out.end
       out.puts "result.done"
       out.puts "true"
-      out.dec.puts "end"
+      out.end
     end
 
     def mkenum_instances c, out
-      out.puts("def enum_instances context, result, reference, properties").inc
-      out.puts "#{LOG} \"enum_instance_names ref \#{reference}, props \#{properties.inspect}\""
-      out.puts("#{c.name}.each(properties) do |instance|").inc
+      out.def "enum_instances", "context", "result", "reference", "properties"
+      out.puts "#{LOG} \"enum_instances ref \#{reference}, props \#{properties.inspect}\""
+      out.puts("#{c.name}.each(reference,properties) do |ref|").inc
+      out.puts "instance = CMPIInstance.new ref"
       out.puts "result.return_instance instance"
-      out.dec.puts "end"
+      out.end
       out.puts "result.done"
       out.puts "true"
-      out.dec.puts "end"
+      out.end
     end
 
     def mkget_instance c, out
-      out.puts("def get_instance context, result, reference, properties").inc
+      out.def "get_instance", "context", "result", "reference", "properties"
       out.puts "#{LOG} \"get_instance ref \#{reference}, props \#{properties.inspect}\""
-      out.puts("#{c.name}.each(properties) do |instance|").inc
+      out.puts("#{c.name}.each(reference,properties) do |ref|").inc
+      out.puts "instance = CMPIInstance.new ref"
       out.puts "result.return_instance instance"
       out.puts "break # only return first instance"
-      out.dec.puts "end"
+      out.end
       out.puts "result.done"
       out.puts "true"
-      out.dec.puts "end"
+      out.end
     end
     
     def mkset_instance c, out
-      out.puts("def set_instance context, result, reference, newinst, properties").inc
+      out.def "set_instance", "context", "result", "reference", "newinst", "properties"
       out.puts "#{LOG} \"set_instance ref \#{reference}, newinst \#{newinst.inspect}, props \#{properties.inspect}\""
       out.puts "result.done"
       out.puts "true"
-      out.dec.puts "end"
+      out.end
     end
     
     def mkdelete_instance c, out
-      out.puts("def delete_instance context, result, reference").inc
+      out.def "delete_instance", "context", "result", "reference"
       out.puts "#{LOG} \"delete_instance ref \#{reference}\""
       out.puts "result.done"
       out.puts "true"
-      out.dec.puts "end"
+      out.end
     end
     
     def mkquery c, out
       out.comment "query : String"
       out.comment "lang : String"
-      out.puts("def exec_query context, result, reference, query, lang").inc
+      out.def "exec_query", "context", "result", "reference", "query", "lang"
       out.puts "#{LOG} \"exec_query ref \#{reference}, query \#{query}, lang \#{lang}\""
       out.puts "result.done" 
       out.puts "true"
-      out.dec.puts "end"
+      out.end
     end
 
     def mkcleanup c, out
-      out.puts("def cleanup context, terminating").inc
+      out.def "cleanup", "context", "terminating"
       out.puts "#{LOG} \"cleanup terminating? \#{terminating}\""
       out.puts "true"
-      out.dec.puts "end"
+      out.end
     end
 
     #
@@ -134,8 +124,9 @@ module Genprovider
       out.puts
       out.puts("def initialize broker").inc
 #      out.puts("@log = Syslog.open(\"#{name}\")")
-      out.puts("#{LOG} 'Initializing #{self}'")
-      out.dec.puts "end"
+      out.puts("#{LOG} 'Initializing \#{self}'")
+      out.puts "super broker"
+      out.end
       if c.instance?
 	mkcreate c, out
 	mkenum_instance_names c, out
@@ -146,8 +137,8 @@ module Genprovider
 	mkquery c, out
 	mkcleanup c, out
       end
-      out.dec.puts "end" # class
-      out.dec.puts "end" # module
+      out.end # class
+      out.end # module
     end
   end
 end

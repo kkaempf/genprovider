@@ -32,21 +32,13 @@ module Genprovider
 
     def mkinitialize c, out
 
-      out.comment.comment "Key properties:"
-      c.features.each do |f|
-	next unless f.key?
-	out.comment "- #{f.type} #{f.name}"
-      end
-      out.comment
-      out.printf "def initialize("
-      Genprovider::Class.keyargs c, out
-      out.puts(")").inc
+      out.def "initialize", "reference", "properties"
       if c.parent
-	out.printf "super("
-	Genprovider::Class.keyargs c.parent, out
-	out.puts ")"
+	out.puts "super reference,properties"
+	out.puts "@@instances ||= []"
+	out.puts "@@instances << reference"
       end
-      out.dec.puts("end")
+      out.end
     end
 
     #
@@ -54,13 +46,28 @@ module Genprovider
     #
 
     def mkstatic c, out
-
-      out.puts("def self.each_name").inc
-      out.dec.puts("end")
-      out.puts("def self.each(properties = nil)").inc
-      out.dec.puts("end")
-      out.puts("def self.delete(properties = nil)").inc
-      out.dec.puts("end")
+      out.comment "each_name: yield references with sufficient information to retrieve instances"
+      out.def "self.each_name", "reference", "properties = nil" 
+      out.comment "Retrieve names, adapt reference, and yield"
+      out.comment
+      out.comment "YOUR CODE HERE"
+      out.comment
+      out.puts "@@instances.each { |ref| yield ref }"
+      out.end
+      out.comment "each: yield references with full information to create instances"
+      out.def "self.each", "reference", "properties = nil" 
+      out.comment "Retrieve names, adapt reference, and yield"
+      out.comment
+      out.comment "YOUR CODE HERE"
+      out.comment
+      out.puts "@@instances.each { |ref| yield ref }"
+      out.end
+      out.def "self.delete", "reference", "properties = nil"
+      out.comment "Remove by reference"
+      out.comment
+      out.comment "YOUR CODE HERE"
+      out.comment
+      out.end
     end
 
     #
@@ -68,6 +75,7 @@ module Genprovider
     #
 
     def mkdef out, feature
+      Genprovider::Class.mkdescription out, feature
       case feature
       when CIM::Property:
       # skip
@@ -76,25 +84,22 @@ module Genprovider
       else
 	raise "Unknown feature class #{feature.class}"
       end
-      Genprovider::Class.mkdescription out, feature
-      #  puts feature.name
+      out.comment feature.type.to_s + " : " + feature.name
+      out.comment "*Key*" if feature.key?
+      out.comment
       
-      out.printf "def %s", feature.name.decamelize
+      args = nil      
       if feature.method?
-	out.write " ("
-	first = true
 	feature.parameters.each do |p|
-	  if first
-	    first = false
+	  if p.qualifiers.include?(:out,:bool)
+	    args << "#{p.name.decamelize}_out"
 	  else
-	    out.write ", "
+	    args << p.name.decamelize
 	  end
-	  out.write p.name
-	  out.write "_out" if p.qualifiers.include?(:out,:bool)
 	end
-	out.write ")"
       end
-      out.puts.inc
+      out.def feature.name.decamelize, args
+      out.end
     end
       
     #
@@ -103,7 +108,6 @@ module Genprovider
       
     def mkproperty property, out
       mkdef out, property
-      out.dec.puts("end")
     end
 
     #
@@ -112,7 +116,6 @@ module Genprovider
       
     def mkreference reference, out
       mkdef out, reference
-      out.dec.puts("end")
     end
     
     #
@@ -121,7 +124,6 @@ module Genprovider
     
     def mkmethod method, out
       mkdef out, method
-      out.dec.puts("end")
     end
     
     #
@@ -158,9 +160,16 @@ module Genprovider
 	out.puts "$: << '#{out.dir}'"
 	out.puts "require '#{c.superclass.decamelize}'"
       end
+      out.comment.comment "Key properties:"
+      c.features.each do |f|
+	next unless f.key?
+	out.comment "- #{f.type} #{f.name}"
+      end
+      out.comment
       out.printf("class #{c.name}")
       out.write(" < #{c.superclass}") if c.superclass
       out.puts.inc
+      out.puts "@@instances = []"
       # class functions
       mkstatic c, out
       # initializer
@@ -171,8 +180,8 @@ module Genprovider
       mkfeatures c.features, out, CIM::Reference
       # methods
       mkfeatures c.features, out, CIM::Method
-      out.dec.puts "end" # class
-      out.dec.puts "end" # module
+      out.end # class
+      out.end # module
     end
   end
 end
