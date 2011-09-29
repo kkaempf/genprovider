@@ -13,6 +13,9 @@ Gem::Specification.new do |s|
   s.summary     = %q{A generator for Ruby based CIM providers}
   s.description = %q{Generates Ruby provider templates for use with cmpi-bindings}
 
+  s.requirements << %q{sblim-cmpi-base (for provider-register.sh)}
+  s.requirements << %q{sblim-sfcb for testing}
+
   s.add_dependency("cim", ["~> 0.5"])
   s.add_dependency("mof", ["~> 0.3.2"])
 

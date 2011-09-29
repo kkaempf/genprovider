@@ -21,12 +21,16 @@
 # <moffile>
 #   .mof files to read
 #
+
 require 'rubygems'
 require 'rdoc/usage'
 
 require 'mof'
 require 'pathname'
 require 'fileutils'
+
+$:.push(File.join(File.dirname(__FILE__), '..', 'lib'))
+
 require 'genprovider'
 
 module CIM

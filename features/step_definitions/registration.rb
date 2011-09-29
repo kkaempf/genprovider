@@ -5,7 +5,7 @@ end
 When /^I register this with sfcb$/ do
   unless ENV['NO_REGISTER']
     $sfcb.stop
-    res = system "sudo", "/usr/sbin/cmpi-provider-register", "-v", "-g", $sfcb.stage_dir, "-t", "sfcb", "-n", NAMESPACE, "-d", $sfcb.dir
+    res = system "sfcbstage", "-s", $sfcb.stage_dir, "-n", NAMESPACE, "-r", ""
     raise unless $? == 0
     $sfcb.start
   end
