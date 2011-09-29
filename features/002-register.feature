@@ -4,6 +4,5 @@ Feature: Ability to parse a mof and create a template
   I want to generate a simple Ruby provider
   Then I should be able to register it with sfcb
   Scenario: Register with sfcb
-    Given I have a registration "cmpi_swig.registration"
-    When I register this with sfcb
+    When I register "trivial.mof" using "cmpi_swig.registration" with sfcb
     Then I should see "Cmpi_Swig" in namespace "test/test"

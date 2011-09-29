@@ -142,7 +142,7 @@ classes.each_value do |c|
   Genprovider::Output.new File.join(outdir,"#{providername.decamelize}.rb"), options[:force] do |out|
     Genprovider::Provider.new c, providername, out
   end
-  if options[:naemspace]
+  if options[:namespace]
     Genprovider::Output.new File.join(outdir,"#{dcname}.registration"), options[:force] do |out|
       Genprovider::Registration.new c, options[:namespace], providername, out
     end

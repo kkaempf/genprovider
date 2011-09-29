@@ -32,7 +32,7 @@ When /^I run genprovider with no arguments$/ do
 end
 
 When /^I pass "([^"]*)" to genprovider$/ do |arg1| #"
-  @output = `ruby -I #{LIBDIR} #{GENPROVIDER} -n #{NAMESPACE} qualifiers.mof #{File.join(MOFDIR, arg1)} 2> stderr.out`
+  @output = `ruby -I #{LIBDIR} #{GENPROVIDER} -n #{NAMESPACE} -o #{$sfcb.providers_dir} qualifiers.mof #{File.join(MOFDIR, arg1)} 2> stderr.out`
   raise unless $? == 0
 end
 

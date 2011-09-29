@@ -1,7 +1,7 @@
 #
 # Start and stop sfcb for testing
 #
-require 'tempfile'
+require 'tmpdir'
 require 'uri'
 
 class Sfcb
@@ -11,8 +11,7 @@ class Sfcb
     @execfile = "/usr/sbin/sfcbd"
     @port = 27163
 
-    @cfgfile = Tempfile.new "sfcb"
-    @dir = File.join(File.dirname(@cfgfile.path), "genprovider-testing")
+    @dir = File.join(Dir.tmpdir, "genprovider-testing")
     Dir.mkdir @dir rescue nil
     STDERR.puts "Sfcb directory at #{@dir}"
 
@@ -29,20 +28,23 @@ class Sfcb
     Dir.mkdir @providers_dir rescue nil
 
     Kernel.system "sfcbrepos", "-s", @stage_dir, "-r", @registration_dir, "-f"
-    # create sfcb config file
+    
+    @cfgfile = File.join(@dir, "sfcb.cfg")
+    File.open(@cfgfile, "w+") do |f|
+      # create sfcb config file
 
-    {
-      "enableHttp" => true,
-      "httpPort" => @port,
-      "enableHttps" => false,
-      "registrationDir" => @registration_dir,
-      "localSocketPath" => File.join(@dir, "sfcbLocalSocket"),
-      "httpSocketPath" => File.join(@dir, "sfcbHttpSocket"),
-      "providerDirs" => "/usr/lib64/sfcb /usr/lib64 /usr/lib64/cmpi #{@providers_dir}"
-    }.each do |k,v|
-      @cfgfile.puts "#{k}: #{v}"
+      {
+	"enableHttp" => true,
+	"httpPort" => @port,
+	"enableHttps" => false,
+	"registrationDir" => @registration_dir,
+	"localSocketPath" => File.join(@dir, "sfcbLocalSocket"),
+	"httpSocketPath" => File.join(@dir, "sfcbHttpSocket"),
+	"providerDirs" => "/usr/lib64/sfcb /usr/lib64 /usr/lib64/cmpi #{@providers_dir}"
+      }.each do |k,v|
+	f.puts "#{k}: #{v}"
+      end
     end
-    @cfgfile.close
 
     @url = URI::HTTP.build :host => 'localhost', :port => @port
     @pid = 0
@@ -54,7 +56,7 @@ class Sfcb
     if @pid.nil?
       # child
       Dir.chdir File.expand_path("..", File.dirname(__FILE__))
-      exec "#{@execfile}", "-c", "#{@cfgfile.path}", "-t", "0x200000"
+      exec "#{@execfile}", "-c", "#{@cfgfile}", "-t", "0x200000"
     end
     @pid
   end
@@ -62,6 +64,8 @@ class Sfcb
   def stop
     raise "Not running" if @pid == 0
     Process.kill "QUIT", @pid
+    sleep 3
     Process.wait
+    @pid = 0
   end
 end
