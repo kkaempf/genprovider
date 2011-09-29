@@ -1,9 +1,0 @@
-History.txt
-Manifest.txt
-README.rdoc
-lib/genprovider.rb
-lib/genprovider/registration.rb
-lib/genprovider/class.rb
-lib/genprovider/provider.rb
-lib/genprovider/output.rb
-bin/genprovider
