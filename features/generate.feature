@@ -4,10 +4,8 @@ Feature: Ability to parse a mof and create a template
   I want to generate a simple Ruby provider
   Then I should be able to get it compiled
   Scenario: Run genprovider
-    Given nothing
     When I run genprovider with no arguments
     Then I should see an error message
-    Given nothing
     When I run genprovider with "-h"
     Then I should see a short usage explanation
   Scenario: Ensure correct output format and compilation
