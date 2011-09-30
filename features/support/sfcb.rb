@@ -38,6 +38,7 @@ class Sfcb
 	"httpPort" => @port,
 	"enableHttps" => false,
 	"enableSlp" => false,
+	"providerTimeoutInterval" => 10,
 	"registrationDir" => @registration_dir,
 	"localSocketPath" => File.join(@dir, "sfcbLocalSocket"),
 	"httpSocketPath" => File.join(@dir, "sfcbHttpSocket"),
@@ -59,15 +60,15 @@ class Sfcb
       sblim_trace_file = File.join($sfcb.dir, "sblim_trace_file")
       Dir.chdir File.expand_path("..", File.dirname(__FILE__))
       {
-	"SFCB_TRACE_FILE" => sfcb_trace_file,
-        "SFCB_TRACE" => "4",
-        "SBLIM_TRACE_FILE" => sblim_trace_file,
-        "SBLIM_TRACE" => "4",
+#	"SFCB_TRACE_FILE" => sfcb_trace_file,
+#        "SFCB_TRACE" => "4",
+#        "SBLIM_TRACE_FILE" => sblim_trace_file,
+#        "SBLIM_TRACE" => "4",
 	"RUBY_PROVIDERS_DIR" => $sfcb.providers_dir
       }.each { |k,v| ENV[k] = v }
       File.delete(sfcb_trace_file) rescue nil
       File.delete(sblim_trace_file) rescue nil
-      Kernel.exec "#{@execfile}", "-c", "#{@cfgfile}", "-t", "0x143"
+      Kernel.exec "#{@execfile}", "-c", "#{@cfgfile}" #, "-t", "0x100"
     end
     @pid
   end
