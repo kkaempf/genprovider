@@ -37,6 +37,7 @@ class Sfcb
 	"enableHttp" => true,
 	"httpPort" => @port,
 	"enableHttps" => false,
+	"enableSlp" => false,
 	"registrationDir" => @registration_dir,
 	"localSocketPath" => File.join(@dir, "sfcbLocalSocket"),
 	"httpSocketPath" => File.join(@dir, "sfcbHttpSocket"),
@@ -47,25 +48,35 @@ class Sfcb
     end
 
     @url = URI::HTTP.build :host => 'localhost', :port => @port
-    @pid = 0
   end
 
   def start
-    raise "Already running" unless @pid == 0
+    raise "Already running" if @pid
     @pid = fork
     if @pid.nil?
       # child
+      sfcb_trace_file = File.join($sfcb.dir, "sfcb_trace_file")
+      sblim_trace_file = File.join($sfcb.dir, "sblim_trace_file")
       Dir.chdir File.expand_path("..", File.dirname(__FILE__))
-      exec "#{@execfile}", "-c", "#{@cfgfile}", "-t", "0x200000"
+      {
+	"SFCB_TRACE_FILE" => sfcb_trace_file,
+        "SFCB_TRACE" => "4",
+        "SBLIM_TRACE_FILE" => sblim_trace_file,
+        "SBLIM_TRACE" => "4",
+	"RUBY_PROVIDERS_DIR" => $sfcb.providers_dir
+      }.each { |k,v| ENV[k] = v }
+      File.delete(sfcb_trace_file) rescue nil
+      File.delete(sblim_trace_file) rescue nil
+      Kernel.exec "#{@execfile}", "-c", "#{@cfgfile}", "-t", "0x143"
     end
     @pid
   end
   
   def stop
-    raise "Not running" if @pid == 0
+    raise "Not running" unless @pid
     Process.kill "QUIT", @pid
     sleep 3
     Process.wait
-    @pid = 0
+    @pid = nil
   end
 end

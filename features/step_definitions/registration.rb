@@ -1,7 +1,10 @@
-When /^I register "([^"]*)" using "([^"]*)" with sfcb$/ do |arg1,arg2|
+When /^I register "([^"]*)" using "([^"]*)" with sfcb$/ do |mofname,regname|
   unless ENV['NO_REGISTER']
+    require 'tmpdir'
     $sfcb.stop
-    cmd = "sfcbstage -s #{$sfcb.stage_dir} -n #{NAMESPACE} -r #{File.join($sfcb.providers_dir, arg2)} #{File.join(MOFDIR, arg1)}"
+    tmpregname = File.join(Dir.tmpdir, File.basename(regname, ".registration") + ".reg")
+    sfcb_transform_to tmpregname, File.join($sfcb.providers_dir, regname)
+    cmd = "sfcbstage -s #{$sfcb.stage_dir} -n #{NAMESPACE} -r #{tmpregname} #{File.join(MOFDIR, mofname)}"
     STDERR.puts cmd
     res = `#{cmd}`
     raise unless $? == 0

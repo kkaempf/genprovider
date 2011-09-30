@@ -4,7 +4,7 @@
 
 module Genprovider
   class Provider
-    LOG = "$stderr.puts" # "@log.info"
+    LOG = "@trace_file.puts" # "@log.info"
     def mkcreate c, out
       out.def "create_instance", "context", "result", "reference", "newinst"
       out.puts "#{LOG} \"create_instance ref \#{reference}, newinst \#{newinst.inspect}\""
@@ -54,6 +54,10 @@ module Genprovider
     def mkset_instance c, out
       out.def "set_instance", "context", "result", "reference", "newinst", "properties"
       out.puts "#{LOG} \"set_instance ref \#{reference}, newinst \#{newinst.inspect}, props \#{properties.inspect}\""
+      out.puts("properties.each do |prop|").inc
+      out.puts "newinst.send \"\#{prop.name}=\".to_sym, FIXME"
+      out.end
+      out.puts "result.return_instance newinst"
       out.puts "result.done"
       out.puts "true"
       out.end
@@ -123,7 +127,16 @@ module Genprovider
       end
       out.puts
       out.puts("def initialize broker").inc
+      out.puts "raise"
 #      out.puts("@log = Syslog.open(\"#{name}\")")
+      out.puts("if ENV['SBLIM_TRACE']").inc
+      out.puts("f = ENV['SBLIM_TRACE_FILE']")
+      out.puts("if f").inc
+      out.puts "@trace_file = File.open f, 'a+'"
+      out.dec.puts("else").inc
+      out.puts "@trace_file = STDERR"
+      out.end
+      out.end
       out.puts("#{LOG} 'Initializing \#{self}'")
       out.puts "super broker"
       out.end

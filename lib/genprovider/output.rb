@@ -15,7 +15,7 @@ class Output
       @name = nil
     else
       if File.exist?(file) && !force
-	$stderr.puts "Not overwriting existing #{file}"
+	STDERR.puts "Not overwriting existing #{file}"
 	return
       end
       @file = File.open(file, "w+")

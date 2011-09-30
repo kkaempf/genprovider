@@ -19,9 +19,9 @@ Then /^comment lines should not exceed (\d+) characters$/ do |arg1| #"
 end
 
 Then /^its output should be accepted by Ruby$/ do
-  Dir.foreach("generated") do |f|
+  Dir.foreach($sfcb.providers_dir) do |f|
     next unless f =~ /.rb$/
-    res = system "ruby", File.join("generated", f)
+    res = system "ruby", File.join($sfcb.providers_dir, f)
     raise unless res && $? == 0
   end
 end
@@ -32,7 +32,9 @@ When /^I run genprovider with no arguments$/ do
 end
 
 When /^I pass "([^"]*)" to genprovider$/ do |arg1| #"
-  @output = `ruby -I #{LIBDIR} #{GENPROVIDER} -n #{NAMESPACE} -o #{$sfcb.providers_dir} qualifiers.mof #{File.join(MOFDIR, arg1)} 2> stderr.out`
+  cmd = "ruby -I #{LIBDIR} #{GENPROVIDER} -f -n #{NAMESPACE} -o #{$sfcb.providers_dir} qualifiers.mof #{File.join(MOFDIR, arg1)} 2> stderr.out"
+  STDERR.puts "Run #{cmd}"
+  @output = `#{cmd}`
   raise unless $? == 0
 end
 
