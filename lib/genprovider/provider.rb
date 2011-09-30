@@ -119,25 +119,25 @@ module Genprovider
 
       raise "Unknown provider type" if providertypes.empty?
 
-      out.puts("class #{name} < #{providertypes.shift}").inc
-      out.puts("$: << '#{out.dir}'").puts "require '#{c.name.decamelize}'"
+      out.puts("class #{name} < #{providertypes.first}").inc
+#      out.puts("$: << '#{out.dir}'").puts "require '#{c.name.decamelize}'"
+      out.puts "require File.join(File.dirname(__FILE__), '#{c.name.decamelize}')"
       out.puts
       providertypes.each do |t|
 	out.puts "include #{t}IF"
       end
       out.puts
       out.puts("def initialize broker").inc
-      out.puts "raise"
 #      out.puts("@log = Syslog.open(\"#{name}\")")
+      out.puts "@trace_file = STDERR"
       out.puts("if ENV['SBLIM_TRACE']").inc
       out.puts("f = ENV['SBLIM_TRACE_FILE']")
       out.puts("if f").inc
       out.puts "@trace_file = File.open f, 'a+'"
-      out.dec.puts("else").inc
-      out.puts "@trace_file = STDERR"
+      out.puts "raise \"Cannot open SBLIM_TRACE_FILE \#{f}\" unless @trace_file"
       out.end
       out.end
-      out.puts("#{LOG} 'Initializing \#{self}'")
+      out.puts("#{LOG} \"Initializing \#{self}\"")
       out.puts "super broker"
       out.end
       if c.instance?
