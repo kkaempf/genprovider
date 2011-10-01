@@ -177,7 +177,6 @@ module Genprovider
       out.printf("class #{c.name}")
       out.write(" < #{c.superclass}") if c.superclass
       out.puts.inc
-      out.puts "STDERR.puts \"This is \#{self}\""
       # class functions
       mkstatic c, out
       # initializer
