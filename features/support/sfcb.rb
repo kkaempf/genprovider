@@ -68,13 +68,13 @@ class Sfcb
       }.each { |k,v| ENV[k] = v }
       File.delete(sfcb_trace_file) rescue nil
       File.delete(sblim_trace_file) rescue nil
-      Kernel.exec "#{@execfile}", "-c", "#{@cfgfile}" #, "-t", "0x100"
+      Kernel.exec "#{@execfile}", "-c", "#{@cfgfile}"#, "-t", "32768"
     end
     @pid
   end
   
   def stop
-    raise "Not running" unless @pid
+    return unless @pid
     Process.kill "QUIT", @pid
     sleep 3
     Process.wait
