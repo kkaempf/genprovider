@@ -120,7 +120,10 @@ module Genprovider
       providertypes << "AssociationProvider" if c.association?
       providertypes << "IndicationProvider" if c.indication?
 
-      raise "Unknown provider type" if providertypes.empty?
+      if providertypes.empty?
+	STDERR.puts "Assuming that #{c.name} defines an Instance" 
+	providertypes << "InstanceProvider"
+      end
 
       out.puts("class #{name} < #{providertypes.first}").inc
 #      out.puts("$: << '#{out.dir}'").puts "require '#{c.name.decamelize}'"
