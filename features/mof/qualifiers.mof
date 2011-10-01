@@ -15,15 +15,3 @@ Qualifier Key : boolean = false,
     Scope(property, reference), 
     Flavor(DisableOverride, ToSubclass);
 	
-// ===================================================================
-// 	Cmpi_Swig
-// ===================================================================
-
-[ Provider("cmpi:cmpi_swig"),
-  Description ("A sample class to demonstrate cmpi/swig" )
-]
-class Cmpi_Swig : CIM_ManagedElement
-{ 
-  [Key, Description ("A friendly greeting") ]
-  string hello;
-};
