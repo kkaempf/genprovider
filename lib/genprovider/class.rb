@@ -36,9 +36,6 @@ module Genprovider
       if c.parent
 	out.puts "super reference,properties"
       end
-      out.puts "@@instances ||= {}"
-      out.puts "STDERR.puts \"\#{self.class}.new '\#{reference.to_s}'\""
-      out.puts "@@instances[reference.to_s] = true"
       out.end
     end
 
@@ -49,26 +46,23 @@ module Genprovider
     def mkstatic c, out
       out.comment "each_name: yield references with sufficient information to retrieve instances"
       out.def "self.each_name", "reference", "properties = nil" 
-      out.comment "Retrieve names, adapt reference, and yield"
+      out.comment "Retrieve names, adapt reference, and yield CMPIObjectPath"
       out.comment
       out.comment "YOUR CODE HERE"
       out.comment
-      out.puts "@@instances.each_key { |path| STDERR.puts \"CMPIObjectPath.new(\#{path})\"; yield CMPIObjectPath.new(path) }"
       out.end
       out.comment "each: yield references with full information to create instances"
       out.def "self.each", "reference", "properties = nil" 
-      out.comment "Retrieve names, adapt reference, and yield"
+      out.comment "Retrieve names, adapt reference, and yield CMPIObjectPath"
       out.comment
       out.comment "YOUR CODE HERE"
       out.comment
-      out.puts "@@instances.each_key { |path| STDERR.puts \"CMPIObjectPath.new(\#{path})\"; yield CMPIObjectPath.new(path) }"
       out.end
       out.def "self.delete", "reference", "properties = nil"
       out.comment "Remove by reference"
       out.comment
       out.comment "YOUR CODE HERE"
       out.comment
-      out.puts "@@instances.delete_if { |path| path == reference.to_s }"
       out.end
     end
 
@@ -93,6 +87,7 @@ module Genprovider
       args = nil      
       if feature.method?
 	feature.parameters.each do |p|
+	  args ||= []
 	  if p.qualifiers.include?(:out,:bool)
 	    args << "#{p.name.decamelize}_out"
 	  else
@@ -170,16 +165,19 @@ module Genprovider
 	out.puts "require '#{c.superclass.decamelize}'"
       end
       out.comment.comment "Key properties:"
-      c.features.each do |f|
-	next unless f.key?
-	out.comment "- #{f.type} #{f.name}"
+      k = c
+      while k
+	k.features.each do |f|
+	  next unless f.key?
+	  out.comment "- #{f.type} #{f.name} (-> #{k.name})"
+	end
+	k = k.parent
       end
       out.comment
       out.printf("class #{c.name}")
       out.write(" < #{c.superclass}") if c.superclass
       out.puts.inc
       out.puts "STDERR.puts \"This is \#{self}\""
-      out.puts "@@instances = {}"
       # class functions
       mkstatic c, out
       # initializer
