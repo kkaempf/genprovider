@@ -35,9 +35,10 @@ module Genprovider
       out.def "initialize", "reference", "properties"
       if c.parent
 	out.puts "super reference,properties"
-	out.puts "@@instances ||= []"
-	out.puts "@@instances << reference"
       end
+      out.puts "@@instances ||= {}"
+      out.puts "STDERR.puts \"\#{self.class}.new '\#{reference.to_s}'\""
+      out.puts "@@instances[reference.to_s] = true"
       out.end
     end
 
@@ -52,7 +53,7 @@ module Genprovider
       out.comment
       out.comment "YOUR CODE HERE"
       out.comment
-      out.puts "@@instances.each { |ref| yield ref }"
+      out.puts "@@instances.each_key { |path| STDERR.puts \"CMPIObjectPath.new(\#{path})\"; yield CMPIObjectPath.new(path) }"
       out.end
       out.comment "each: yield references with full information to create instances"
       out.def "self.each", "reference", "properties = nil" 
@@ -60,14 +61,14 @@ module Genprovider
       out.comment
       out.comment "YOUR CODE HERE"
       out.comment
-      out.puts "@@instances.each { |ref| yield ref }"
+      out.puts "@@instances.each_key { |path| STDERR.puts \"CMPIObjectPath.new(\#{path})\"; yield CMPIObjectPath.new(path) }"
       out.end
       out.def "self.delete", "reference", "properties = nil"
       out.comment "Remove by reference"
       out.comment
       out.comment "YOUR CODE HERE"
       out.comment
-      out.puts "@@instances.delete_if { |ref| ref.to_s == reference.to_s }"
+      out.puts "@@instances.delete_if { |path| path == reference.to_s }"
       out.end
     end
 
@@ -177,7 +178,8 @@ module Genprovider
       out.printf("class #{c.name}")
       out.write(" < #{c.superclass}") if c.superclass
       out.puts.inc
-      out.puts "@@instances = []"
+      out.puts "STDERR.puts \"This is \#{self}\""
+      out.puts "@@instances = {}"
       # class functions
       mkstatic c, out
       # initializer
