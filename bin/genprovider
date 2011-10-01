@@ -33,6 +33,8 @@ $:.push(File.join(File.dirname(__FILE__), '..', 'lib'))
 
 require 'genprovider'
 
+#--------------------------------------------------------------------
+
 module CIM
   class Class
     attr_accessor :parent
@@ -48,6 +50,34 @@ class String
 	 downcase
   end
 end
+
+def find_and_parse_superclass_of c, options
+  superclasses = {}
+  # parent unknown
+  #  try parent.mof
+  begin
+    parser = MOF::Parser.new options
+    result = parser.parse ["qualifiers.mof", "#{c.superclass}.mof"]
+    if result
+      result.each_value do |r|
+	r.classes.each do |parent|
+	  if parent.name == c.superclass
+	    c.parent = parent
+	    superclasses[parent.name] = parent
+	    superclasses.merge!(find_and_parse_superclass_of(parent,options)) if parent.superclass
+	  end
+	end
+      end
+    else
+      $stderr.puts "Warn: Parent #{c.superclass} of #{c.name} not known"
+    end
+  rescue Exception => e
+    parser.error_handler e
+  end
+  superclasses
+end
+
+#--------------------------------------------------------------------
 
 cim_current = "/usr/share/mof/cim-current"
 
@@ -101,30 +131,16 @@ result.each do |name, res|
   end
 end
 
+superclasses = {}
 classes.each_value do |c|
-  next unless c.superclass
-  next if classes.has_key? c.superclass
-  # parent unknown
-  #  try parent.mof
-  begin
-    parser = MOF::Parser.new options
-    result = parser.parse ["qualifiers.mof", "#{c.superclass}.mof"]
-    if result
-      result.each_value do |r|
-	r.classes.each do |parent|
-	  if parent.name == c.superclass
-	    c.parent = parent
-	    classes[parent.name] = parent
-	  end
-	end
-      end
-    else
-      $stderr.puts "Warn: Parent #{c.superclass} of #{c.name} not known"
-    end
-  rescue Exception => e
-    parser.error_handler e
-  end
+  puts "#{c.name} << #{c.superclass}"
+  next unless c.superclass # skip if no superclass
+  next if classes.has_key? c.superclass # skip if superclass known
+  next if superclasses.has_key? c.superclass # skip if superclass known
+  superclasses.merge! find_and_parse_superclass_of(c,options)
 end
+
+classes.merge! superclasses
 
 outdir = options[:output] || "generated"
 Dir.mkdir outdir rescue Errno::EEXIST
