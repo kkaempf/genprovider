@@ -15,6 +15,8 @@ module Genprovider
       capabilities << " association" if c.association?
       capabilities << " indication" if c.indication?
 
+      capabilities << " instance" if capabilities.empty?
+
       out.puts "#{c.name} #{namespace} #{providername} rbCmpiProvider#{capabilities}"
     end
   end

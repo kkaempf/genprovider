@@ -125,7 +125,7 @@ module Genprovider
 	providertypes << "InstanceProvider"
       end
 
-      out.puts("class #{name} < #{providertypes.first}").inc
+      out.puts("class #{name} < #{providertypes.shift}").inc
 #      out.puts("$: << '#{out.dir}'").puts "require '#{c.name.decamelize}'"
       out.puts "require File.join(File.dirname(__FILE__), '#{c.name.decamelize}')"
       out.puts
@@ -146,7 +146,7 @@ module Genprovider
       out.puts("#{LOG} \"Initializing \#{self}\"")
       out.puts "super broker"
       out.end
-      if c.instance?
+      if c.instance? || providertypes.empty?
 	mkcreate c, out
 	mkenum_instance_names c, out
 	mkenum_instances c, out
