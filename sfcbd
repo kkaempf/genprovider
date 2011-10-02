@@ -1,0 +1,3 @@
+#!/bin/sh
+export RUBY_PROVIDERS_DIR=`pwd`/generated
+sfcbd -t 2
