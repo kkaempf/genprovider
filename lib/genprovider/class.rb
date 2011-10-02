@@ -161,7 +161,8 @@ module Genprovider
       Genprovider::Class.mkdescription out, c
       
       if c.superclass
-	out.puts "$: << '#{out.dir}'"
+	out.puts "d = File.dirname(__FILE__)"
+	out.puts "$: << d unless $:.include? d"
 	out.puts "require '#{c.superclass.decamelize}'"
       end
       out.comment.comment "Key properties:"
