@@ -99,7 +99,7 @@ module Genprovider
       out.def n, args
         out.puts "@#{n}"
       out.end
-      if feature.property?
+      if feature.property? && feature.qualifiers.include?(:write)
 	out.def "#{n}=", "_arg" 
           out.puts "@#{n} = _arg"
 	out.end
