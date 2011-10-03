@@ -80,7 +80,7 @@ module Cmpi
 	ref = self.gen_name_from reference, cpu
 	next unless ref
 	ref[:role] = "CPU"
-	ref[:family] = cpu["cpu family"]
+	ref[:family] = cpu["cpu family"].to_i
 	ref[:current_clock_speed] = ref[:max_clock_speed] = cpu["cpu MHz"].to_i
 	yield ref
       end
