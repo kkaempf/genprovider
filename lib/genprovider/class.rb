@@ -44,15 +44,10 @@ module Genprovider
     #
 
     def mkstatic c, out
-      out.comment "each_name: yield references with sufficient information to retrieve instances"
-      out.def "self.each_name", "reference", "properties = nil" 
-      out.comment "Retrieve names, adapt reference, and yield CMPIObjectPath"
-      out.comment
-      out.comment "YOUR CODE HERE"
-      out.comment
-      out.end
-      out.comment "each: yield references with full information to create instances"
-      out.def "self.each", "reference", "properties = nil" 
+      out.comment "each: yield CMPIObjectPath references"
+      out.comment "  full => false: set only key properties (instance name)"
+      out.comment "          true:  with full information to create instances"
+      out.def "self.each", "reference", "properties", "full = false"
       out.comment "Retrieve names, adapt reference, and yield CMPIObjectPath"
       out.comment
       out.comment "YOUR CODE HERE"
@@ -148,6 +143,22 @@ module Genprovider
     end
     
     #
+    # yield class features recursively
+    #   which => nil     : all
+    #            :keys   : keys only
+    #            :nokeys : nokeys only
+    #    
+    def all_features(klass, option)
+      while klass
+	klass.features.each do |f|
+	  next if option == :nokeys && f.key?
+	  next if option == :keys && !f.key?
+	  yield "- #{f.type} #{f.name} (-> #{klass.name})"
+	end
+	klass = klass.parent
+      end
+    end
+    #
     # generate provider code for class 'c'
     #
     
@@ -165,15 +176,9 @@ module Genprovider
 	out.puts "$: << d unless $:.include? d"
 	out.puts "require '#{c.superclass.decamelize}'"
       end
-      out.comment.comment "Key properties:"
-      k = c
-      while k
-	k.features.each do |f|
-	  next unless f.key?
-	  out.comment "- #{f.type} #{f.name} (-> #{k.name})"
-	end
-	k = k.parent
-      end
+      out.comment.comment "Properties:"
+      all_features(c, :keys) { |comment| out.comment "[key] #{comment}" }
+      all_features(c, :nokeys) { |comment| out.comment comment }
       out.comment
       out.printf("class #{c.name}")
       out.write(" < #{c.superclass}") if c.superclass

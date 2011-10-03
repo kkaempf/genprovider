@@ -18,7 +18,7 @@ module Genprovider
     def mkenum_instance_names c, out
       out.def "enum_instance_names", "context", "result", "reference"
       out.puts "#{LOG} \"enum_instance_names ref \#{reference}\""
-      out.puts("#{c.name}.each_name(reference) do |ref|").inc
+      out.puts("#{c.name}.each(reference) do |ref|").inc
       out.puts "#{LOG} \"ref \#{ref}\""
       out.puts "result.return_objectpath ref"
       out.end
@@ -30,7 +30,7 @@ module Genprovider
     def mkenum_instances c, out
       out.def "enum_instances", "context", "result", "reference", "properties"
       out.puts "#{LOG} \"enum_instances ref \#{reference}, props \#{properties.inspect}\""
-      out.puts("#{c.name}.each(reference,properties) do |ref|").inc
+      out.puts("#{c.name}.each(reference, properties, true) do |ref|").inc
       out.puts "#{LOG} \"ref \#{ref}\""
       out.puts "instance = CMPIInstance.new ref"
       out.puts "result.return_instance instance"
@@ -43,7 +43,7 @@ module Genprovider
     def mkget_instance c, out
       out.def "get_instance", "context", "result", "reference", "properties"
       out.puts "#{LOG} \"get_instance ref \#{reference}, props \#{properties.inspect}\""
-      out.puts("#{c.name}.each(reference,properties) do |ref|").inc
+      out.puts("#{c.name}.each(reference, properties, true) do |ref|").inc
       out.puts "#{LOG} \"ref \#{ref}\""
       out.puts "instance = CMPIInstance.new ref"
       out.puts "result.return_instance instance"
