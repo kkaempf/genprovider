@@ -17,16 +17,25 @@ module Cmpi
     #  yields references matching reference and properties
     #
     def each( reference, properties = nil, want_instance = false )
-      result = Cmpi::CMPIObjectPath.new reference
-      result[:system_creation_class_name] = nil # string
-      result[:system_name] = nil # string
-      result[:creation_class_name] = nil # string
-      result[:device_id] = nil # string
-      yield result unless want_instance
-      
-      # result[:instance_id] = nil # string
-      # result[:caption] = nil # string
-      # result[:description] = nil # string
+      File.open("/proc/cpuinfo") do |f|
+	result = nil
+	while l = f.gets
+	  k,v = l.chomp.split ":"
+	  k.strip!
+	  v.strip!
+	  if k =~ /processor/
+	    yield result if result
+	    result = Cmpi::CMPIObjectPath.new reference
+	    result[:system_creation_class_name] = "RCP_Processor"
+	    result[:system_name] = "Linux" # string
+	    result[:creation_class_name] = "RCP_Processor" # string
+	    result[:device_id] = v # string
+	  end
+	  next unless want_instance
+
+#	  result[:instance_id] = 
+#	  result[:caption] = nil # string
+#	  result[:description] = nil # string
       # result[:element_name] = nil # string
       # result[:generation] = nil # uint64
       # result[:install_date] = nil # datetime
@@ -76,7 +85,9 @@ module Cmpi
       # result[:characteristics] = nil # uint16[]
       # result[:number_of_enabled_cores] = nil # uint16
       # result[:enabled_processor_characteristics] = nil # uint16[]
-      yield result
+	end
+	yield result if result
+      end
     end
     public
     
