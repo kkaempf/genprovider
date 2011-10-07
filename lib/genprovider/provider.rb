@@ -4,10 +4,23 @@
 
 module Genprovider
   class Provider
-    def keyargs c, name, out
-      keyargs c.parent, name, out if c.parent
-      c.each_key do |k|
-	out.puts("#{name}[:#{k.name.decamelize}] = nil # #{k.type}")
+    #
+    # iterate properties
+    #  filter = :keys  # keys only
+    #           :nokey # non-keys only
+    #           :all   # all
+    def properties c, filter
+      while c
+	c.features.each do |f|
+	  next unless f.property?
+	  if f.key?
+	    next if filter == :nokeys
+	  else
+	    next if filter == :keys
+	  end
+	  yield f
+	end
+        c = c.parent
       end
     end
 
@@ -23,7 +36,14 @@ module Genprovider
       out.comment
       out.def "each", "reference", "properties = nil", "want_instance = false"
       out.puts "result = Cmpi::CMPIObjectPath.new reference"
-      keyargs c, "result", out
+      properties(c, :keys) do |prop|
+	out.puts("result[:#{prop.name.decamelize}] = nil # #{prop.type}")
+      end
+      out.puts "yield result unless want_instance"
+      out.puts
+      properties(c, :nokeys) do |prop|
+	out.comment("result[:#{prop.name.decamelize}] = nil # #{prop.type}")
+      end
       out.puts "yield result"
       out.end
       out.puts "public"
