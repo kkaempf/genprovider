@@ -208,21 +208,15 @@ classes.merge! superclasses
 outdir = options[:output] || "generated"
 Dir.mkdir outdir rescue Errno::EEXIST
 
-classes.each_value do |c|
-  dcname = c.name.decamelize
-  Genprovider::Output.new File.join(outdir,"#{dcname}.rb"), options[:force] do |out|
-    Genprovider::Class.new c, out
-    # don't create providers for abstract base classes
-  end
-  next if c.name =~ /^CIM_/
-  
+to_generate.each do |c|
   providerprop = c.qualifiers["provider", :string]
-  providername = (providerprop ? providerprop.value.sub("cmpi:","").capitalize : c.name) + "Provider"
+  providername = (providerprop ? providerprop.value.sub("cmpi:","") : c.name)
   Genprovider::Output.new File.join(outdir,"#{providername.decamelize}.rb"), options[:force] do |out|
     Genprovider::Provider.new c, providername, out
   end
+
   if options[:namespace]
-    Genprovider::Output.new File.join(outdir,"#{dcname}.registration"), options[:force] do |out|
+    Genprovider::Output.new File.join(outdir,"#{c.name}.registration"), options[:force] do |out|
       Genprovider::Registration.new c, options[:namespace], providername, out
     end
   end
