@@ -4,6 +4,13 @@
 
 module Genprovider
   class Provider
+    def keyargs c, name, out
+      keyargs c.parent, name, out if c.parent
+      c.each_key do |k|
+	out.puts("#{name}[:#{k.name.decamelize}] = nil # #{k.type}")
+      end
+    end
+
     LOG = "@trace_file.puts" # "@log.info"
     #
     # Class#each
@@ -15,7 +22,9 @@ module Genprovider
       out.comment " yields references matching reference and properties"
       out.comment
       out.def "each", "reference", "properties = nil", "want_instance = false"
-      out.puts "yield reference"
+      out.puts "result = Cmpi::CMPIObjectPath.new reference"
+      keyargs c, "result", out
+      out.puts "yield result"
       out.end
       out.puts "public"
     end

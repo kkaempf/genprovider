@@ -10,12 +10,30 @@ module Cmpi
   # Realisation of CIM_Processor in Ruby
   #
   class RCP_Processor < InstanceProvider
-    require File.join(File.dirname(__FILE__), 'rcp_processor')
-     
-    def self._create(name, broker, context)
-      @trace_file.puts "#{self}.create(#{name}, #{broker}, #{context})"
-      super broker
+    
+    private
+    #
+    # Iterator for names and instances
+    #  yields references matching reference and properties
+    #
+    def each( reference, properties = nil, want_instance = false )
+      result = Cmpi::CMPIObjectPath.new reference
+      result[:system_creation_class_name] = "RCP_Processor" # string
+      result[:system_name] = "hostname" # string
+      result[:creation_class_name] = "RCP_Processor" # string
+      result[:device_id] = "0" # string
+      yield result
     end
+    public
+    
+    #
+    # Provider initialization
+    #
+    def initialize( name, broker, context )
+      @trace_file = STDERR
+      super name, broker, context
+    end
+    
     def create_instance( context, result, reference, newinst )
       @trace_file.puts "create_instance ref #{reference}, newinst #{newinst.inspect}"
       RCP_Processor.new reference, newinst
@@ -23,18 +41,20 @@ module Cmpi
       result.done
       true
     end
+    
     def enum_instance_names( context, result, reference )
       @trace_file.puts "enum_instance_names ref #{reference}"
-      RCP_Processor.each(reference) do |ref|
+      each(reference) do |ref|
         @trace_file.puts "ref #{ref}"
         result.return_objectpath ref
       end
       result.done
       true
     end
+    
     def enum_instances( context, result, reference, properties )
       @trace_file.puts "enum_instances ref #{reference}, props #{properties.inspect}"
-      RCP_Processor.each(reference, properties, true) do |ref|
+      each(reference, properties, true) do |ref|
         @trace_file.puts "ref #{ref}"
         instance = CMPIInstance.new ref
         result.return_instance instance
@@ -42,9 +62,10 @@ module Cmpi
       result.done
       true
     end
+    
     def get_instance( context, result, reference, properties )
       @trace_file.puts "get_instance ref #{reference}, props #{properties.inspect}"
-      RCP_Processor.each(reference, properties, true) do |ref|
+      each(reference, properties, true) do |ref|
         @trace_file.puts "ref #{ref}"
         instance = CMPIInstance.new ref
         result.return_instance instance
@@ -53,6 +74,7 @@ module Cmpi
       result.done
       true
     end
+    
     def set_instance( context, result, reference, newinst, properties )
       @trace_file.puts "set_instance ref #{reference}, newinst #{newinst.inspect}, props #{properties.inspect}"
       properties.each do |prop|
@@ -62,11 +84,13 @@ module Cmpi
       result.done
       true
     end
+    
     def delete_instance( context, result, reference )
       @trace_file.puts "delete_instance ref #{reference}"
       result.done
       true
     end
+    
     # query : String
     # lang : String
     def exec_query( context, result, reference, query, lang )
@@ -74,6 +98,7 @@ module Cmpi
       result.done
       true
     end
+    
     def cleanup( context, terminating )
       @trace_file.puts "cleanup terminating? #{terminating}"
       true
