@@ -215,6 +215,10 @@ to_generate.each do |c|
     Genprovider::Provider.new c, providername, out
   end
 
+  Genprovider::Output.new File.join(outdir,"#{providername}.rdoc"), options[:force] do |out|
+    Genprovider::RDoc.new c, out
+  end
+
   if options[:namespace]
     Genprovider::Output.new File.join(outdir,"#{c.name}.registration"), options[:force] do |out|
       Genprovider::Registration.new c, options[:namespace], providername, out

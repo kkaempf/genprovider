@@ -7,4 +7,5 @@ module Genprovider
   require 'genprovider/class'
   require 'genprovider/provider'
   require 'genprovider/registration'
+  require 'genprovider/rdoc'
 end
