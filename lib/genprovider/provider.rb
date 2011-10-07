@@ -6,22 +6,29 @@ module Genprovider
   class Provider
     LOG = "@trace_file.puts" # "@log.info"
     #
-    # Generate _init
+    # Class#each
     #
-    def mk_init c,out
-      out.comment "Provider initialization, optional, can be removed"
-      out.def "_init", "name", "broker", "context"
-      out.puts "super name, broker, context"
+    def mkeach c, out
+      out.puts "private"
+      out.comment
+      out.comment "Iterator for names and instances"
+      out.comment " yields references matching reference and properties"
+      out.comment
+      out.def "each", "reference", "properties = nil", "want_instance = false"
+      out.puts "yield reference"
       out.end
+      out.puts "public"
     end
-
     #
-    # Generate _finish
+    # Generate Class#initialize
     #
-    def mk_finish c,out
-      out.comment "Provider teardown, optional, can be removed"
-      out.def "_finish"
-      out.puts "super"
+    def mknew c,out
+      out.comment
+      out.comment "Provider initialization"
+      out.comment
+      out.def "initialize", "name", "broker", "context"
+      out.puts "@trace_file = STDERR"
+      out.puts "super name, broker, context"
       out.end
     end
 
@@ -44,7 +51,7 @@ module Genprovider
     def mkenum_instance_names c, out
       out.def "enum_instance_names", "context", "result", "reference"
       out.puts "#{LOG} \"enum_instance_names ref \#{reference}\""
-      out.puts("#{c.name}.each(reference) do |ref|").inc
+      out.puts("each(reference) do |ref|").inc
       out.puts "#{LOG} \"ref \#{ref}\""
       out.puts "result.return_objectpath ref"
       out.end
@@ -59,7 +66,7 @@ module Genprovider
     def mkenum_instances c, out
       out.def "enum_instances", "context", "result", "reference", "properties"
       out.puts "#{LOG} \"enum_instances ref \#{reference}, props \#{properties.inspect}\""
-      out.puts("#{c.name}.each(reference, properties, true) do |ref|").inc
+      out.puts("each(reference, properties, true) do |ref|").inc
       out.puts "#{LOG} \"ref \#{ref}\""
       out.puts "instance = CMPIInstance.new ref"
       out.puts "result.return_instance instance"
@@ -75,7 +82,7 @@ module Genprovider
     def mkget_instance c, out
       out.def "get_instance", "context", "result", "reference", "properties"
       out.puts "#{LOG} \"get_instance ref \#{reference}, props \#{properties.inspect}\""
-      out.puts("#{c.name}.each(reference, properties, true) do |ref|").inc
+      out.puts("each(reference, properties, true) do |ref|").inc
       out.puts "#{LOG} \"ref \#{ref}\""
       out.puts "instance = CMPIInstance.new ref"
       out.puts "result.return_instance instance"
@@ -174,9 +181,9 @@ module Genprovider
       providertypes.each do |t|
 	out.puts "include #{t}IF"
       end
-      mk_init c,out
+      mkeach c,out
       out.puts
-      mk_finish c,out
+      mknew c,out
       out.puts
       if c.instance? || providertypes.empty?
 	mkcreate c, out
