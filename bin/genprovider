@@ -4,6 +4,10 @@
 #
 #  Generate Ruby provider templates for use with cmpi-bindings
 #
+# Copyright (c) 2010, 2011 Klaus Kämpf <kkaempf@suse.de>
+#
+# Licensed under the Ruby license
+#
 # == Usage
 #
 # genprovider [-d] [-h] [-q] [-n <namespace>] [-I <includedir>] [-o <output>] <moffile> [<moffile> ...]
@@ -35,11 +39,19 @@ require 'genprovider'
 
 #--------------------------------------------------------------------
 
+#
+# Extend CIM::Class with parent attribute, point to CIM::Class of parent
+#
+
 module CIM
   class Class
     attr_accessor :parent
   end
 end
+
+#
+# Convert CamelCase to underline_case
+#
 
 class String
   def decamelize
@@ -50,6 +62,13 @@ class String
 	 downcase
   end
 end
+
+#
+# find_and_parse_superclass_of
+#
+# Find the superclass name of a class, parse its mof file
+# returns Hash of { classname -> CIM::Class }
+#
 
 def find_and_parse_superclass_of c, options
   superclasses = {}
@@ -79,7 +98,16 @@ end
 
 #--------------------------------------------------------------------
 
-cim_current = "/usr/share/mof/cim-current"
+# path to current cim schema files
+CIM_CURRENT = "/usr/share/mof/cim-current"
+
+####
+## argv handling
+
+
+#
+# parse mofparge arguments
+#
 
 moffiles, options = MOF::Parser.argv_handler "genprovider", ARGV
 if moffiles.empty?
@@ -92,26 +120,44 @@ if options[:namespace].nil? || options[:namespace].empty?
 end
 #RDoc::usage 
 
+#
+# parse genprovider arguments
+#
+
 options[:style] ||= :cim;
 options[:includes] ||= []
 options[:includes].unshift(Pathname.new ".")
-options[:includes].unshift(Pathname.new cim_current)
+options[:includes].unshift(Pathname.new CIM_CURRENT)
 
-Dir.new(cim_current).each do |d|
+#
+# Extend include pathes with all directories below CIM_CURRENT
+#
+
+Dir.new(CIM_CURRENT).each do |d|
   next if d[0,1] == "."
-  fullname = File.join(cim_current, d)
+  fullname = File.join(CIM_CURRENT, d)
   next unless File.stat(fullname).directory?
   options[:includes].unshift(Pathname.new fullname)
 end
 
+#
+# Ensure that qualifiers.mof is included
+#
+
 moffiles.unshift "qualifiers.mof" unless moffiles.include? "qualifiers.mof"
 qualifiers_optional = "qualifiers_optional.mof"
 unless moffiles.include? qualifiers_optional
-  moffiles.unshift qualifiers_optional if File.readable?(File.join(cim_current, qualifiers_optional))
+  moffiles.unshift qualifiers_optional if File.readable?(File.join(CIM_CURRENT, qualifiers_optional))
 end
 
-parser = MOF::Parser.new options
+####
+## parse
 
+#
+# Parse all given mof files
+#
+
+parser = MOF::Parser.new options
 begin
   result = parser.parse moffiles
 rescue Exception => e
@@ -124,12 +170,24 @@ exit 0 unless result
 #
 # collect classes to find parent classes
 #
+
+# classes: Hash of { classname -> CIM::Class }
 classes = {}
+# to_generate: CIM::Class of mof files given as ARGV
+to_generate = []
 result.each do |name, res|
+  puts "Result #{name}"
   res.classes.each do |c|
+    to_generate << c
+    puts "  Generate #{c.name}"
+    # complete classes hash (happens if a .mof file defines multiple classes)
     classes[c.name] = c unless classes.has_key? c.name
   end
 end
+
+#
+# Iterate through parsed classes to find their superclasses
+#
 
 superclasses = {}
 classes.each_value do |c|
@@ -140,7 +198,12 @@ classes.each_value do |c|
   superclasses.merge! find_and_parse_superclass_of(c,options)
 end
 
+# extend the { classname -> CIM::Class } hash with all superclasses
+
 classes.merge! superclasses
+
+####
+## generate
 
 outdir = options[:output] || "generated"
 Dir.mkdir outdir rescue Errno::EEXIST
