@@ -4,3 +4,5 @@ stdout.out
 stderr.out
 generated
 pkg
+doc
+generated/doc
