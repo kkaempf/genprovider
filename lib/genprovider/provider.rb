@@ -37,12 +37,12 @@ module Genprovider
       out.def "each", "reference", "properties = nil", "want_instance = false"
       out.puts "result = Cmpi::CMPIObjectPath.new reference"
       properties(c, :keys) do |prop|
-	out.puts("result[:#{prop.name.decamelize}] = nil # #{prop.type}")
+	out.puts("result.#{prop.name} = nil # #{prop.type}")
       end
       out.puts "yield result unless want_instance"
       out.puts
       properties(c, :nokeys) do |prop|
-	out.comment("result[:#{prop.name.decamelize}] = nil # #{prop.type}")
+	out.comment("result.#{prop.name} = nil # #{prop.type}")
       end
       out.puts "yield result"
       out.end
