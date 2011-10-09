@@ -2,6 +2,24 @@
 # provider.rb
 #
 
+module CIM
+  class ClassFeature
+    def method_missing name
+      qualifiers[name]
+    end
+  end
+  class Qualifier
+    def method_missing name, *args
+      if name == :"[]"
+	value[*args]
+      else
+	super name, *args
+      end
+    end
+  end
+end
+
+
 module Genprovider
   class Provider
     #
@@ -26,6 +44,22 @@ module Genprovider
 
     LOG = "@trace_file.puts" # "@log.info"
     #
+    # generate line to set a property
+    # i.e. result.Property = nil # property_type + valuemap
+    #
+    def property_setter_line property, result_name = "result"
+      values = property.Values
+      type = property.type
+      if values
+        default = "#{property.name}.#{values[0]}"
+      else
+	default = "nil"
+      end
+      default = "[#{default}]" if type.array?
+
+      "#{result_name}.#{property.name} = #{default} # #{type}"
+    end
+    #
     # Class#each
     #
     def mkeach c, out
@@ -36,13 +70,19 @@ module Genprovider
       out.comment
       out.def "each", "reference", "properties = nil", "want_instance = false"
       out.puts "result = Cmpi::CMPIObjectPath.new reference"
+      out.puts
+      out.comment "Set key properties"
+      out.puts
       properties(c, :keys) do |prop|
-	out.puts("result.#{prop.name} = nil # #{prop.type}")
+	out.puts(property_setter_line prop)
       end
       out.puts "yield result unless want_instance"
       out.puts
+      out.comment "Set non-key properties"
+      out.puts
       properties(c, :nokeys) do |prop|
-	out.comment("result.#{prop.name} = nil # #{prop.type}")
+	# using out.comment would break the line at col 72
+	out.puts "# #{property_setter_line prop}"
       end
       out.puts "yield result"
       out.end
@@ -172,6 +212,43 @@ module Genprovider
     end
 
     #
+    # Generate valuemap classes
+    #
+    def mkvaluemaps c, out
+      properties(c,:all) do |property|
+	# get the Values and ValueMap qualifiers
+	values = property.Values
+	next unless values
+	valuemap = property.ValueMap
+	out.puts
+	out.puts("class #{property.name}").inc
+	out.puts("MAP = {").inc
+	# get to the array
+	values = values.value
+	valuemap = valuemap.value
+	loop do
+	  val = values.shift
+	  map = valuemap.shift
+	  unless val
+	    break unless map # ok, both nil
+	    raise "#{property.name}: Values empty, ValueMap #{map}"
+	  end
+	  unless map
+	    break unless val # ok, both nil
+	    raise "#{property.name}: Values #{val}, ValueMap empty"
+	  end
+	  if map =~ /\.\./
+	    out.comment "#{val.inspect} => #{map},"
+	  else
+	    out.puts "#{val.inspect} => #{map},"
+	  end
+	end
+	out.dec.puts "}"
+	out.end
+      end
+    end
+
+    #
     # generate provider code for class 'c'
     #
     # returns providername
@@ -230,6 +307,8 @@ module Genprovider
 	mkquery c, out
 	out.puts
 	mkcleanup c, out
+	out.puts
+	mkvaluemaps c, out
       end
       out.end # class
       out.end # module
