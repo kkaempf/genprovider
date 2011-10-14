@@ -222,8 +222,18 @@ module Genprovider
 	next unless values
 	valuemap = property.ValueMap
 	@out.puts
-	@out.puts("class #{property.name}").inc
-	@out.puts("MAP = {").inc
+	@out.puts("class #{property.name} < Cmpi::ValueMap").inc
+	@out.def "self.type"
+	t = property.type
+	a = ""
+	if t.array?
+	  a = "A"
+	  t = t.type
+	end
+	@out.puts "Cmpi::#{t}#{a}"
+	@out.end
+	@out.def "self.map"
+	@out.puts("{").inc
 	# get to the array
 	values = values.value
 	valuemap = valuemap.value
@@ -245,6 +255,7 @@ module Genprovider
 	  end
 	end
 	@out.dec.puts "}"
+	@out.end
 	@out.end
       end
     end
