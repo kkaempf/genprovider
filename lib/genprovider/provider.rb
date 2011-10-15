@@ -212,6 +212,19 @@ module Genprovider
       @out.end
     end
 
+    def mktypemap
+      @out.puts("Types = {").inc
+      properties :all do |property|
+	t = property.type
+	a = ""
+	if t.array?
+	  a = "A"
+	  t = t.type
+	end
+	@out.puts "#{property.name.inspect} => Cmpi::#{t}#{a},"
+      end
+      @out.dec.puts "}"
+    end
     #
     # Generate valuemap classes
     #
@@ -223,15 +236,6 @@ module Genprovider
 	valuemap = property.ValueMap
 	@out.puts
 	@out.puts("class #{property.name} < Cmpi::ValueMap").inc
-	@out.def "self.type"
-	t = property.type
-	a = ""
-	if t.array?
-	  a = "A"
-	  t = t.type
-	end
-	@out.puts "Cmpi::#{t}#{a}"
-	@out.end
 	@out.def "self.map"
 	@out.puts("{").inc
 	# get to the array
@@ -322,6 +326,8 @@ module Genprovider
 	mkquery
 	@out.puts
 	mkcleanup
+	@out.puts
+	mktypemap
 	@out.puts
 	mkvaluemaps
       end
