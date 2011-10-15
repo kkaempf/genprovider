@@ -16,8 +16,8 @@ Gem::Specification.new do |s|
   s.requirements << %q{sblim-cmpi-base (for provider-register.sh)}
   s.requirements << %q{sblim-sfcb for testing}
 
-  s.add_dependency("cim", ["~> 0.5"])
-  s.add_dependency("mof", ["~> 0.3.2"])
+  s.add_dependency("cim", ["~> 1.0"])
+  s.add_dependency("mof", ["~> 1.0"])
 
   s.add_development_dependency('rake')
   s.add_development_dependency('bundler')
