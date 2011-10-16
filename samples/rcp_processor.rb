@@ -21,27 +21,37 @@ module Cmpi
     def each( reference, properties = nil, want_instance = false )
       File.open("/proc/cpuinfo") do |f|
 	result = nil
+	next_cpu = true
 	while l = f.gets
 	  k,v = l.chomp.split ":"
 	  next unless k
 	  k.strip!
 	  v.strip! if v
 	  if k =~ /processor/
-	    yield result if result
 	    result = Cmpi::CMPIObjectPath.new reference
 	    result.SystemCreationClassName = "RCP_Processor"
 	    result.SystemName = Socket.gethostbyname(Socket.gethostname).first
 	    result.CreationClassName = result.SystemCreationClassName
 	    result.DeviceID = v
+	    unless want_instance
+	      yield result
+	      result = nil
+	      next_cpu = true
+	    end
 	  end
-	  next unless want_instance
-
-	end
-      
-        result.Family = Family.Other # uint16
-        result.UpgradeMethod = UpgradeMethod.Other # uint16
+	  next unless result
+	  if next_cpu
+	    result.Role = "CPU"
+	    result.UpgradeMethod = UpgradeMethod.Other # uint16
+	    next_cpu = false
+	  end
+	  case k
+	  when /model name/:  result.Family = Family.send(v.to_sym)
+	  when /cpu MHz/:     result.MaxClockSpeed = v 
+	  end
+	end # while
 	yield result if result
-      end
+      end # File.open
     end
     public
     
@@ -124,10 +134,67 @@ module Cmpi
     end
   
     
+    Types = {
+      "Role" => Cmpi::string,
+      "Family" => Cmpi::uint16,
+      "OtherFamilyDescription" => Cmpi::string,
+      "UpgradeMethod" => Cmpi::uint16,
+      "MaxClockSpeed" => Cmpi::uint32,
+      "CurrentClockSpeed" => Cmpi::uint32,
+      "DataWidth" => Cmpi::uint16,
+      "AddressWidth" => Cmpi::uint16,
+      "LoadPercentage" => Cmpi::uint16,
+      "Stepping" => Cmpi::string,
+      "UniqueID" => Cmpi::string,
+      "CPUStatus" => Cmpi::uint16,
+      "ExternalBusClockSpeed" => Cmpi::uint32,
+      "Characteristics" => Cmpi::uint16A,
+      "NumberOfEnabledCores" => Cmpi::uint16,
+      "EnabledProcessorCharacteristics" => Cmpi::uint16A,
+      "SystemCreationClassName" => Cmpi::string,
+      "SystemName" => Cmpi::string,
+      "CreationClassName" => Cmpi::string,
+      "DeviceID" => Cmpi::string,
+      "PowerManagementSupported" => Cmpi::bool,
+      "PowerManagementCapabilities" => Cmpi::uint16A,
+      "Availability" => Cmpi::uint16,
+      "StatusInfo" => Cmpi::uint16,
+      "LastErrorCode" => Cmpi::uint32,
+      "ErrorDescription" => Cmpi::string,
+      "ErrorCleared" => Cmpi::bool,
+      "OtherIdentifyingInfo" => Cmpi::stringA,
+      "PowerOnHours" => Cmpi::uint64,
+      "TotalPowerOnHours" => Cmpi::uint64,
+      "IdentifyingDescriptions" => Cmpi::stringA,
+      "AdditionalAvailability" => Cmpi::uint16A,
+      "MaxQuiesceTime" => Cmpi::uint64,
+      "LocationIndicator" => Cmpi::uint16,
+      "EnabledState" => Cmpi::uint16,
+      "OtherEnabledState" => Cmpi::string,
+      "RequestedState" => Cmpi::uint16,
+      "EnabledDefault" => Cmpi::uint16,
+      "TimeOfLastStateChange" => Cmpi::datetime,
+      "AvailableRequestedStates" => Cmpi::uint16A,
+      "TransitioningToState" => Cmpi::uint16,
+      "InstallDate" => Cmpi::datetime,
+      "Name" => Cmpi::string,
+      "OperationalStatus" => Cmpi::uint16A,
+      "StatusDescriptions" => Cmpi::stringA,
+      "Status" => Cmpi::string,
+      "HealthState" => Cmpi::uint16,
+      "PrimaryStatus" => Cmpi::uint16,
+      "DetailedStatus" => Cmpi::uint16,
+      "OperatingStatus" => Cmpi::uint16,
+      "CommunicationStatus" => Cmpi::uint16,
+      "InstanceID" => Cmpi::string,
+      "Caption" => Cmpi::string,
+      "Description" => Cmpi::string,
+      "ElementName" => Cmpi::string,
+      "Generation" => Cmpi::uint64,
+    }
+    
+    
     class Family < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16
-      end
       def self.map
         {
           "Other" => 1,
@@ -310,9 +377,6 @@ module Cmpi
     end
     
     class UpgradeMethod < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16
-      end
       def self.map
         {
           "Other" => 1,
@@ -345,9 +409,6 @@ module Cmpi
     end
     
     class CPUStatus < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16
-      end
       def self.map
         {
           "Unknown" => 0,
@@ -361,9 +422,6 @@ module Cmpi
     end
     
     class Characteristics < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16A
-      end
       def self.map
         {
           "Unknown" => 0,
@@ -382,9 +440,6 @@ module Cmpi
     end
     
     class EnabledProcessorCharacteristics < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16A
-      end
       def self.map
         {
           "Unknown" => 0,
@@ -398,9 +453,6 @@ module Cmpi
     end
     
     class PowerManagementCapabilities < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16A
-      end
       def self.map
         {
           "Unknown" => 0,
@@ -416,9 +468,6 @@ module Cmpi
     end
     
     class Availability < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16
-      end
       def self.map
         {
           "Other" => 1,
@@ -447,9 +496,6 @@ module Cmpi
     end
     
     class StatusInfo < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16
-      end
       def self.map
         {
           "Other" => 1,
@@ -462,9 +508,6 @@ module Cmpi
     end
     
     class AdditionalAvailability < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16A
-      end
       def self.map
         {
           "Other" => 1,
@@ -493,9 +536,6 @@ module Cmpi
     end
     
     class LocationIndicator < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16
-      end
       def self.map
         {
           "Unknown" => 0,
@@ -507,9 +547,6 @@ module Cmpi
     end
     
     class EnabledState < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16
-      end
       def self.map
         {
           "Unknown" => 0,
@@ -530,9 +567,6 @@ module Cmpi
     end
     
     class RequestedState < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16
-      end
       def self.map
         {
           "Unknown" => 0,
@@ -554,9 +588,6 @@ module Cmpi
     end
     
     class EnabledDefault < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16
-      end
       def self.map
         {
           "Enabled" => 2,
@@ -572,9 +603,6 @@ module Cmpi
     end
     
     class AvailableRequestedStates < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16A
-      end
       def self.map
         {
           "Enabled" => 2,
@@ -591,9 +619,6 @@ module Cmpi
     end
     
     class TransitioningToState < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16
-      end
       def self.map
         {
           "Unknown" => 0,
@@ -613,9 +638,6 @@ module Cmpi
     end
     
     class OperationalStatus < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16A
-      end
       def self.map
         {
           "Unknown" => 0,
@@ -644,9 +666,6 @@ module Cmpi
     end
     
     class HealthState < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16
-      end
       def self.map
         {
           "Unknown" => 0,
@@ -662,9 +681,6 @@ module Cmpi
     end
     
     class PrimaryStatus < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16
-      end
       def self.map
         {
           "Unknown" => 0,
@@ -678,9 +694,6 @@ module Cmpi
     end
     
     class DetailedStatus < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16
-      end
       def self.map
         {
           "Not Available" => 0,
@@ -696,9 +709,6 @@ module Cmpi
     end
     
     class OperatingStatus < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16
-      end
       def self.map
         {
           "Unknown" => 0,
@@ -725,9 +735,6 @@ module Cmpi
     end
     
     class CommunicationStatus < Cmpi::ValueMap
-      def self.type
-        Cmpi::uint16
-      end
       def self.map
         {
           "Unknown" => 0,
