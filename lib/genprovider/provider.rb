@@ -213,7 +213,8 @@ module Genprovider
     end
 
     def mktypemap
-      @out.puts("Types = {").inc
+      @out.def("self.typemap")
+      @out.puts("{").inc
       properties :all do |property|
 	t = property.type
 	a = ""
@@ -224,6 +225,7 @@ module Genprovider
 	@out.puts "#{property.name.inspect} => Cmpi::#{t}#{a},"
       end
       @out.dec.puts "}"
+      @out.end
     end
     #
     # Generate valuemap classes
