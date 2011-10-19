@@ -28,18 +28,15 @@ module Cmpi
 	  k.strip!
 	  v.strip! if v
 	  if k =~ /processor/
+	    yield result if result
 	    result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_Processor"
 	    result.SystemCreationClassName = "RCP_Processor"
 	    result.SystemName = Socket.gethostbyname(Socket.gethostname).first
 	    result.CreationClassName = result.SystemCreationClassName
 	    result.DeviceID = v
-	    unless want_instance
-	      yield result
-	      result = nil
-	      next_cpu = true
-	    end
+	    next_cpu = true
 	  end
-	  next unless result
+	  next unless want_instance
 	  if next_cpu
 	    result.Role = "CPU"
 	    result.UpgradeMethod = UpgradeMethod.Other # uint16
@@ -50,6 +47,7 @@ module Cmpi
 	  when /cpu MHz/:     result.MaxClockSpeed = v 
 	  end
 	end # while
+	STDERR.puts "yield!"
 	yield result if result
       end # File.open
     end
@@ -132,8 +130,7 @@ module Cmpi
       @trace_file.puts "cleanup terminating? #{terminating}"
       true
     end
-  
-    
+
     def self.typemap
       {
         "Role" => Cmpi::string,
