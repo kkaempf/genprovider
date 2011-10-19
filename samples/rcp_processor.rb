@@ -56,6 +56,7 @@ module Cmpi
 	    result.CreationClassName = result.SystemCreationClassName
 	    result.DeviceID = v
 	    next_cpu = true
+	    result = CMPIInstance.new(result) if want_instance
 	  end
 	  next unless want_instance
 	  if next_cpu
@@ -157,9 +158,8 @@ module Cmpi
     
     def enum_instances( context, result, reference, properties )
       @trace_file.puts "enum_instances ref #{reference}, props #{properties.inspect}"
-      each(reference, properties, true) do |ref|
-        @trace_file.puts "ref #{ref}"
-        instance = CMPIInstance.new ref
+      each(reference, properties, true) do |instance|
+        @trace_file.puts "instance #{instance}"
         result.return_instance instance
       end
       result.done
