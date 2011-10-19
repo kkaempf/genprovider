@@ -19,6 +19,27 @@ module Cmpi
     #  yields references matching reference and properties
     #
     def each( reference, properties = nil, want_instance = false )
+      dmi = {}
+      if want_instance
+	IO.popen("dmidecode -t processor") do |f|
+	  k = nil
+	  while l = f.gets
+	    if l =~ /^\s*([^:]+):\s*(.*)\s*$/
+	      if $1
+		k = $1
+		if $2.empty?
+		  dmi[k] = []
+		else
+		  dmi[k] = $2.strip
+		end
+	      end
+	    elsif k
+	      dmi[k] << l.strip
+	    end
+	  end
+	end
+	puts dmi.inspect
+      end
       File.open("/proc/cpuinfo") do |f|
 	result = nil
 	next_cpu = true
@@ -38,13 +59,68 @@ module Cmpi
 	  end
 	  next unless want_instance
 	  if next_cpu
-	    result.Role = "CPU"
-	    result.UpgradeMethod = UpgradeMethod.Other # uint16
+	    result.Role = dmi["Type"]
+	    result.UpgradeMethod = UpgradeMethod.send(dmi["Upgrade"].to_sym)
+	    result.Family = Family.send(dmi["Version"].to_sym)
+	    result.MaxClockSpeed = dmi["Max Speed"]
+	    result.CurrentClockSpeed = dmi["Current Speed"]
+	    result.DataWidth = (['a'].pack('P').length  > 4) ? 64 : 32
+	    result.UniqueID = dmi["ID"]
+	    result.CPUStatus = (dmi["Status"] =~ /Enabled/) ? 1 : 0
+	    result.ExternalBusClockSpeed = dmi["External Clock"]
+	    result.NumberOfEnabledCores = dmi["Core Enabled"]
+	    #
+	    #"64-bit Capable" => 2,
+	    #"32-bit Capable" => 3,
+	    #"Enhanced Virtualization" => 4,
+	    #"Hardware Thread" => 5,
+	    #"NX-bit" => 6,
+	    #"Power/Performance Control" => 7,
+	    #"Core Frequency Boosting" => 8,
+	    result.Characteristics = [Characteristics.Unknown] # uint16[]
 	    next_cpu = false
 	  end
 	  case k
-	  when /model name/:  result.Family = Family.send(v.to_sym)
-	  when /cpu MHz/:     result.MaxClockSpeed = v 
+	  when /address sizes/:  result.AddressWidth = v
+      # result.LoadPercentage = nil # uint16
+      when /stepping/: result.Stepping = v
+      # result.EnabledProcessorCharacteristics = [EnabledProcessorCharacteristics.Unknown] # uint16[]
+      # result.PowerManagementSupported = nil # boolean
+      # result.PowerManagementCapabilities = [PowerManagementCapabilities.Unknown] # uint16[]
+      # result.Availability = Availability.Other # uint16
+      # result.StatusInfo = StatusInfo.Other # uint16
+      # result.LastErrorCode = nil # uint32
+      # result.ErrorDescription = nil # string
+      # result.ErrorCleared = nil # boolean
+      # result.OtherIdentifyingInfo = [nil] # string[]
+      # result.PowerOnHours = nil # uint64
+      # result.TotalPowerOnHours = nil # uint64
+      # result.IdentifyingDescriptions = [nil] # string[]
+      # result.AdditionalAvailability = [AdditionalAvailability.Other] # uint16[]
+      # result.MaxQuiesceTime = nil # uint64
+      # result.LocationIndicator = LocationIndicator.Unknown # uint16
+      # result.EnabledState = EnabledState.Unknown # uint16
+      # result.OtherEnabledState = nil # string
+      # result.RequestedState = RequestedState.Unknown # uint16
+      # result.EnabledDefault = EnabledDefault.Enabled # uint16
+      # result.TimeOfLastStateChange = nil # dateTime
+      # result.AvailableRequestedStates = [AvailableRequestedStates.Enabled] # uint16[]
+      # result.TransitioningToState = TransitioningToState.Unknown # uint16
+      # result.InstallDate = nil # dateTime
+      # result.Name = nil # string
+      # result.OperationalStatus = [OperationalStatus.Unknown] # uint16[]
+      # result.StatusDescriptions = [nil] # string[]
+      # result.Status = nil # string
+      # result.HealthState = HealthState.Unknown # uint16
+      # result.PrimaryStatus = PrimaryStatus.Unknown # uint16
+      # result.DetailedStatus = DetailedStatus.Not Available # uint16
+      # result.OperatingStatus = OperatingStatus.Unknown # uint16
+      # result.CommunicationStatus = CommunicationStatus.Unknown # uint16
+      # result.InstanceID = nil # string
+      # result.Caption = nil # string
+      # result.Description = nil # string
+      # result.ElementName = nil # string
+      # result.Generation = nil # uint64
 	  end
 	end # while
 	STDERR.puts "yield!"
