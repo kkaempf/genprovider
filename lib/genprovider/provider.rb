@@ -80,7 +80,7 @@ module Genprovider
       end
       @out.puts("unless want_instance").inc
       @out.puts "yield result"
-      @out.puts "next"
+      @out.puts "return"
       @out.end
       @out.puts
       @out.comment "Convert to Instance, set non-key properties"
