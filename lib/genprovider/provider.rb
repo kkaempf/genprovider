@@ -58,7 +58,8 @@ module Genprovider
       end
       default = "[#{default}]" if type.array?
 
-      "#{result_name}.#{property.name} = #{default} # #{type} (-> #{klass.name})"
+      deprecated = property.qualifiers["deprecated"]
+      "#{deprecated}#{result_name}.#{property.name} = #{default} # #{type} (-> #{klass.name})"
     end
     #
     # Class#each
