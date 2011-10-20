@@ -70,6 +70,18 @@ module Cmpi
 	    result.CPUStatus = (dmi["Status"] =~ /Enabled/) ? 1 : 0
 	    result.ExternalBusClockSpeed = dmi["External Clock"]
 	    result.NumberOfEnabledCores = dmi["Core Enabled"]
+	    result.Availability = 3 # "Running/Full Power" => 3,
+	    uptime_in_secs = File.read('/proc/uptime').match(/^(\d+\.\d+) /)[1].to_i
+	    result.PowerOnHours = uptime_in_secs / 3600
+	    result.EnabledState = EnabledState.Enabled
+	    result.RequestedState = RequestedState.Enabled
+	    result.EnabledDefault = EnabledDefault.Enabled
+	    result.TimeOfLastStateChange = Time.now - uptime_in_secs
+	    result.OperationalStatus = [OperationalStatus.OK]
+	    result.HealthState = HealthState.OK
+	    result.PrimaryStatus = PrimaryStatus.OK
+	    result.Caption = dmi["Type"]
+
 	    next_cpu = false
 	  end
 	  case k
@@ -98,46 +110,36 @@ module Cmpi
 	characteristics << 6 if v.include? "nx"
 	characteristics << 7 if v.include? "est"
 	result.Characteristics = characteristics
-      # result.EnabledProcessorCharacteristics = [EnabledProcessorCharacteristics.Unknown] # uint16[]
-      # result.PowerManagementSupported = nil # boolean
-      # result.PowerManagementCapabilities = [PowerManagementCapabilities.Unknown] # uint16[]
-      # result.Availability = Availability.Other # uint16
-      # result.StatusInfo = StatusInfo.Other # uint16
-      # result.LastErrorCode = nil # uint32
-      # result.ErrorDescription = nil # string
-      # result.ErrorCleared = nil # boolean
-      # result.OtherIdentifyingInfo = [nil] # string[]
-      # result.PowerOnHours = nil # uint64
-      # result.TotalPowerOnHours = nil # uint64
-      # result.IdentifyingDescriptions = [nil] # string[]
-      # result.AdditionalAvailability = [AdditionalAvailability.Other] # uint16[]
-      # result.MaxQuiesceTime = nil # uint64
-      # result.LocationIndicator = LocationIndicator.Unknown # uint16
-      # result.EnabledState = EnabledState.Unknown # uint16
-      # result.OtherEnabledState = nil # string
-      # result.RequestedState = RequestedState.Unknown # uint16
-      # result.EnabledDefault = EnabledDefault.Enabled # uint16
-      # result.TimeOfLastStateChange = nil # dateTime
-      # result.AvailableRequestedStates = [AvailableRequestedStates.Enabled] # uint16[]
-      # result.TransitioningToState = TransitioningToState.Unknown # uint16
-      # result.InstallDate = nil # dateTime
-      # result.Name = nil # string
-      # result.OperationalStatus = [OperationalStatus.Unknown] # uint16[]
-      # result.StatusDescriptions = [nil] # string[]
-      # result.Status = nil # string
-      # result.HealthState = HealthState.Unknown # uint16
-      # result.PrimaryStatus = PrimaryStatus.Unknown # uint16
-      # result.DetailedStatus = DetailedStatus.Not Available # uint16
-      # result.OperatingStatus = OperatingStatus.Unknown # uint16
-      # result.CommunicationStatus = CommunicationStatus.Unknown # uint16
-      # result.InstanceID = nil # string
-      # result.Caption = nil # string
-      # result.Description = nil # string
-      # result.ElementName = nil # string
-      # result.Generation = nil # uint64
+	result.PowerManagementSupported = characteristics.include? 7
+      when /model name/
+	result.Name = v
+        result.Description = v
+
+      # result.EnabledProcessorCharacteristics = [EnabledProcessorCharacteristics.Unknown] # uint16[] (-> CIM_Processor)
+      # Deprecated(["CIM_PowerManagementCapabilities"])result.PowerManagementSupported = nil # boolean (-> CIM_LogicalDevice)
+      # Deprecated(["CIM_PowerManagementCapabilities.PowerCapabilities"])result.PowerManagementCapabilities = [PowerManagementCapabilities.Unknown] # uint16[] (-> CIM_LogicalDevice)
+      # Deprecated(["CIM_EnabledLogicalElement.EnabledState"])result.StatusInfo = StatusInfo.Other # uint16 (-> CIM_LogicalDevice)
+      # Deprecated(["CIM_DeviceErrorData.LastErrorCode"])result.LastErrorCode = nil # uint32 (-> CIM_LogicalDevice)
+      # Deprecated(["CIM_DeviceErrorData.ErrorDescription"])result.ErrorDescription = nil # string (-> CIM_LogicalDevice)
+      # Deprecated(["CIM_ManagedSystemElement.OperationalStatus"])result.ErrorCleared = nil # boolean (-> CIM_LogicalDevice)
+      # result.OtherIdentifyingInfo = [nil] # string[] (-> CIM_LogicalDevice)
+      # result.TotalPowerOnHours = nil # uint64 (-> CIM_LogicalDevice)
+      # result.IdentifyingDescriptions = [nil] # string[] (-> CIM_LogicalDevice)
+      # result.AdditionalAvailability = [AdditionalAvailability.Other] # uint16[] (-> CIM_LogicalDevice)
+      # Deprecated(["No value"])result.MaxQuiesceTime = nil # uint64 (-> CIM_LogicalDevice)
+      # result.OtherEnabledState = nil # string (-> CIM_EnabledLogicalElement)
+      # result.AvailableRequestedStates = [AvailableRequestedStates.Enabled] # uint16[] (-> CIM_EnabledLogicalElement)
+      # result.TransitioningToState = TransitioningToState.Unknown # uint16 (-> CIM_EnabledLogicalElement)
+      # result.InstallDate = nil # dateTime (-> CIM_ManagedSystemElement)      
+      # result.StatusDescriptions = [nil] # string[] (-> CIM_ManagedSystemElement)
+      # Deprecated(["CIM_ManagedSystemElement.OperationalStatus"])result.Status = nil # string (-> CIM_ManagedSystemElement)
+      # result.CommunicationStatus = CommunicationStatus.Unknown # uint16 (-> CIM_ManagedSystemElement)
+      # result.DetailedStatus = DetailedStatus.Not Available # uint16 (-> CIM_ManagedSystemElement)
+      # result.OperatingStatus = OperatingStatus.Unknown # uint16 (-> CIM_ManagedSystemElement)      
+      # result.InstanceID = nil # string (-> CIM_ManagedElement)
+      # result.ElementName = nil # string (-> CIM_ManagedElement)
 	  end
 	end # while
-	STDERR.puts "yield!"
 	yield result if result
       end # File.open
     end
