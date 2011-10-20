@@ -37,7 +37,7 @@ module Genprovider
 	  else
 	    next if filter == :keys
 	  end
-	  yield f
+	  yield f, c
 	end
         c = c.parent
       end
@@ -48,7 +48,7 @@ module Genprovider
     # generate line to set a property
     # i.e. result.Property = nil # property_type + valuemap
     #
-    def property_setter_line property, result_name = "result"
+    def property_setter_line property, klass, result_name = "result"
       values = property.Values
       type = property.type
       if values
@@ -58,7 +58,7 @@ module Genprovider
       end
       default = "[#{default}]" if type.array?
 
-      "#{result_name}.#{property.name} = #{default} # #{type}"
+      "#{result_name}.#{property.name} = #{default} # #{type} (-> #{klass.name})"
     end
     #
     # Class#each
@@ -74,16 +74,21 @@ module Genprovider
       @out.puts
       @out.comment "Set key properties"
       @out.puts
-      properties :keys do |prop|
-	@out.puts(property_setter_line prop)
+      properties :keys do |prop, klass|
+	@out.puts(property_setter_line prop, klass)
       end
-      @out.puts "yield result unless want_instance"
+      @out.puts("unless want_instance").inc
+      @out.puts "yield result"
+      @out.puts "next"
+      @out.end
       @out.puts
-      @out.comment "Set non-key properties"
+      @out.comment "Convert to Instance, set non-key properties"
       @out.puts
-      properties :nokeys do |prop|
+      @out.puts "result = Cmpi::CMPIInstance.new result"
+      @out.puts
+      properties :nokeys do |prop, klass|
 	# using @out.comment would break the line at col 72
-	@out.puts "# #{property_setter_line prop}"
+	@out.puts "# #{property_setter_line prop, klass}"
       end
       @out.puts "yield result"
       @out.end
@@ -136,9 +141,8 @@ module Genprovider
     def mkenum_instances
       @out.def "enum_instances", "context", "result", "reference", "properties"
       @out.puts "#{LOG} \"enum_instances ref \#{reference}, props \#{properties.inspect}\""
-      @out.puts("each(reference, properties, true) do |ref|").inc
-      @out.puts "#{LOG} \"ref \#{ref}\""
-      @out.puts "instance = CMPIInstance.new ref"
+      @out.puts("each(reference, properties, true) do |instance|").inc
+      @out.puts "#{LOG} \"instance \#{instance}\""
       @out.puts "result.return_instance instance"
       @out.end
       @out.puts "result.done"
@@ -152,9 +156,8 @@ module Genprovider
     def mkget_instance
       @out.def "get_instance", "context", "result", "reference", "properties"
       @out.puts "#{LOG} \"get_instance ref \#{reference}, props \#{properties.inspect}\""
-      @out.puts("each(reference, properties, true) do |ref|").inc
-      @out.puts "#{LOG} \"ref \#{ref}\""
-      @out.puts "instance = CMPIInstance.new ref"
+      @out.puts("each(reference, properties, true) do |instance|").inc
+      @out.puts "#{LOG} \"instance \#{instance}\""
       @out.puts "result.return_instance instance"
       @out.puts "break # only return first instance"
       @out.end
@@ -215,7 +218,7 @@ module Genprovider
     def mktypemap
       @out.def("self.typemap")
       @out.puts("{").inc
-      properties :all do |property|
+      properties :all do |property, klass|
 	t = property.type
 	a = ""
 	if t.array?
@@ -231,7 +234,7 @@ module Genprovider
     # Generate valuemap classes
     #
     def mkvaluemaps
-      properties :all do |property|
+      properties :all do |property, klass|
 	# get the Values and ValueMap qualifiers
 	values = property.Values
 	next unless values
