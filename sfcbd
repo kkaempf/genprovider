@@ -1,3 +1,4 @@
 #!/bin/sh
+rm core*
 export RUBY_PROVIDERS_DIR=`pwd`/generated
 sfcbd
