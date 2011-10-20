@@ -1,6 +1,0 @@
-[RCP_Processor]   
-   provider: rcp_processor
-   location: rbCmpiProvider
-   type: instance
-   namespace: root/cimv2
-	    
