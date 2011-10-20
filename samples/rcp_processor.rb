@@ -64,27 +64,40 @@ module Cmpi
 	    result.UpgradeMethod = UpgradeMethod.send(dmi["Upgrade"].to_sym)
 	    result.Family = Family.send(dmi["Version"].to_sym)
 	    result.MaxClockSpeed = dmi["Max Speed"]
-	    result.CurrentClockSpeed = dmi["Current Speed"]
-	    result.DataWidth = (['a'].pack('P').length  > 4) ? 64 : 32
+	    datawidth = (['a'].pack('P').length  > 4) ? 64 : 32
+	    result.DataWidth = datawidth
 	    result.UniqueID = dmi["ID"]
 	    result.CPUStatus = (dmi["Status"] =~ /Enabled/) ? 1 : 0
 	    result.ExternalBusClockSpeed = dmi["External Clock"]
 	    result.NumberOfEnabledCores = dmi["Core Enabled"]
-	    #
-	    #"64-bit Capable" => 2,
-	    #"32-bit Capable" => 3,
-	    #"Enhanced Virtualization" => 4,
-	    #"Hardware Thread" => 5,
-	    #"NX-bit" => 6,
-	    #"Power/Performance Control" => 7,
-	    #"Core Frequency Boosting" => 8,
-	    result.Characteristics = [Characteristics.Unknown] # uint16[]
 	    next_cpu = false
 	  end
 	  case k
 	  when /address sizes/:  result.AddressWidth = v
       # result.LoadPercentage = nil # uint16
       when /stepping/: result.Stepping = v
+      when /cpu cores/: result.NumberOfEnabledCores = v unless dmi["Core Enabled"]
+      when /cpu MHz/: result.CurrentClockSpeed = v # dmi["Current Speed"] is unreliable
+      when /flags/
+	#
+	#"64-bit Capable" => 2,
+	#"32-bit Capable" => 3,
+	#"Enhanced Virtualization" => 4,
+	#"Hardware Thread" => 5,
+	#"NX-bit" => 6,
+	#"Power/Performance Control" => 7,
+	#"Core Frequency Boosting" => 8,
+	characteristics = []
+	characteristics << 2 if v.include? "lm"
+	characteristics << 3 if datawidth >= 32
+	case dmi["Manufacturer"]
+	when "Intel": characteristics << 4 if v.include? "vmx"
+	when "AMD": characteristics << 4 if v.include? "svm"
+	end
+	characteristics << 5 if v.include? "ht"
+	characteristics << 6 if v.include? "nx"
+	characteristics << 7 if v.include? "est"
+	result.Characteristics = characteristics
       # result.EnabledProcessorCharacteristics = [EnabledProcessorCharacteristics.Unknown] # uint16[]
       # result.PowerManagementSupported = nil # boolean
       # result.PowerManagementCapabilities = [PowerManagementCapabilities.Unknown] # uint16[]
@@ -168,9 +181,8 @@ module Cmpi
     
     def get_instance( context, result, reference, properties )
       @trace_file.puts "get_instance ref #{reference}, props #{properties.inspect}"
-      each(reference, properties, true) do |ref|
-        @trace_file.puts "ref #{ref}"
-        instance = CMPIInstance.new ref
+      each(reference, properties, true) do |instance|
+        @trace_file.puts "instance #{instance}"
         result.return_instance instance
         break # only return first instance
       end
