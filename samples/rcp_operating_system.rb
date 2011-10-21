@@ -27,7 +27,7 @@ module Cmpi
       # Set key properties
 
       # Upcall to RCP_ComputerSystem
-      enum = Cmpi.cmpi_broker.enumInstanceNames(context, Cmpi::CMPIObjectPath.new(reference.namespace, "RCP_ComputerSystem"))
+      enum = Cmpi.broker.enumInstanceNames(context, Cmpi::CMPIObjectPath.new(reference.namespace, "RCP_ComputerSystem"))
       raise "Couldn't get RCP_ComputerSystem" unless enum.has_next
       cs = enum.next
 
