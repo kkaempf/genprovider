@@ -79,7 +79,12 @@ module Genprovider
       @out.comment " yields references matching reference and properties"
       @out.comment
       @out.def "each", "reference", "properties = nil", "want_instance = false"
+      @out.puts("if want_instance").inc
+      @out.puts "result = Cmpi::CMPIObjectPath.new reference.namespace, reference.classname"
+      @out.puts "result = Cmpi::CMPIInstance.new result"
+      @out.dec.puts("else").inc
       @out.puts "result = Cmpi::CMPIObjectPath.new reference"
+      @out.end
       @out.puts
       @out.comment "Set key properties"
       @out.puts
@@ -91,9 +96,7 @@ module Genprovider
       @out.puts "return"
       @out.end
       @out.puts
-      @out.comment "Convert to Instance, set non-key properties"
-      @out.puts
-      @out.puts "result = Cmpi::CMPIInstance.new result"
+      @out.comment "Instance: Set non-key properties"
       @out.puts
       properties :nokeys do |prop, klass|
 	deprecated = prop.qualifiers["deprecated"]
