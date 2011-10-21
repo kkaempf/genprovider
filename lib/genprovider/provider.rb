@@ -28,15 +28,18 @@ module Genprovider
     #           :nokey # non-keys only
     #           :all   # all
     def properties filter
+      overrides = {}
       c = @klass
       while c
 	c.features.each do |f|
 	  next unless f.property?
+	  next if overrides[f.name] # overriden in child class
 	  if f.key?
 	    next if filter == :nokeys
 	  else
 	    next if filter == :keys
 	  end
+	  overrides[f.name] = true if f.qualifiers["override"]
 	  yield f, c
 	end
         c = c.parent
