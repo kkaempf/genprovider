@@ -14,4 +14,7 @@ Qualifier Description : string = null,
 Qualifier Key : boolean = false, 
     Scope(property, reference), 
     Flavor(DisableOverride, ToSubclass);
-	
+Qualifier Association : boolean = false,
+    Scope(class);
+Qualifier Indication : boolean = false,
+    Scope(class);
