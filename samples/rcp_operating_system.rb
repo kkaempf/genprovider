@@ -24,7 +24,6 @@ module Cmpi
         result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_OperatingSystem"
       end
       
-      
       # Set key properties
 
       # Upcall to RCP_ComputerSystem
@@ -35,42 +34,72 @@ module Cmpi
       result.CSCreationClassName = cs.CreationClassName # string MaxLen 256 (-> CIM_OperatingSystem)
       result.CSName = cs.Name # string MaxLen 256 (-> CIM_OperatingSystem)
       result.CreationClassName = "RCP_OperatingSystem" # string MaxLen 256 (-> CIM_OperatingSystem)
-      result.Name = nil # string MaxLen 256 (-> CIM_OperatingSystem)
+      releasefile = Dir["/etc/*-release"].first
+      release = File.read(releasefile).split("\n") rescue nil
+      result.Name = release.first if release # string MaxLen 256 (-> CIM_OperatingSystem)
       unless want_instance
         yield result
         return
       end
       
       # Instance: Set non-key properties
+      result.OSType = case release.first
+      when /openSUSE.*64/: OSType.send("SUSE 64-Bit")
+      when /openSUSE/: OSType.send("SUSE")
+      when /SLES.*64/: OSType.send("SLES 64-Bit")
+      when /SLES/: OSType.send("SLES")      
+      else
+	result.OtherTypeDescription = release
+        OSType.Other
+      end
       
-      # result.OSType = OSType.Unknown # uint16  (-> CIM_OperatingSystem)
-      # result.OtherTypeDescription = nil # string MaxLen 64 (-> CIM_OperatingSystem)
-      # result.Version = nil # string  (-> CIM_OperatingSystem)
-      # result.LastBootUpTime = nil # dateTime  (-> CIM_OperatingSystem)
-      # result.LocalDateTime = nil # dateTime  (-> CIM_OperatingSystem)
-      # result.CurrentTimeZone = nil # sint16  (-> CIM_OperatingSystem)
-      # result.NumberOfLicensedUsers = nil # uint32  (-> CIM_OperatingSystem)
-      # result.NumberOfUsers = nil # uint32  (-> CIM_OperatingSystem)
-      # result.NumberOfProcesses = nil # uint32  (-> CIM_OperatingSystem)
-      # result.MaxNumberOfProcesses = nil # uint32  (-> CIM_OperatingSystem)
-      # result.TotalSwapSpaceSize = nil # uint64  (-> CIM_OperatingSystem)
-      # result.TotalVirtualMemorySize = nil # uint64  (-> CIM_OperatingSystem)
-      # result.FreeVirtualMemory = nil # uint64  (-> CIM_OperatingSystem)
-      # result.FreePhysicalMemory = nil # uint64  (-> CIM_OperatingSystem)
-      # result.TotalVisibleMemorySize = nil # uint64  (-> CIM_OperatingSystem)
-      # result.SizeStoredInPagingFiles = nil # uint64  (-> CIM_OperatingSystem)
-      # result.FreeSpaceInPagingFiles = nil # uint64  (-> CIM_OperatingSystem)
-      # result.MaxProcessMemorySize = nil # uint64  (-> CIM_OperatingSystem)
-      # result.Distributed = nil # boolean  (-> CIM_OperatingSystem)
-      # result.MaxProcessesPerUser = nil # uint32  (-> CIM_OperatingSystem)
+      #  # uint16  (-> CIM_OperatingSystem)
+      release.each do |l|
+	if l =~ /VERSION\s*=\s*([^\n]*)/
+	  result.Version = $1.strip
+	  break
+	end
+      end
+      uptime_in_secs = File.read('/proc/uptime').match(/^(\d+\.\d+) /)[1].to_i
+      time = Time.new
+      result.LastBootUpTime = time - uptime_in_secs
+      result.LocalDateTime = time
+      result.CurrentTimeZone = time.utc_offset / 60
+      result.NumberOfLicensedUsers = 0 # unlimited
+      result.NumberOfUsers = IO.popen("who") { |f| f.read.split("\n").size }
+      result.NumberOfProcesses = Dir["/proc/[0-9]*"].size
+
+      result.MaxNumberOfProcesses = Process.getrlimit(Process::RLIMIT_NPROC)[-1]
+      meminfo = File.open("/proc/meminfo") do |f|
+	res = {}
+	# MemTotal:       12329352 kB
+	while f.gets =~ /([^:]+):\s+(\d+)\s+(\S+)/	
+	  res[$1] = $2.to_i
+	  unless $3 == "kB"
+	    STDERR.puts "#{$1} is in #{$3} !"
+	  end
+	end
+	res
+      end
+      result.TotalSwapSpaceSize = meminfo["SwapTotal"]
+      result.TotalVirtualMemorySize = meminfo["VmallocTotal"]
+      result.FreeVirtualMemory = meminfo["MemFree"] + meminfo["SwapFree"]
+      result.FreePhysicalMemory = meminfo["MemFree"]
+      result.TotalVisibleMemorySize = meminfo["MemTotal"]
+      result.SizeStoredInPagingFiles = 0 # no paging
+      result.FreeSpaceInPagingFiles = 0
+      result.MaxProcessMemorySize = meminfo["VmallocTotal"]
+      result.Distributed = false
+      result.MaxProcessesPerUser = Process.getrlimit(Process::RLIMIT_NPROC).first
+
       # result.EnabledState = EnabledState.Unknown # uint16  (-> CIM_EnabledLogicalElement)
       # result.OtherEnabledState = nil # string  (-> CIM_EnabledLogicalElement)
       # result.RequestedState = RequestedState.Unknown # uint16  (-> CIM_EnabledLogicalElement)
       # result.EnabledDefault = EnabledDefault.Enabled # uint16  (-> CIM_EnabledLogicalElement)
-      # result.TimeOfLastStateChange = nil # dateTime  (-> CIM_EnabledLogicalElement)
+      result.TimeOfLastStateChange = 0
       # result.AvailableRequestedStates = [AvailableRequestedStates.Enabled] # uint16[]  (-> CIM_EnabledLogicalElement)
       # result.TransitioningToState = TransitioningToState.Unknown # uint16  (-> CIM_EnabledLogicalElement)
-      # result.InstallDate = nil # dateTime  (-> CIM_ManagedSystemElement)
+      result.InstallDate = File.stat(releasefile).mtime
       # result.OperationalStatus = [OperationalStatus.Unknown] # uint16[]  (-> CIM_ManagedSystemElement)
       # result.StatusDescriptions = [nil] # string[]  (-> CIM_ManagedSystemElement)
       # Deprecated !
