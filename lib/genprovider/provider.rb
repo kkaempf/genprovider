@@ -78,7 +78,7 @@ module Genprovider
       @out.comment "Iterator for names and instances"
       @out.comment " yields references matching reference and properties"
       @out.comment
-      @out.def "each", "reference", "properties = nil", "want_instance = false"
+      @out.def "each", "context", "reference", "properties = nil", "want_instance = false"
       @out.puts("if want_instance").inc
       @out.puts "result = Cmpi::CMPIObjectPath.new reference.namespace, #{@klass.name.inspect}"
       @out.puts "result = Cmpi::CMPIInstance.new result"
@@ -146,7 +146,7 @@ module Genprovider
     def mkenum_instance_names
       @out.def "enum_instance_names", "context", "result", "reference"
       @out.puts "#{LOG} \"enum_instance_names ref \#{reference}\""
-      @out.puts("each(reference) do |ref|").inc
+      @out.puts("each(context, reference) do |ref|").inc
       @out.puts "#{LOG} \"ref \#{ref}\""
       @out.puts "result.return_objectpath ref"
       @out.end
@@ -161,7 +161,7 @@ module Genprovider
     def mkenum_instances
       @out.def "enum_instances", "context", "result", "reference", "properties"
       @out.puts "#{LOG} \"enum_instances ref \#{reference}, props \#{properties.inspect}\""
-      @out.puts("each(reference, properties, true) do |instance|").inc
+      @out.puts("each(context, reference, properties, true) do |instance|").inc
       @out.puts "#{LOG} \"instance \#{instance}\""
       @out.puts "result.return_instance instance"
       @out.end
@@ -176,7 +176,7 @@ module Genprovider
     def mkget_instance
       @out.def "get_instance", "context", "result", "reference", "properties"
       @out.puts "#{LOG} \"get_instance ref \#{reference}, props \#{properties.inspect}\""
-      @out.puts("each(reference, properties, true) do |instance|").inc
+      @out.puts("each(context, reference, properties, true) do |instance|").inc
       @out.puts "#{LOG} \"instance \#{instance}\""
       @out.puts "result.return_instance instance"
       @out.puts "break # only return first instance"
