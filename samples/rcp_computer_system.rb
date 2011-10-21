@@ -34,12 +34,11 @@ module Cmpi
       
       result = Cmpi::CMPIInstance.new result
       
-      # result.NameFormat = nil # string (-> CIM_ComputerSystem)
-      # result.Dedicated = [Dedicated.Not Dedicated] # uint16[] (-> CIM_ComputerSystem)
+      # result.NameFormat = NameFormat.Other # string (-> CIM_ComputerSystem)
+      # result.Dedicated = [Dedicated.send(:"Not Dedicated")] # uint16[] (-> CIM_ComputerSystem)
       # result.OtherDedicatedDescriptions = [nil] # string[] (-> CIM_ComputerSystem)
       # result.ResetCapability = ResetCapability.Other # uint16 (-> CIM_ComputerSystem)
       # Deprecated(["CIM_PowerManagementCapabilities.PowerCapabilities"])result.PowerManagementCapabilities = [PowerManagementCapabilities.Unknown] # uint16[] (-> CIM_ComputerSystem)
-      # result.NameFormat = nil # string (-> CIM_System)
       # result.PrimaryOwnerName = nil # string (-> CIM_System)
       # result.PrimaryOwnerContact = nil # string (-> CIM_System)
       # result.Roles = [nil] # string[] (-> CIM_System)
@@ -56,17 +55,16 @@ module Cmpi
       # result.Name = nil # string (-> CIM_ManagedSystemElement)
       # result.OperationalStatus = [OperationalStatus.Unknown] # uint16[] (-> CIM_ManagedSystemElement)
       # result.StatusDescriptions = [nil] # string[] (-> CIM_ManagedSystemElement)
-      # Deprecated(["CIM_ManagedSystemElement.OperationalStatus"])result.Status = nil # string (-> CIM_ManagedSystemElement)
+      # Deprecated(["CIM_ManagedSystemElement.OperationalStatus"])result.Status = Status.OK # string (-> CIM_ManagedSystemElement)
       # result.HealthState = HealthState.Unknown # uint16 (-> CIM_ManagedSystemElement)
-      # result.PrimaryStatus = PrimaryStatus.Unknown # uint16 (-> CIM_ManagedSystemElement)
-      # result.DetailedStatus = DetailedStatus.Not Available # uint16 (-> CIM_ManagedSystemElement)
-      # result.OperatingStatus = OperatingStatus.Unknown # uint16 (-> CIM_ManagedSystemElement)
       # result.CommunicationStatus = CommunicationStatus.Unknown # uint16 (-> CIM_ManagedSystemElement)
+      # result.DetailedStatus = DetailedStatus.send(:"Not Available") # uint16 (-> CIM_ManagedSystemElement)
+      # result.OperatingStatus = OperatingStatus.Unknown # uint16 (-> CIM_ManagedSystemElement)
+      # result.PrimaryStatus = PrimaryStatus.Unknown # uint16 (-> CIM_ManagedSystemElement)
       # result.InstanceID = nil # string (-> CIM_ManagedElement)
       # result.Caption = nil # string (-> CIM_ManagedElement)
       # result.Description = nil # string (-> CIM_ManagedElement)
       # result.ElementName = nil # string (-> CIM_ManagedElement)
-      # result.Generation = nil # uint64 (-> CIM_ManagedElement)
       yield result
     end
     public
@@ -156,7 +154,6 @@ module Cmpi
         "PowerManagementCapabilities" => Cmpi::uint16A,
         "CreationClassName" => Cmpi::string,
         "Name" => Cmpi::string,
-        "NameFormat" => Cmpi::string,
         "PrimaryOwnerName" => Cmpi::string,
         "PrimaryOwnerContact" => Cmpi::string,
         "Roles" => Cmpi::stringA,
@@ -170,23 +167,45 @@ module Cmpi
         "AvailableRequestedStates" => Cmpi::uint16A,
         "TransitioningToState" => Cmpi::uint16,
         "InstallDate" => Cmpi::dateTime,
-        "Name" => Cmpi::string,
         "OperationalStatus" => Cmpi::uint16A,
         "StatusDescriptions" => Cmpi::stringA,
         "Status" => Cmpi::string,
         "HealthState" => Cmpi::uint16,
-        "PrimaryStatus" => Cmpi::uint16,
+        "CommunicationStatus" => Cmpi::uint16,
         "DetailedStatus" => Cmpi::uint16,
         "OperatingStatus" => Cmpi::uint16,
-        "CommunicationStatus" => Cmpi::uint16,
+        "PrimaryStatus" => Cmpi::uint16,
         "InstanceID" => Cmpi::string,
         "Caption" => Cmpi::string,
         "Description" => Cmpi::string,
         "ElementName" => Cmpi::string,
-        "Generation" => Cmpi::uint64,
       }
     end
     
+    
+    class NameFormat < Cmpi::ValueMap
+      def self.map
+        {
+          "Other" => :Other,
+          "IP" => :IP,
+          "Dial" => :Dial,
+          "HID" => :HID,
+          "NWA" => :NWA,
+          "HWA" => :HWA,
+          "X25" => :X25,
+          "ISDN" => :ISDN,
+          "IPX" => :IPX,
+          "DCC" => :DCC,
+          "ICD" => :ICD,
+          "E.164" => :"E.164",
+          "SNA" => :SNA,
+          "OID/OSI" => :"OID/OSI",
+          "WWN" => :WWN,
+          "NAA" => :NAA,
+          "UUID" => :UUID,
+        }
+      end
+    end
     
     class Dedicated < Cmpi::ValueMap
       def self.map
@@ -227,7 +246,10 @@ module Cmpi
           "Laptop" => 33,
           "Virtual Tape Library" => 34,
           "Virtual Library System" => 35,
-          # "DMTF Reserved" => 36..32567,
+          "Network PC/Thin Client" => 36,
+          "FC Switch" => 37,
+          "Ethernet Switch" => 38,
+          # "DMTF Reserved" => ..,
           # "Vendor Reserved" => 32568..65535,
         }
       end
@@ -328,6 +350,7 @@ module Cmpi
           "Quiesce" => 9,
           "Reboot" => 10,
           "Reset" => 11,
+          # "DMTF Reserved" => ..,
         }
       end
     end
@@ -347,6 +370,7 @@ module Cmpi
           "Reboot" => 10,
           "Reset" => 11,
           "Not Applicable" => 12,
+          # "DMTF Reserved" => ..,
         }
       end
     end
@@ -373,8 +397,29 @@ module Cmpi
           "Supporting Entity in Error" => 16,
           "Completed" => 17,
           "Power Mode" => 18,
+          "Relocating" => 19,
           # "DMTF Reserved" => ..,
           # "Vendor Reserved" => 0x8000..,
+        }
+      end
+    end
+    
+    class Status < Cmpi::ValueMap
+      def self.map
+        {
+          "OK" => :OK,
+          "Error" => :Error,
+          "Degraded" => :Degraded,
+          "Unknown" => :Unknown,
+          "Pred Fail" => :"Pred Fail",
+          "Starting" => :Starting,
+          "Stopping" => :Stopping,
+          "Service" => :Service,
+          "Stressed" => :Stressed,
+          "NonRecover" => :NonRecover,
+          "No Contact" => :"No Contact",
+          "Lost Comm" => :"Lost Comm",
+          "Stopped" => :Stopped,
         }
       end
     end
@@ -390,17 +435,19 @@ module Cmpi
           "Critical failure" => 25,
           "Non-recoverable error" => 30,
           # "DMTF Reserved" => ..,
+          # "Vendor Specific" => 32768..65535,
         }
       end
     end
     
-    class PrimaryStatus < Cmpi::ValueMap
+    class CommunicationStatus < Cmpi::ValueMap
       def self.map
         {
           "Unknown" => 0,
-          "OK" => 1,
-          "Degraded" => 2,
-          "Error" => 3,
+          "Not Available" => 1,
+          "Communication OK" => 2,
+          "Lost Communication" => 3,
+          "No Contact" => 4,
           # "DMTF Reserved" => ..,
           # "Vendor Reserved" => 0x8000..,
         }
@@ -448,14 +495,13 @@ module Cmpi
       end
     end
     
-    class CommunicationStatus < Cmpi::ValueMap
+    class PrimaryStatus < Cmpi::ValueMap
       def self.map
         {
           "Unknown" => 0,
-          "Not Available" => 1,
-          "Communication OK" => 2,
-          "Lost Communication" => 3,
-          "No Contact" => 4,
+          "OK" => 1,
+          "Degraded" => 2,
+          "Error" => 3,
           # "DMTF Reserved" => ..,
           # "Vendor Reserved" => 0x8000..,
         }
