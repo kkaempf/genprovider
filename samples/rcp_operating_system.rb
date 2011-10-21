@@ -28,13 +28,13 @@ module Cmpi
       # Set key properties
 
       # Upcall to RCP_ComputerSystem
-      enum = Cmpi.cmpi_broker.enumInstanceNames(context, Cmpi::CMPIObjectPath.new(reference.namespace, "RCP_ComputerSystem")).each do |cs|
-	puts "RCP_OperatingSystem: RCP_ComputerSystem => #{cs}"
-      end
+      enum = Cmpi.cmpi_broker.enumInstanceNames(context, Cmpi::CMPIObjectPath.new(reference.namespace, "RCP_ComputerSystem"))
+      raise "Couldn't get RCP_ComputerSystem" unless enum.has_next
+      cs = enum.next
 
-      result.CSCreationClassName = nil # string MaxLen 256 (-> CIM_OperatingSystem)
-      result.CSName = nil # string MaxLen 256 (-> CIM_OperatingSystem)
-      result.CreationClassName = nil # string MaxLen 256 (-> CIM_OperatingSystem)
+      result.CSCreationClassName = cs.CreationClassName # string MaxLen 256 (-> CIM_OperatingSystem)
+      result.CSName = cs.Name # string MaxLen 256 (-> CIM_OperatingSystem)
+      result.CreationClassName = "RCP_OperatingSystem" # string MaxLen 256 (-> CIM_OperatingSystem)
       result.Name = nil # string MaxLen 256 (-> CIM_OperatingSystem)
       unless want_instance
         yield result
