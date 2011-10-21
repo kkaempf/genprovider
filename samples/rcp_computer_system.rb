@@ -77,14 +77,6 @@ module Cmpi
       super name, broker, context
     end
     
-    def create_instance( context, result, reference, newinst )
-      @trace_file.puts "create_instance ref #{reference}, newinst #{newinst.inspect}"
-      RCP_ComputerSystem.new reference, newinst
-      result.return_objectpath reference
-      result.done
-      true
-    end
-    
     def enum_instance_names( context, result, reference )
       @trace_file.puts "enum_instance_names ref #{reference}"
       each(reference) do |ref|
@@ -112,22 +104,6 @@ module Cmpi
         result.return_instance instance
         break # only return first instance
       end
-      result.done
-      true
-    end
-    
-    def set_instance( context, result, reference, newinst, properties )
-      @trace_file.puts "set_instance ref #{reference}, newinst #{newinst.inspect}, props #{properties.inspect}"
-      properties.each do |prop|
-        newinst.send "#{prop.name}=".to_sym, FIXME
-      end
-      result.return_instance newinst
-      result.done
-      true
-    end
-    
-    def delete_instance( context, result, reference )
-      @trace_file.puts "delete_instance ref #{reference}"
       result.done
       true
     end
