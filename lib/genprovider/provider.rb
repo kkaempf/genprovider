@@ -52,10 +52,15 @@ module Genprovider
     # i.e. result.Property = nil # property_type + valuemap
     #
     def property_setter_line property, klass, result_name = "result"
+      valuemap = property.ValueMap
       values = property.Values
       type = property.type
-      if values
-        default = "#{property.name}.#{values[0]}"
+      if valuemap
+	firstval = values ? values[0] : valuemap[0]
+	if firstval.to_s =~ /\s/
+	  firstval = "send(#{firstval.to_sym.inspect})"
+	end
+	default = "#{property.name}.#{firstval}"
       else
 	default = "nil"
       end
@@ -239,21 +244,28 @@ module Genprovider
     #
     def mkvaluemaps
       properties :all do |property, klass|
+	t = property.type
 	# get the Values and ValueMap qualifiers
-	values = property.Values
-	next unless values
 	valuemap = property.ValueMap
+	next unless valuemap
+	values = property.Values
 	@out.puts
 	@out.puts("class #{property.name} < Cmpi::ValueMap").inc
 	@out.def "self.map"
 	@out.puts("{").inc
 	# get to the array
-	values = values.value
 	valuemap = valuemap.value
+	# values might be nil, then only ValueMap given
+	if values
+	  values = values.value
+	elsif !t.matches?(String)
+	  raise "ValueMap missing Values for property #{property.name} with non-string type #{t}"
+	end
 	loop do
-	  val = values.shift
+	  val = values.shift if values
 	  map = valuemap.shift
-	  unless val
+	  if val.nil? && values
+	    # have values but its empty
 	    break unless map # ok, both nil
 	    raise "#{property.name}: Values empty, ValueMap #{map}"
 	  end
@@ -261,10 +273,14 @@ module Genprovider
 	    break unless val # ok, both nil
 	    raise "#{property.name}: Values #{val}, ValueMap empty"
 	  end
-	  if map =~ /\.\./
-	    @out.comment "#{val.inspect} => #{map},"
+	  if val
+	    if map =~ /\.\./
+	      @out.comment "#{val.inspect} => #{map},"
+	    else
+	      @out.puts "#{val.inspect} => #{map},"
+	    end
 	  else
-	    @out.puts "#{val.inspect} => #{map},"
+	    @out.puts "#{map.inspect} => #{map.to_sym.inspect},"
 	  end
 	end
 	@out.dec.puts "}"
