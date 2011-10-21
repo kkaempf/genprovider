@@ -67,8 +67,7 @@ module Genprovider
       default = "[#{default}]" if type.array?
       maxlen = property.MaxLen
       maxlen = "MaxLen #{maxlen.value}" if maxlen
-      deprecated = property.qualifiers["deprecated"]
-      "#{deprecated}#{result_name}.#{property.name} = #{default} # #{type} #{maxlen} (-> #{klass.name})"
+      "#{result_name}.#{property.name} = #{default} # #{type} #{maxlen} (-> #{klass.name})"
     end
     #
     # Class#each
@@ -97,8 +96,16 @@ module Genprovider
       @out.puts "result = Cmpi::CMPIInstance.new result"
       @out.puts
       properties :nokeys do |prop, klass|
-	# using @out.comment would break the line at col 72
-	@out.puts "# #{property_setter_line prop, klass}"
+	deprecated = prop.qualifiers["deprecated"]
+	required = prop.qualifiers["required"]
+	if required
+	  @out.comment "Required !"
+	  @out.puts "#{property_setter_line prop, klass}"
+	else
+	  @out.comment "Deprecated !" if deprecated
+	  # using @out.comment would break the line at col 72
+	  @out.puts "# #{property_setter_line prop, klass}"
+	end
       end
       @out.puts "yield result"
       @out.end
