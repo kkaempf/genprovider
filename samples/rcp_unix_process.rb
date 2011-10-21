@@ -10,56 +10,144 @@ module Cmpi
   # Realisation of CIM_UnixProcess in Ruby
   #
   class RCP_UnixProcess < InstanceProvider
-    
+
     private
     #
     # Iterator for names and instances
     #  yields references matching reference and properties
     #
-    def each( reference, properties = nil, want_instance = false )
-      if want_instance
-	result = Cmpi::CMPIObjectPath.new reference.namespace, reference.classname
-	result = Cmpi::CMPIInstance.new result
-      else
-	result = Cmpi::CMPIObjectPath.new reference
-      end
-      
-      # Set key properties
-      
-      result.CSCreationClassName = nil # string MaxLen 256 (-> CIM_Process)
-      result.CSName = nil # string MaxLen 256 (-> CIM_Process)
-      result.OSCreationClassName = nil # string MaxLen 256 (-> CIM_Process)
-      result.OSName = nil # string MaxLen 256 (-> CIM_Process)
-      result.CreationClassName = nil # string MaxLen 256 (-> CIM_Process)
-      result.Handle = nil # string MaxLen 256 (-> CIM_Process)
-      unless want_instance
-        yield result
-        return
-      end
-      
-      # Set non-key properties
+    def each( context, reference, properties = nil, want_instance = false )
+      STDERR.puts "Each ref #{reference}, prop #{properties}, inst #{want_instance}"
+      enum = Cmpi.broker.enumInstanceNames(context, Cmpi::CMPIObjectPath.new(reference.namespace, "RCP_ComputerSystem"))
+      raise "Couldn't get RCP_ComputerSystem" unless enum.has_next
+      cs = enum.next
+      enum = Cmpi.broker.enumInstanceNames(context, Cmpi::CMPIObjectPath.new(reference.namespace, "RCP_OperatingSystem"))
+      raise "Couldn't get RCP_OperatingSystem" unless enum.has_next
+      os = enum.next
 
-      # Required !
-      result.ParentProcessID = nil # string  (-> CIM_UnixProcess)
-      # Required !
-      result.RealUserID = nil # uint64  (-> CIM_UnixProcess)
-      # Required !
-      result.ProcessGroupID = nil # uint64  (-> CIM_UnixProcess)
-      # result.ProcessSessionID = nil # uint64  (-> CIM_UnixProcess)
-      # result.ProcessTTY = nil # string  (-> CIM_UnixProcess)
-      # result.ModulePath = nil # string  (-> CIM_UnixProcess)
-      # result.Parameters = [nil] # string[]  (-> CIM_UnixProcess)
-      # result.ProcessNiceValue = nil # uint32  (-> CIM_UnixProcess)
-      # result.ProcessWaitingForEvent = nil # string  (-> CIM_UnixProcess)
-      # result.Name = nil # string  (-> CIM_Process)
-      # result.Priority = nil # uint32  (-> CIM_Process)
-      # result.ExecutionState = ExecutionState.Unknown # uint16  (-> CIM_Process)
-      # result.OtherExecutionDescription = nil # string  (-> CIM_Process)
-      # result.CreationDate = nil # dateTime  (-> CIM_Process)
+      pid = reference.Handle || "[0-9]*"
+      Dir["/proc/#{pid}"].each do |proc|
+	pid = proc[6..-1]
+	if want_instance
+	  result = Cmpi::CMPIObjectPath.new reference.namespace, reference.classname
+	  result = Cmpi::CMPIInstance.new result
+	else
+	  result = Cmpi::CMPIObjectPath.new reference
+	end
+
+        # Set key properties
+  
+        result.CSCreationClassName = cs.CreationClassName
+	result.CSName = cs.Name
+  
+        result.OSCreationClassName = os.CreationClassName
+        result.OSName = os.Name
+
+        result.CreationClassName = "RCP_UnixProcess"
+        result.Handle = pid
+	unless want_instance
+	  yield result
+	  next
+	end
+  
+        # Set non-key properties
+
+	stat = File.read("#{proc}/stat").split(" ")
+	#  0: pid %d      The process ID.
+	#  1: comm %s     The filename of the executable, in parentheses.  This is visible whether or not the executable is swapped out.
+	#  2: state %c    One  character  from  the string "RSDZTW" where R is running, S is sleeping in an interruptible wait, D is waiting in uninterruptible disk sleep, Z is zombie, T is traced or stopped (on a signal), and W is paging.
+	#  3: ppid %d     The PID of the parent.
+	#  4: pgrp %d     The process group ID of the process.
+	#  5: session %d  The session ID of the process.
+	#  6: tty_nr %d   The controlling terminal of the process.  (The minor device number is contained in the combination of bits 31 to 20 and 7 to 0; the major device number is in bits 15 to 8.)
+	#  7: tpgid %d    The ID of the foreground process group of the controlling terminal of the process.
+	#  8: flags %u (%lu before Linux 2.6.22)	The kernel flags word of the process.  For bit meanings, see the PF_* defines in <linux/sched.h>.  Details depend on the kernel version.
+	#  9: minflt %lu  The number of minor faults the process has made which have not required loading a memory page from disk.
+	# 10: cminflt %lu The number of minor faults that the process waited-for children have made.
+	# 11: majflt %lu  The number of major faults the process has made which have required loading a memory page from disk.
+	# 12: cmajflt %lu The number of major faults that the process waited-for children have made.
+	# 13: utime %lu   Amount of time that this process has been scheduled in user mode, measured in clock ticks (divide by sysconf(_SC_CLK_TCK).  This includes guest time, guest_time (time  spent  running  a  virtual  CPU,  see below), so that applications that are not aware of the guest time field do not lose that time from their calculations.
+	# 14: stime %lu   Amount of time that this process has been scheduled in kernel mode, measured in clock ticks (divide by sysconf(_SC_CLK_TCK).
+	# 15: cutime %ld  Amount  of  time  that  this  process's  waited-for  children  have  been  scheduled  in user mode, measured in clock ticks (divide by sysconf(_SC_CLK_TCK).  (See also times(2).)  This includes guest time, cguest_time (time spent running a virtual CPU, see below).
+	# 16: cstime %ld  Amount of time that this process's waited-for children have been scheduled in kernel mode, measured in clock ticks (divide by sysconf(_SC_CLK_TCK).
+	# 17: priority %ld   (Explanation for Linux 2.6) For processes running a real-time scheduling policy (policy below; see sched_setscheduler(2)), this is the negated scheduling priority, minus one; that is, a number in the range
+	#		      -2  to  -100,  corresponding  to real-time priorities 1 to 99.  For processes running under a non-real-time scheduling policy, this is the raw nice value (setpriority(2)) as represented in the kernel.  The
+	#	              kernel stores nice values as numbers in the range 0 (high) to 39 (low), corresponding to the user-visible nice range of -20 to 19.
+	#	              Before Linux 2.6, this was a scaled value based on the scheduler weighting given to this process.
+	#  
+	# 18: nice %ld    The nice value (see setpriority(2)), a value in the range 19 (low priority) to -20 (high priority).
+	# 19: num_threads %ld  Number of threads in this process (since Linux 2.6).  Before kernel 2.6, this field was hard coded to 0 as a placeholder for an earlier removed field.
+	# 20: itrealvalue %ld  The time in jiffies before the next SIGALRM is sent to the process due to an interval timer.  Since kernel 2.6.17, this field is no longer maintained, and is hard coded a
+        # 21: starttime %llu (was %lu before Linux 2.6)  The time in jiffies the process started after system boot.
+        # 22: vsize %lu   Virtual memory size in bytes.
+        # 23: rss %ld     Resident Set Size: number of pages the process has in real memory.  This is just the pages which count toward text, data, or stack space.  This does not include pages which have not been demand-loaded  in,
+        #                  or which are swapped out.
+        # 24: rsslim %lu  Current soft limit in bytes on the rss of the process; see the description of RLIMIT_RSS in getpriority(2).
+        # 25: startcode %lu  The address above which program text can run.
+        # 26: endcode %lu The address below which program text can run.
+        # 27: startstack %lu  The address of the start (i.e., bottom) of the stack.
+        # 28: kstkesp %lu The current value of ESP (stack pointer), as found in the kernel stack page for the process.
+        # 29: kstkeip %lu The current EIP (instruction pointer).
+        # 30: signal %lu  The bitmap of pending signals, displayed as a decimal number.  Obsolete, because it does not provide information on real-time signals; use /proc/[pid]/status instead.
+        # 31: blocked %lu The bitmap of blocked signals, displayed as a decimal number.  Obsolete, because it does not provide information on real-time signals; use /proc/[pid]/status instead.
+        # 32: sigignore %lu The bitmap of ignored signals, displayed as a decimal number.  Obsolete, because it does not provide information on real-time signals; use /proc/[pid]/status instead.
+        # 33: sigcatch %lu   The bitmap of caught signals, displayed as a decimal number.  Obsolete, because it does not provide information on real-time signals; use /proc/[pid]/status instead.
+        # 34: wchan %lu   This  is the "channel" in which the process is waiting.  It is the address of a system call, and can be looked up in a namelist if you need a textual name.
+        #                  (If you have an up-to-date /etc/psdatabase, then try ps -l to see the WCHAN field in action.)
+        # 35: nswap %lu   Number of pages swapped (not maintained).
+        # 36: cnswap %lu  Cumulative nswap for child processes (not maintained).
+        # 37: exit_signal %d (since Linux 2.1.22)                          Signal to be sent to parent when we die.
+        # 38: processor %d (since Linux 2.2.8)                          CPU number last executed on.
+        # 39: rt_priority %u (since Linux 2.5.19; was %lu before Linux 2.6.22)                          Real-time scheduling priority, a number in the range 1 to 99 for processes scheduled under a real-time policy, or 0, for non-real-time processes (see sched_setscheduler(2)).
+        # 40: policy %u (since Linux 2.5.19; was %lu before Linux 2.6.22)                          Scheduling policy (see sched_setscheduler(2)).  Decode using the SCHED_* constants in linux/sched.h.
+        # 41: delayacct_blkio_ticks %llu (since Linux 2.6.18)                          Aggregated block I/O delays, measured in clock ticks (centiseconds).
+        # 42: guest_time %lu (since Linux 2.6.24)                          Guest time of the process (time spent running a virtual CPU for a guest operating system), measured in clock ticks (divide by sysconf(_SC_CLK_TCK).
+        # 43: cguest_time %ld (since Linux 2.6.24)                          Guest time of the process's children, measured in clock ticks (divide by sysconf(_SC_CLK_TCK).
+
+	status = File.open("#{proc}/status") do |f|
+	  res = {}
+	  while f.gets =~ /([^:]+):\s+(.*)/	
+	    res[$1] = $2.to_i
+	  end
+	  res
+	end
+	
+
+			 
+        # Required !
+	result.ParentProcessID = stat[3]
+	# Required !
+	result.RealUserID = status["Uid"]
+	# Required !
+	result.ProcessGroupID = stat[4]
+        result.ProcessSessionID = stat[5]
+        result.ProcessTTY = stat[6]
+        result.ModulePath = File.readlink("#{proc}/exe") rescue nil
+	cmdline = File.read("#{proc}/cmdline").split(' ')
+	cmdline.shift
+        result.Parameters = cmdline
+        result.ProcessNiceValue = stat[18]
+        result.ProcessWaitingForEvent = nil # string  (-> CIM_UnixProcess)
+        result.Name = stat[1]
+        result.Priority = stat[17]
+	result.ExecutionState = case stat[2]
+          when "R": ExecutionState.Running # R is running
+          when "S": ExecutionState.Ready # S is sleeping in an interruptible wait
+          when "D": ExecutionState.Blocked # D is waiting in uninterruptible disk sleep
+          when "Z": ExecutionState.Terminated # Z is zombie
+          when "T": ExecutionState.Stopped # T is traced or stopped (on a signal)
+          when "W": ExecutionState.send(:"Suspended Ready") # W is paging.
+	  else
+	    ExecutionState.Unknown
+	  end
+	starttime = stat[21].to_i # in jiffies after system boot
+	uptime_in_secs = File.read('/proc/uptime').match(/^(\d+\.\d+) /)[1].to_i
+	time = Time.new
+        result.CreationDate = time - uptime_in_secs + starttime/4
       # result.TerminationDate = nil # dateTime  (-> CIM_Process)
-      # result.KernelModeTime = nil # uint64  (-> CIM_Process)
-      # result.UserModeTime = nil # uint64  (-> CIM_Process)
-      # result.WorkingSetSize = nil # uint64  (-> CIM_Process)
+        result.KernelModeTime = stat[14] # stat -> clock ticks, KernelModeTime -> ms
+        result.UserModeTime = stat[13]
+        result.WorkingSetSize = stat[23] # rss
       # result.EnabledState = EnabledState.Unknown # uint16  (-> CIM_EnabledLogicalElement)
       # result.OtherEnabledState = nil # string  (-> CIM_EnabledLogicalElement)
       # result.RequestedState = RequestedState.Unknown # uint16  (-> CIM_EnabledLogicalElement)
@@ -83,8 +171,9 @@ module Cmpi
       # result.ElementName = nil # string  (-> CIM_ManagedElement)
       yield result
     end
+    end
     public
-    
+
     #
     # Provider initialization
     #
@@ -92,7 +181,7 @@ module Cmpi
       @trace_file = STDERR
       super name, broker, context
     end
-    
+
     def create_instance( context, result, reference, newinst )
       @trace_file.puts "create_instance ref #{reference}, newinst #{newinst.inspect}"
       RCP_UnixProcess.new reference, newinst
@@ -100,30 +189,30 @@ module Cmpi
       result.done
       true
     end
-    
+
     def enum_instance_names( context, result, reference )
       @trace_file.puts "enum_instance_names ref #{reference}"
-      each(reference) do |ref|
+      each(context,reference) do |ref|
         @trace_file.puts "ref #{ref}"
         result.return_objectpath ref
       end
       result.done
       true
     end
-    
+
     def enum_instances( context, result, reference, properties )
       @trace_file.puts "enum_instances ref #{reference}, props #{properties.inspect}"
-      each(reference, properties, true) do |instance|
+      each(context,reference, properties, true) do |instance|
         @trace_file.puts "instance #{instance}"
         result.return_instance instance
       end
       result.done
       true
     end
-    
+
     def get_instance( context, result, reference, properties )
       @trace_file.puts "get_instance ref #{reference}, props #{properties.inspect}"
-      each(reference, properties, true) do |instance|
+      each(context,reference, properties, true) do |instance|
         @trace_file.puts "instance #{instance}"
         result.return_instance instance
         break # only return first instance
@@ -131,7 +220,7 @@ module Cmpi
       result.done
       true
     end
-    
+
     def set_instance( context, result, reference, newinst, properties )
       @trace_file.puts "set_instance ref #{reference}, newinst #{newinst.inspect}, props #{properties.inspect}"
       properties.each do |prop|
@@ -141,13 +230,13 @@ module Cmpi
       result.done
       true
     end
-    
+
     def delete_instance( context, result, reference )
       @trace_file.puts "delete_instance ref #{reference}"
       result.done
       true
     end
-    
+
     # query : String
     # lang : String
     def exec_query( context, result, reference, query, lang )
@@ -155,12 +244,12 @@ module Cmpi
       result.done
       true
     end
-    
+
     def cleanup( context, terminating )
       @trace_file.puts "cleanup terminating? #{terminating}"
       true
     end
-    
+
     def self.typemap
       {
         "ParentProcessID" => Cmpi::string,
@@ -209,8 +298,8 @@ module Cmpi
         "ElementName" => Cmpi::string,
       }
     end
-    
-    
+
+
     class ExecutionState < Cmpi::ValueMap
       def self.map
         {
@@ -229,7 +318,7 @@ module Cmpi
         }
       end
     end
-    
+
     class EnabledState < Cmpi::ValueMap
       def self.map
         {
@@ -249,7 +338,7 @@ module Cmpi
         }
       end
     end
-    
+
     class RequestedState < Cmpi::ValueMap
       def self.map
         {
@@ -270,7 +359,7 @@ module Cmpi
         }
       end
     end
-    
+
     class EnabledDefault < Cmpi::ValueMap
       def self.map
         {
@@ -285,7 +374,7 @@ module Cmpi
         }
       end
     end
-    
+
     class AvailableRequestedStates < Cmpi::ValueMap
       def self.map
         {
@@ -302,7 +391,7 @@ module Cmpi
         }
       end
     end
-    
+
     class TransitioningToState < Cmpi::ValueMap
       def self.map
         {
@@ -322,7 +411,7 @@ module Cmpi
         }
       end
     end
-    
+
     class OperationalStatus < Cmpi::ValueMap
       def self.map
         {
@@ -351,7 +440,7 @@ module Cmpi
         }
       end
     end
-    
+
     class Status < Cmpi::ValueMap
       def self.map
         {
@@ -371,7 +460,7 @@ module Cmpi
         }
       end
     end
-    
+
     class HealthState < Cmpi::ValueMap
       def self.map
         {
@@ -387,7 +476,7 @@ module Cmpi
         }
       end
     end
-    
+
     class CommunicationStatus < Cmpi::ValueMap
       def self.map
         {
@@ -401,7 +490,7 @@ module Cmpi
         }
       end
     end
-    
+
     class DetailedStatus < Cmpi::ValueMap
       def self.map
         {
@@ -416,7 +505,7 @@ module Cmpi
         }
       end
     end
-    
+
     class OperatingStatus < Cmpi::ValueMap
       def self.map
         {
@@ -442,7 +531,7 @@ module Cmpi
         }
       end
     end
-    
+
     class PrimaryStatus < Cmpi::ValueMap
       def self.map
         {
