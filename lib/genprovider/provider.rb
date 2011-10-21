@@ -34,12 +34,12 @@ module Genprovider
 	c.features.each do |f|
 	  next unless f.property?
 	  next if overrides[f.name] # overriden in child class
+	  overrides[f.name] = true if f.qualifiers["override"]
 	  if f.key?
 	    next if filter == :nokeys
 	  else
 	    next if filter == :keys
 	  end
-	  overrides[f.name] = true if f.qualifiers["override"]
 	  yield f, c
 	end
         c = c.parent
@@ -65,9 +65,10 @@ module Genprovider
 	default = "nil"
       end
       default = "[#{default}]" if type.array?
-
+      maxlen = property.MaxLen
+      maxlen = "MaxLen #{maxlen.value}" if maxlen
       deprecated = property.qualifiers["deprecated"]
-      "#{deprecated}#{result_name}.#{property.name} = #{default} # #{type} (-> #{klass.name})"
+      "#{deprecated}#{result_name}.#{property.name} = #{default} # #{type} #{maxlen} (-> #{klass.name})"
     end
     #
     # Class#each
