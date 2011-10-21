@@ -19,8 +19,13 @@ module Cmpi
     #  yields references matching reference and properties
     #
     def each( reference, properties = nil, want_instance = false )
-      result = Cmpi::CMPIObjectPath.new reference
-      
+      if want_instance
+	result = Cmpi::CMPIObjectPath.new reference.namespace, reference.classname
+	result = Cmpi::CMPIInstance.new result
+      else
+	result = Cmpi::CMPIObjectPath.new reference
+      end
+
       # Set key properties
       
       result.CreationClassName = "RCP_ComputerSystem" # string (-> CIM_System)
@@ -30,10 +35,8 @@ module Cmpi
         return
       end
       
-      # Convert to Instance, set non-key properties
-      
-      result = Cmpi::CMPIInstance.new result
-      
+      # Set non-key properties
+
       result.NameFormat = NameFormat.Other # string (-> CIM_ComputerSystem)
       result.Dedicated = [Dedicated.send(:"Not Dedicated")] # uint16[] (-> CIM_ComputerSystem)
       # result.OtherDedicatedDescriptions = [nil] # string[] (-> CIM_ComputerSystem)
