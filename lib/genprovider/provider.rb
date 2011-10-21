@@ -47,6 +47,16 @@ module Genprovider
     end
 
     LOG = "@trace_file.puts" # "@log.info"
+    
+    def bounds property, *args
+      s = ""
+      args.each do |n|
+	v = property.send(n)
+	s << "#{n} #{v.value} " if v
+      end
+      s
+    end
+
     #
     # generate line to set a property
     # i.e. result.Property = nil # property_type + valuemap
@@ -65,9 +75,8 @@ module Genprovider
 	default = "nil"
       end
       default = "[#{default}]" if type.array?
-      maxlen = property.MaxLen
-      maxlen = "MaxLen #{maxlen.value}" if maxlen
-      "#{result_name}.#{property.name} = #{default} # #{type} #{maxlen} (-> #{klass.name})"
+      bounds = bounds property, :MaxLen, :Max, :Min
+      "#{result_name}.#{property.name} = #{default} # #{type} #{bounds} (-> #{klass.name})"
     end
     #
     # Class#each
@@ -300,6 +309,29 @@ module Genprovider
       end
     end
 
+    def providertypes
+      mask = 0
+      c = @klass
+      while c
+	mask |= 1 if c.instance?
+	mask |= 2 if c.method?
+	mask |= 4 if c.association?
+	mask |= 8 if c.indication?
+	c = c.parent
+      end
+      res = []
+      res << "InstanceProvider" if mask & 1
+      res << "MethodProvider" if mask & 2
+      res << "AssociationProvider" if mask & 4
+      res << "IndicationProvider" if mask & 8
+
+      if res.empty?
+	STDERR.puts "Assuming that #{@klass.name} defines an Instance"
+	res << "InstanceProvider"
+      end
+      res
+    end
+
     #
     # generate provider code for class 'c'
     #
@@ -315,7 +347,7 @@ module Genprovider
       #
 
       @out.comment
-      @out.comment "Provider #{name} for class #{@klass.name}"
+      @out.comment "Provider #{name} for class #{@klass.name}:#{@klass.class}"
       @out.comment
 
       @out.puts("require 'syslog'").puts
@@ -323,23 +355,14 @@ module Genprovider
       @out.puts("module Cmpi").inc
 
       Genprovider::Class.mkdescription @out, @klass
-      #
-      # baseclass and interfaces
-      #
-      providertypes = []
-      providertypes << "InstanceProvider" if @klass.instance?
-      providertypes << "MethodProvider" if @klass.method?
-      providertypes << "AssociationProvider" if @klass.association?
-      providertypes << "IndicationProvider" if @klass.indication?
-
-      if providertypes.empty?
-	STDERR.puts "Assuming that #{@klass.name} defines an Instance"
-	providertypes << "InstanceProvider"
+      if @klass.parent
+	Genprovider::Class.mkdescription @out, @klass.parent
       end
+      p = providertypes
+      @out.puts("class #{name} < #{p.shift}").inc
 
-      @out.puts("class #{name} < #{providertypes.shift}").inc
       @out.puts
-      providertypes.each do |t|
+      p.each do |t|
 	@out.puts "include #{t}IF"
       end
       mkeach
