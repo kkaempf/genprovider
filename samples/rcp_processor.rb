@@ -38,8 +38,8 @@ module Cmpi
 	    end
 	  end
 	end
-	puts dmi.inspect
       end
+      device_id = reference.DeviceID rescue nil
       File.open("/proc/cpuinfo") do |f|
 	result = nil
 	next_cpu = true
@@ -50,6 +50,9 @@ module Cmpi
 	  v.strip! if v
 	  if k =~ /processor/
 	    yield result if result
+	    if device_id
+	      next unless device_id == v
+	    end
 	    if want_instance
 	      result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_Processor"
 	      result = Cmpi::CMPIInstance.new result
@@ -62,7 +65,7 @@ module Cmpi
 	    result.DeviceID = v
 	    next_cpu = true
 	  end # /processor/
-	  next unless want_instance
+	  next unless result && want_instance
 	  if next_cpu
 	    result.Role = dmi["Type"]
 	    result.UpgradeMethod = UpgradeMethod.send(dmi["Upgrade"].to_sym)
