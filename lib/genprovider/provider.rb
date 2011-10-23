@@ -403,6 +403,8 @@ module Genprovider
       @out.puts
       mkcleanup
       @out.puts
+      mktypemap
+      @out.puts
       if (mask & INSTANCE_MASK) != 0
 	STDERR.puts "  Generating Instance provider"
 	mkeach
@@ -419,9 +421,6 @@ module Genprovider
 	@out.puts
 	mkquery
 	@out.puts
-	mktypemap
-	@out.puts
-	mkvaluemaps
       end
       if (mask & METHOD_MASK) != 0
 	STDERR.puts "  Generating Method provider"
@@ -438,6 +437,7 @@ module Genprovider
 	mkindications
 	@out.puts
       end
+      mkvaluemaps
       @out.end # class
       @out.end # module
     end
