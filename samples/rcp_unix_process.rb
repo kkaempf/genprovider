@@ -18,13 +18,24 @@ module Cmpi
     #
     def each( context, reference, properties = nil, want_instance = false )
       STDERR.puts "Each ref #{reference}, prop #{properties}, inst #{want_instance}"
-      enum = Cmpi.broker.enumInstanceNames(context, Cmpi::CMPIObjectPath.new(reference.namespace, "RCP_ComputerSystem"))
-      raise "Couldn't get RCP_ComputerSystem" unless enum.has_next
-      cs = enum.next
-      enum = Cmpi.broker.enumInstanceNames(context, Cmpi::CMPIObjectPath.new(reference.namespace, "RCP_OperatingSystem"))
-      raise "Couldn't get RCP_OperatingSystem" unless enum.has_next
-      os = enum.next
-
+      cs_CreationClassName = reference.CSCreationClassName
+      cs_Name = reference.CSName
+      unless cs_CreationClassName && cs_Name
+	enum = Cmpi.broker.enumInstanceNames(context, Cmpi::CMPIObjectPath.new(reference.namespace, "RCP_ComputerSystem"))
+	raise "Couldn't get RCP_ComputerSystem" unless enum.has_next
+	cs = enum.next_element
+	cs_CreationClassName = cs.CreationClassName
+	cs_Name = cs.Name
+      end
+      os_CreationClassName = reference.OSCreationClassName
+      os_Name = reference.OSName
+      unless os_CreationClassName && os_Name
+	enum = Cmpi.broker.enumInstanceNames(context, Cmpi::CMPIObjectPath.new(reference.namespace, "RCP_OperatingSystem"))
+	raise "Couldn't get RCP_OperatingSystem" unless enum.has_next
+	os = enum.next_element
+	os_CreationClassName = os.CreationClassName
+	os_Name = os.Name
+      end
       pid = (reference.Handle rescue nil) || "[0-9]*"
       Dir["/proc/#{pid}"].each do |proc|
 	pid = proc[6..-1]
@@ -37,11 +48,11 @@ module Cmpi
 
         # Set key properties
   
-        result.CSCreationClassName = cs.CreationClassName
-	result.CSName = cs.Name
+        result.CSCreationClassName = cs_CreationClassName
+	result.CSName = cs_Name
   
-        result.OSCreationClassName = os.CreationClassName
-        result.OSName = os.Name
+        result.OSCreationClassName = os_CreationClassName
+        result.OSName = os_Name
 
         result.CreationClassName = "RCP_UnixProcess"
         result.Handle = pid
@@ -193,7 +204,7 @@ module Cmpi
     def enum_instance_names( context, result, reference )
       @trace_file.puts "enum_instance_names ref #{reference}"
       each(context,reference) do |ref|
-        @trace_file.puts "ref #{ref}"
+        @trace_file.puts "RCP_UnixProcess.enum_instance_names => #{ref}"
         result.return_objectpath ref
       end
       result.done
@@ -203,7 +214,7 @@ module Cmpi
     def enum_instances( context, result, reference, properties )
       @trace_file.puts "enum_instances ref #{reference}, props #{properties.inspect}"
       each(context,reference, properties, true) do |instance|
-        @trace_file.puts "instance #{instance}"
+        @trace_file.puts "RCP_UnixProcess.enum_instances => #{instance}"
         result.return_instance instance
       end
       result.done

@@ -26,13 +26,18 @@ module Cmpi
       
       # Set key properties
 
-      # Upcall to RCP_ComputerSystem
-      enum = Cmpi.broker.enumInstanceNames(context, Cmpi::CMPIObjectPath.new(reference.namespace, "RCP_ComputerSystem"))
-      raise "Couldn't get RCP_ComputerSystem" unless enum.has_next
-      cs = enum.next
-
-      result.CSCreationClassName = cs.CreationClassName # string MaxLen 256 (-> CIM_OperatingSystem)
-      result.CSName = cs.Name # string MaxLen 256 (-> CIM_OperatingSystem)
+      cs_CreationClassName = reference.CSCreationClassName
+      cs_Name = reference.CSName
+      unless cs_CreationClassName && cs_Name
+	# Upcall to RCP_ComputerSystem
+	enum = Cmpi.broker.enumInstanceNames(context, Cmpi::CMPIObjectPath.new(reference.namespace, "RCP_ComputerSystem"))
+	raise "Couldn't get RCP_ComputerSystem" unless enum.has_next
+	cs = enum.next_element
+	cs_CreationClassName = cs.CreationClassName
+	cs_Name = cs.Name
+      end
+      result.CSCreationClassName = cs_CreationClassName # string MaxLen 256 (-> CIM_OperatingSystem)
+      result.CSName = cs_Name # string MaxLen 256 (-> CIM_OperatingSystem)
       result.CreationClassName = "RCP_OperatingSystem" # string MaxLen 256 (-> CIM_OperatingSystem)
       releasefile = Dir["/etc/*-release"].first
       release = File.read(releasefile).split("\n") rescue nil
