@@ -25,7 +25,7 @@ module Cmpi
       raise "Couldn't get RCP_OperatingSystem" unless enum.has_next
       os = enum.next
 
-      pid = reference.Handle || "[0-9]*"
+      pid = (reference.Handle rescue nil) || "[0-9]*"
       Dir["/proc/#{pid}"].each do |proc|
 	pid = proc[6..-1]
 	if want_instance
