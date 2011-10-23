@@ -309,27 +309,58 @@ module Genprovider
       end
     end
 
+    def mkmethods
+      @out.comment "Methods"
+    end
+    
+    def mkassociations
+      @out.comment "Associations"
+      @out.def "associator_names", "context", "result", "reference", "assoc_class", "result_class", "role", "result_role"
+      @out.puts "#{LOG} \"associator_names \#{context}, \#{result}, \#{reference}, \#{assoc_class}, \#{result_class}, \#{role}, \#{result_role}\""
+      @out.end
+      @out.def "associators", "context", "result", "reference", "assoc_class", "result_class", "role", "result_role", "properties"
+      @out.puts "#{LOG} \"associators \#{context}, \#{result}, \#{reference}, \#{assoc_class}, \#{result_class}, \#{role}, \#{result_role}, \#{properties}\""
+      @out.end
+      @out.def "reference_names", "context", "result", "reference", "result_class", "role"
+      @out.puts "#{LOG} \"reference_names \#{context}, \#{result}, \#{reference}, \#{result_class}, \#{role}\""
+      @out.end
+      @out.def "references", "context", "result", "reference", "result_class", "role", "properties"
+      @out.puts "#{LOG} \"references \#{context}, \#{result}, \#{reference}, \#{result_class}, \#{role}, \#{properties}\""
+      @out.end
+
+    end
+    
+    def mkindications
+      @out.comment "Indications"
+    end
+
+    INSTANCE_MASK = 1
+    METHOD_MASK = 2
+    ASSOCIATION_MASK = 4
+    INDICATION_MASK = 8
+    
     def providertypes
       mask = 0
       c = @klass
       while c
-	mask |= 1 if c.instance?
-	mask |= 2 if c.method?
-	mask |= 4 if c.association?
-	mask |= 8 if c.indication?
+	mask |= INSTANCE_MASK if c.instance?
+	mask |= METHOD_MASK if c.method?
+	mask |= ASSOCIATION_MASK if c.association?
+	mask |= INDICATION_MASK if c.indication?
 	c = c.parent
       end
       res = []
-      res << "InstanceProvider" if mask & 1
-      res << "MethodProvider" if mask & 2
-      res << "AssociationProvider" if mask & 4
-      res << "IndicationProvider" if mask & 8
+      res << "InstanceProvider" if (mask & INSTANCE_MASK) != 0
+      res << "MethodProvider" if (mask & METHOD_MASK) != 0
+      res << "AssociationProvider" if (mask & ASSOCIATION_MASK) != 0
+      res << "IndicationProvider" if (mask & INDICATION_MASK) != 0
 
       if res.empty?
 	STDERR.puts "Assuming that #{@klass.name} defines an Instance"
 	res << "InstanceProvider"
+	mask |= INSTANCE_MASK
       end
-      res
+      [res, mask]
     end
 
     #
@@ -358,19 +389,23 @@ module Genprovider
       if @klass.parent
 	Genprovider::Class.mkdescription @out, @klass.parent
       end
-      p = providertypes
+      p,mask = providertypes
+
       @out.puts("class #{name} < #{p.shift}").inc
 
       @out.puts
       p.each do |t|
 	@out.puts "include #{t}IF"
       end
-      mkeach
-      @out.puts
       mknew
       @out.puts
-      if @klass.instance? || providertypes.empty?
-	mkcreate
+      mkcreate
+      @out.puts
+      mkcleanup
+      @out.puts
+      if (mask & INSTANCE_MASK) != 0
+	STDERR.puts "  Generating Instance provider"
+	mkeach
 	@out.puts
 	mkenum_instance_names
 	@out.puts
@@ -384,11 +419,24 @@ module Genprovider
 	@out.puts
 	mkquery
 	@out.puts
-	mkcleanup
-	@out.puts
 	mktypemap
 	@out.puts
 	mkvaluemaps
+      end
+      if (mask & METHOD_MASK) != 0
+	STDERR.puts "  Generating Method provider"
+	mkmethods
+	@out.puts
+      end
+      if (mask & ASSOCIATION_MASK) != 0
+	STDERR.puts "  Generating Association provider"
+	mkassociations
+	@out.puts
+      end
+      if (mask & INDICATION_MASK) != 0
+	STDERR.puts "  Generating Indication provider"
+	mkindications
+	@out.puts
       end
       @out.end # class
       @out.end # module
