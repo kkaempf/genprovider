@@ -1,5 +1,5 @@
 [RCP_UnixProcess]
   location: rbCmpiProvider
   provider: RCP_UnixProcess
-  type: instance
+  type: instance method
   namespace: root/cimv2
