@@ -17,7 +17,7 @@ module Cmpi
     #  yields references matching reference and properties
     #
     def each( context, reference, properties = nil, want_instance = false )
-      STDERR.puts "Each ref #{reference}, prop #{properties}, inst #{want_instance}"
+#      STDERR.puts "Each ref #{reference}, prop #{properties}, inst #{want_instance}"
       cs_CreationClassName = reference.CSCreationClassName
       cs_Name = reference.CSName
       unless cs_CreationClassName && cs_Name
@@ -195,16 +195,16 @@ module Cmpi
 
     def create_instance( context, result, reference, newinst )
       @trace_file.puts "create_instance ref #{reference}, newinst #{newinst.inspect}"
-      RCP_UnixProcess.new reference, newinst
-      result.return_objectpath reference
-      result.done
-      true
+      # RCP_UnixProcess.new reference, newinst
+      # result.return_objectpath reference
+      # result.done
+      # true
     end
 
     def enum_instance_names( context, result, reference )
       @trace_file.puts "enum_instance_names ref #{reference}"
       each(context,reference) do |ref|
-        @trace_file.puts "RCP_UnixProcess.enum_instance_names => #{ref}"
+#        @trace_file.puts "RCP_UnixProcess.enum_instance_names => #{ref}"
         result.return_objectpath ref
       end
       result.done
@@ -214,7 +214,7 @@ module Cmpi
     def enum_instances( context, result, reference, properties )
       @trace_file.puts "enum_instances ref #{reference}, props #{properties.inspect}"
       each(context,reference, properties, true) do |instance|
-        @trace_file.puts "RCP_UnixProcess.enum_instances => #{instance}"
+#        @trace_file.puts "RCP_UnixProcess.enum_instances => #{instance}"
         result.return_instance instance
       end
       result.done
