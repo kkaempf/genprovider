@@ -131,6 +131,21 @@ module Cmpi
     end
     
     # Methods
+    # Wrap into Method class to prevent name clashes with provider functions
+    class Method
+      # CIM_OperatingSystem: Reboot
+      def reboot( context, result, reference, argsin, argsout )
+	@trace_file.puts "reboot #{context}, #{result}, #{reference}, #{argsin}, #{argsout}"
+      end
+      # CIM_OperatingSystem: Shutdown
+      def shutdown( context, result, reference, argsin, argsout )
+	@trace_file.puts "shutdown #{context}, #{result}, #{reference}, #{argsin}, #{argsout}"
+      end
+      # CIM_EnabledLogicalElement: RequestStateChange
+      def request_state_change( context, result, reference, argsin, argsout )
+	@trace_file.puts "request_state_change #{context}, #{result}, #{reference}, #{argsin}, #{argsout}"
+      end
+    end
     def invoke_method( context, result, reference, method, argsin, argsout )
       @trace_file.puts "invoke_method #{context}, #{result}, #{reference}, #{method}, #{argsin}, #{argsout}"
     end
