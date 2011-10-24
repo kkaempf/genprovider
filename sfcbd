@@ -1,4 +1,4 @@
 #!/bin/sh
-rm core*
+rm -f core*
 export RUBY_PROVIDERS_DIR=`pwd`/samples
 sfcbd
