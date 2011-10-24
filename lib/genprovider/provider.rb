@@ -154,7 +154,7 @@ module Genprovider
     def mkcreate
       @out.def "create_instance", "context", "result", "reference", "newinst"
       @out.puts "#{LOG} \"create_instance ref \#{reference}, newinst \#{newinst.inspect}\""
-      @out.puts "#{@klass.name}.new reference, newinst"
+      @out.comment "Create instance according to reference and newinst"
       @out.puts "result.return_objectpath reference"
       @out.puts "result.done"
       @out.puts "true"
