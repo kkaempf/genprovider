@@ -269,7 +269,7 @@ module Genprovider
 	if t.is_a? CIM::ReferenceType
 	  # use t.name to stay Ruby-compatible. t.to_s would print MOF syntax
 	  @out.comment t.to_s
-	  t = "CMPIObjectPath"
+	  t = "ref"
 	end
 	@out.puts "#{property.name.inspect} => Cmpi::#{t}#{a},"
       end
@@ -353,12 +353,15 @@ module Genprovider
       @out.def "associator_names", "context", "result", "reference", "assoc_class", "result_class", "role", "result_role"
       @out.puts "#{LOG} \"associator_names \#{context}, \#{result}, \#{reference}, \#{assoc_class}, \#{result_class}, \#{role}, \#{result_role}\""
       @out.end
+      @out.puts
       @out.def "associators", "context", "result", "reference", "assoc_class", "result_class", "role", "result_role", "properties"
       @out.puts "#{LOG} \"associators \#{context}, \#{result}, \#{reference}, \#{assoc_class}, \#{result_class}, \#{role}, \#{result_role}, \#{properties}\""
       @out.end
+      @out.puts
       @out.def "reference_names", "context", "result", "reference", "result_class", "role"
       @out.puts "#{LOG} \"reference_names \#{context}, \#{result}, \#{reference}, \#{result_class}, \#{role}\""
       @out.end
+      @out.puts
       @out.def "references", "context", "result", "reference", "result_class", "role", "properties"
       @out.puts "#{LOG} \"references \#{context}, \#{result}, \#{reference}, \#{result_class}, \#{role}, \#{properties}\""
       @out.end
