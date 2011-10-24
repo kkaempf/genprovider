@@ -2,6 +2,18 @@
 # provider.rb
 #
 
+class String
+  #
+  # Convert from CamelCase to under_score
+  #
+  def decamelize
+    self.gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+	 gsub(/([a-z\d])([A-Z])/,'\1_\2').
+	 tr("-", "_").
+	 downcase
+  end
+end
+
 module CIM
   class ClassFeature
     def method_missing name
@@ -27,12 +39,12 @@ module Genprovider
     #  filter = :keys  # keys only
     #           :nokey # non-keys only
     #           :all   # all
-    def properties filter
+    def features discriminator, filter
       overrides = {}
       c = @klass
       while c
 	c.features.each do |f|
-	  next unless f.property?
+	  next unless f.send(discriminator)
 	  f_override = overrides[f.name] # overriden in child class ?
 	  if f_override # Y: f_override = overriding feature
 	    # copy qualifiers from overridden to overriding feature
@@ -56,6 +68,14 @@ module Genprovider
 	end
         c = c.parent
       end
+    end
+
+    def properties filter, &block
+      features :property?, filter, &block
+    end
+
+    def methods filter, &block
+      features :method?, filter, &block
     end
 
     LOG = "@trace_file.puts" # "@log.info"
@@ -346,6 +366,13 @@ module Genprovider
       
     def mkmethods
       @out.comment "Methods"
+      methods :all do |method, klass|
+	@out.comment "#{klass.name}: #{method.name}"
+	@out.def "#{method.name.decamelize}", "context", "result", "reference", "argsin", "argsout"
+	@out.puts "#{LOG} \"#{method.name.decamelize} \#{context}, \#{result}, \#{reference}, \#{argsin}, \#{argsout}\""
+	@out.end
+      end
+
       @out.def "invoke_method", "context", "result", "reference", "method", "argsin", "argsout"
       @out.puts "#{LOG} \"invoke_method \#{context}, \#{result}, \#{reference}, \#{method}, \#{argsin}, \#{argsout}\""
       @out.end
