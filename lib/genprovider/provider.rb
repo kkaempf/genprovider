@@ -346,6 +346,9 @@ module Genprovider
       
     def mkmethods
       @out.comment "Methods"
+      @out.def "invoke_method", "context", "result", "reference", "method", "argsin", "argsout"
+      @out.puts "#{LOG} \"invoke_method \#{context}, \#{result}, \#{reference}, \#{method}, \#{argsin}, \#{argsout}\""
+      @out.end
     end
     
     def mkassociations
