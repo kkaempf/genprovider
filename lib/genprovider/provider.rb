@@ -366,13 +366,15 @@ module Genprovider
       
     def mkmethods
       @out.comment "Methods"
+      @out.puts("class Method").inc
       methods :all do |method, klass|
 	@out.comment "#{klass.name}: #{method.name}"
 	@out.def "#{method.name.decamelize}", "context", "result", "reference", "argsin", "argsout"
 	@out.puts "#{LOG} \"#{method.name.decamelize} \#{context}, \#{result}, \#{reference}, \#{argsin}, \#{argsout}\""
 	@out.end
       end
-
+      @out.end
+      @out.puts
       @out.def "invoke_method", "context", "result", "reference", "method", "argsin", "argsout"
       @out.puts "#{LOG} \"invoke_method \#{context}, \#{result}, \#{reference}, \#{method}, \#{argsin}, \#{argsout}\""
       @out.end
