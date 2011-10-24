@@ -193,6 +193,12 @@ module Cmpi
       super name, broker, context
     end
 
+    # Methods
+    def invoke_method( context, result, reference, method, argsin, argsout )
+      @trace_file.puts "invoke_method #{context}, #{result}, #{reference}, #{method}, #{argsin}, #{argsout}"
+    end
+    
+    # Instance
     def create_instance( context, result, reference, newinst )
       @trace_file.puts "create_instance ref #{reference}, newinst #{newinst.inspect}"
       # RCP_UnixProcess.new reference, newinst

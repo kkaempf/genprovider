@@ -80,6 +80,11 @@ module Cmpi
       super name, broker, context
     end
     
+    # Methods
+    def invoke_method( context, result, reference, method, argsin, argsout )
+      @trace_file.puts "invoke_method #{context}, #{result}, #{reference}, #{method}, #{argsin}, #{argsout}"
+    end
+    
     def enum_instance_names( context, result, reference )
       @trace_file.puts "enum_instance_names ref #{reference}"
       each(reference) do |ref|
