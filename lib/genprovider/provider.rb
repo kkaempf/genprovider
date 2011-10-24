@@ -33,8 +33,20 @@ module Genprovider
       while c
 	c.features.each do |f|
 	  next unless f.property?
-	  next if overrides[f.name] # overriden in child class
-	  overrides[f.name] = true if f.qualifiers["override"]
+	  f_override = overrides[f.name] # overriden in child class ?
+	  if f_override # Y: f_override = overriding feature
+	    # copy qualifiers from overridden to overriding feature
+	    f.qualifiers.each do |q|
+	      unless f_override.qualifiers[q.name] # non-overridden qualifier
+		f_override.qualifiers << q
+	      end
+	    end
+	    next
+	  end
+	  q_override = f.qualifiers["override"]
+	  if q_override
+	    overrides[f.name] = f
+	  end
 	  if f.key?
 	    next if filter == :nokeys
 	  else
@@ -254,8 +266,12 @@ module Genprovider
 	  a = "A"
 	  t = t.type
 	end
-	# use t.name to stay Ruby-compatible. t.to_s would print MOF syntax
-	@out.puts "#{property.name.inspect} => Cmpi::#{t.name}#{a},"
+	if t.is_a? CIM::ReferenceType
+	  # use t.name to stay Ruby-compatible. t.to_s would print MOF syntax
+	  @out.comment t.to_s
+	  t = "CMPIObjectPath"
+	end
+	@out.puts "#{property.name.inspect} => Cmpi::#{t}#{a},"
       end
       @out.dec.puts "}"
       @out.end
@@ -310,6 +326,24 @@ module Genprovider
       end
     end
 
+    def mkinstance
+      mkeach
+      @out.puts
+      mkcreate
+      @out.puts
+      mkenum_instance_names
+      @out.puts
+      mkenum_instances
+      @out.puts
+      mkget_instance
+      @out.puts
+      mkset_instance
+      @out.puts
+      mkdelete_instance
+      @out.puts
+      mkquery
+    end
+      
     def mkmethods
       @out.comment "Methods"
     end
@@ -346,15 +380,18 @@ module Genprovider
       while c
 	mask |= INSTANCE_MASK if c.instance?
 	mask |= METHOD_MASK if c.method?
-	mask |= ASSOCIATION_MASK if c.association?
+	if c.association?
+	  mask |= ASSOCIATION_MASK
+	  mask |= INSTANCE_MASK # associations are instances
+	end
 	mask |= INDICATION_MASK if c.indication?
 	c = c.parent
       end
       res = []
-      res << "InstanceProvider" if (mask & INSTANCE_MASK) != 0
       res << "MethodProvider" if (mask & METHOD_MASK) != 0
       res << "AssociationProvider" if (mask & ASSOCIATION_MASK) != 0
       res << "IndicationProvider" if (mask & INDICATION_MASK) != 0
+      res << "InstanceProvider" if (mask & INSTANCE_MASK) != 0
 
       if res.empty?
 	STDERR.puts "Assuming that #{@klass.name} defines an Instance"
@@ -400,29 +437,10 @@ module Genprovider
       end
       mknew
       @out.puts
-      mkcreate
-      @out.puts
       mkcleanup
       @out.puts
       mktypemap
       @out.puts
-      if (mask & INSTANCE_MASK) != 0
-	STDERR.puts "  Generating Instance provider"
-	mkeach
-	@out.puts
-	mkenum_instance_names
-	@out.puts
-	mkenum_instances
-	@out.puts
-	mkget_instance
-	@out.puts
-	mkset_instance
-	@out.puts
-	mkdelete_instance
-	@out.puts
-	mkquery
-	@out.puts
-      end
       if (mask & METHOD_MASK) != 0
 	STDERR.puts "  Generating Method provider"
 	mkmethods
@@ -431,11 +449,15 @@ module Genprovider
       if (mask & ASSOCIATION_MASK) != 0
 	STDERR.puts "  Generating Association provider"
 	mkassociations
-	@out.puts
       end
       if (mask & INDICATION_MASK) != 0
 	STDERR.puts "  Generating Indication provider"
 	mkindications
+	@out.puts
+      end
+      if (mask & INSTANCE_MASK) != 0
+	STDERR.puts "  Generating Instance provider"
+	mkinstance
 	@out.puts
       end
       mkvaluemaps
