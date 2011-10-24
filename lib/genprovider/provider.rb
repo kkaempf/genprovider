@@ -254,7 +254,8 @@ module Genprovider
 	  a = "A"
 	  t = t.type
 	end
-	@out.puts "#{property.name.inspect} => Cmpi::#{t}#{a},"
+	# use t.name to stay Ruby-compatible. t.to_s would print MOF syntax
+	@out.puts "#{property.name.inspect} => Cmpi::#{t.name}#{a},"
       end
       @out.dec.puts "}"
       @out.end
