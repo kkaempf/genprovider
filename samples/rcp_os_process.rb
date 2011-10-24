@@ -23,19 +23,65 @@ module Cmpi
       super name, broker, context
     end
     
-    def create_instance( context, result, reference, newinst )
-      @trace_file.puts "create_instance ref #{reference}, newinst #{newinst.inspect}"
-      RCP_OSProcess.new reference, newinst
-      result.return_objectpath reference
-      result.done
-      true
-    end
-    
     def cleanup( context, terminating )
       @trace_file.puts "cleanup terminating? #{terminating}"
       true
     end
     
+    def self.typemap
+      {
+        # CIM_OperatingSystem ref
+        "GroupComponent" => Cmpi::ref,
+        # CIM_Process ref
+        "PartComponent" => Cmpi::ref,
+      }
+    end
+    
+    private
+    #
+    # Iterator for names and instances
+    #  yields references matching reference and properties
+    #
+    def each( context, reference, properties = nil, want_instance = false )
+      os_ref = nil # OperatingSystem for result.GroupComponent
+      
+      # construct reference for upcall
+      upref = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_UnixProcess"
+      refclass = reference.classname
+      if refclass == "RCP_ComputerSystem"
+	upref.CSCreationClassName = reference.classname
+	upref.CSName = reference.Name      
+      elsif refclass == "RCP_OperatingSystem"
+	upref.OSCreationClassName = reference.classname
+	upref.OSName = reference.Name
+	os_ref = reference
+      elsif refclass != "RCP_OSProcess"
+	STDERR.puts "RCP_OSProcess does not serve #{reference}"
+	return # not for this class
+      end
+      unless os_ref
+	os_ref = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_OperatingSystem"
+	enum = Cmpi.broker.enumInstanceNames context, os_ref
+	os_ref = enum.next_element
+      end
+
+      enum = Cmpi.broker.enumInstanceNames context, upref
+      enum.each do |res|
+	if want_instance
+	  result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_OSProcess"
+	  result = Cmpi::CMPIInstance.new result
+	else
+	  result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_OSProcess"
+	end
+      
+	# Set key properties
+	result.GroupComponent = os_ref # CIM_OperatingSystem
+	result.PartComponent = res # CIM_Process
+	yield result
+      end
+    end
+    public
+
     # Associations
     def associator_names( context, result, reference, assoc_class, result_class, role, result_role )
       @trace_file.puts "RCP_OSProcess.associator_names #{context}, #{result}, ref #{reference}, assoc_class #{assoc_class}, result_class #{result_class}, role #{role}, result_role #{result_role}"
@@ -54,51 +100,85 @@ module Cmpi
       @trace_file.puts "RCP_OSProcess.reference_names ctx #{context}, res #{result}, ref #{reference}, result_class #{result_class}, role #{role}"
       @trace_file.puts "Called from #{reference.CreationClassName}"
 
-      os_ref = nil # OperatingSystem for result.GroupComponent
-      
-      # construct reference for upcall
-      upref = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_UnixProcess"
-      STDERR.puts "upref #{upref}"
-      if reference.classname == "RCP_ComputerSystem"
-	STDERR.puts "Have CS, need OS"
-	upref.CSCreationClassName = reference.classname
-	upref.CSName = reference.Name
-	os_ref = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_OperatingSystem"
-	enum = Cmpi.broker.enumInstanceNames context, os_ref
-	os_ref = enum.next_element
-      elsif reference.classname == "RCP_OperatingSystem"
-	STDERR.puts "Have OS, need nothing"
-	upref.OSCreationClassName = reference.classname
-      STDERR.puts "upref #{upref}"
-	upref.OSName = reference.Name
-      STDERR.puts "upref #{upref}"
-	os_ref = reference
-      else
-	result.done
-	true
-      end
-      STDERR.puts "os_ref #{os_ref}"
-      STDERR.puts "upref #{upref}"
-      enum = Cmpi.broker.enumInstanceNames context, upref
-      enum.each do |res|
-        os_process = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_OSProcess"
-	os_process.GroupComponent = os_ref # CIM_OperatingSystem
-	os_process.PartComponent = res # CIM_Process
-	@trace_file.puts "RCP_OSProcess.reference_names => #{os_process}"
-        result.return_objectpath os_process
+      each(context, reference) do |ref|
+        result.return_objectpath ref
       end
       result.done
       true
     end
+
     def references( context, result, reference, result_class, role, properties )
       @trace_file.puts "RCP_OSProcess.references #{context}, #{result}, ref #{reference}, result_class #{result_class}, role #{role}, props #{properties}"
+      each(context, reference, properties, true) do |instance|
+        result.return_instance instance
+      end
+      result.done
+      true
     end
     
-    def self.typemap
-      {
-        "GroupComponent" => Cmpi::CIM_OperatingSystem,
-        "PartComponent" => Cmpi::CIM_Process,
-      }
+    # Instance
+
+    def create_instance( context, result, reference, newinst )
+      @trace_file.puts "create_instance ref #{reference}, newinst #{newinst.inspect}"
+      # RCP_OSProcess.new reference, newinst
+      # result.return_objectpath reference
+      # result.done
+      # true
+    end
+    
+    def enum_instance_names( context, result, reference )
+      @trace_file.puts "enum_instance_names ref #{reference}"
+      each(context, reference) do |ref|
+        @trace_file.puts "ref #{ref}"
+        result.return_objectpath ref
+      end
+      result.done
+      true
+    end
+    
+    def enum_instances( context, result, reference, properties )
+      @trace_file.puts "enum_instances ref #{reference}, props #{properties.inspect}"
+      each(context, reference, properties, true) do |instance|
+        @trace_file.puts "instance #{instance}"
+        result.return_instance instance
+      end
+      result.done
+      true
+    end
+    
+    def get_instance( context, result, reference, properties )
+      @trace_file.puts "get_instance ref #{reference}, props #{properties.inspect}"
+      each(context, reference, properties, true) do |instance|
+        @trace_file.puts "instance #{instance}"
+        result.return_instance instance
+        break # only return first instance
+      end
+      result.done
+      true
+    end
+    
+    def set_instance( context, result, reference, newinst, properties )
+      @trace_file.puts "set_instance ref #{reference}, newinst #{newinst.inspect}, props #{properties.inspect}"
+      properties.each do |prop|
+        newinst.send "#{prop.name}=".to_sym, FIXME
+      end
+      result.return_instance newinst
+      result.done
+      true
+    end
+    
+    def delete_instance( context, result, reference )
+      @trace_file.puts "delete_instance ref #{reference}"
+      result.done
+      true
+    end
+    
+    # query : String
+    # lang : String
+    def exec_query( context, result, reference, query, lang )
+      @trace_file.puts "exec_query ref #{reference}, query #{query}, lang #{lang}"
+      result.done
+      true
     end
   end
 end
