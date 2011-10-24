@@ -129,7 +129,6 @@ module Cmpi
     def enum_instance_names( context, result, reference )
       @trace_file.puts "enum_instance_names ref #{reference}"
       each(context, reference) do |ref|
-        @trace_file.puts "ref #{ref}"
         result.return_objectpath ref
       end
       result.done
@@ -139,7 +138,6 @@ module Cmpi
     def enum_instances( context, result, reference, properties )
       @trace_file.puts "enum_instances ref #{reference}, props #{properties.inspect}"
       each(context, reference, properties, true) do |instance|
-        @trace_file.puts "instance #{instance}"
         result.return_instance instance
       end
       result.done
@@ -149,7 +147,6 @@ module Cmpi
     def get_instance( context, result, reference, properties )
       @trace_file.puts "get_instance ref #{reference}, props #{properties.inspect}"
       each(context, reference, properties, true) do |instance|
-        @trace_file.puts "instance #{instance}"
         result.return_instance instance
         break # only return first instance
       end
