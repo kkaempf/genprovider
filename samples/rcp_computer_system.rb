@@ -83,6 +83,7 @@ module Cmpi
     # Methods
       
     # CIM_ComputerSystem: SetPowerState
+    def set_power_state_args; [["PowerState","Time"]] end
     #
     # A class derived from System that is a special collection of
     # ManagedSystemElements. This collection is related to the providing
@@ -99,13 +100,14 @@ module Cmpi
     end
       
     # CIM_EnabledLogicalElement: RequestStateChange
+    def request_state_change_args; [["RequestedState","TimeoutPeriod"],["Job"]] end
     #
     # This class extends LogicalElement to abstract the concept of an
     # element that is enabled and disabled, such as a LogicalDevice or a
     # ServiceAccessPoint.
     #
     def request_state_change( context, result, reference, requested_state, timeout_period )
-      @trace_file.puts "request_state_change #{context}, #{result}, #{reference}, #{requested_state}, #{timeout_period}"
+      @trace_file.puts "request_state_change #{context}, #{result}, #{reference}, #{requested_state.inspect}, #{timeout_period.inspect}"
       result = nil # uint32
       job = nil # CIM_ConcreteJob ref
       #  function body goes here

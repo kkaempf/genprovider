@@ -363,7 +363,16 @@ module Genprovider
       @out.puts
       mkquery
     end
-      
+    
+    def mkargs args, name, suffix
+	s = ""
+	args.each do |arg|
+	  s << "," unless s.empty?
+	  s << arg.name.inspect
+	end
+	@out.puts "@@#{name}_#{suffix} = [#{s}]"
+    end
+
     def mkmethods
       @out.comment "Methods"
       @out.puts("class Method").inc
@@ -376,12 +385,15 @@ module Genprovider
 	  input << p if p.in
 	  output << p if p.out
 	end
+	mname = method.name.decamelize
+	mkargs input, mname, "argsin"
+	mkargs output, mname, "argsout"
 	d = klass.description.value rescue nil
 	if d
 	  @out.comment "#{d}"
 	  @out.comment
 	end
-	args = ["#{method.name.decamelize}", "context", "result", "reference"]
+	args = ["#{mname}", "context", "result", "reference"]
 	input.each do |arg|
 	  args << arg.name.decamelize
 	end
@@ -392,7 +404,7 @@ module Genprovider
 	  log << ", " unless log.empty?
 	  log << "\#{#{arg}}"
 	end
-	@out.puts "#{LOG} \"#{method.name.decamelize} #{log}\""
+	@out.puts "#{LOG} \"#{mname} #{log}\""
 	args = [ "result" ]
         @out.puts "result = nil # #{method.type}"
 	output.each do |arg|
