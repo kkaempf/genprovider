@@ -75,16 +75,43 @@ module Cmpi
     #
     # Provider initialization
     #
-    def initialize( name, broker, context )
+    def initialize( name, broker, context )      
       @trace_file = STDERR
       super name, broker, context
     end
     
     # Methods
-    def invoke_method( context, result, reference, method, argsin, argsout )
-      @trace_file.puts "invoke_method #{context}, #{result}, #{reference}, #{method}, #{argsin}, #{argsout}"
+      
+    # CIM_ComputerSystem: SetPowerState
+    #
+    # A class derived from System that is a special collection of
+    # ManagedSystemElements. This collection is related to the providing
+    # of compute capabilities and MAY serve as an aggregation point to
+    # associate one or more of the following elements: FileSystem,
+    # OperatingSystem, Processor and Memory (Volatile and/or NonVolatile
+    # Storage).
+    #
+    def set_power_state( context, result, reference, power_state, time )
+      @trace_file.puts "set_power_state #{context}, #{result}, #{reference}, #{power_state}, #{time}"
+      result = nil # uint32
+      #  function body goes here
+      return result
     end
-    
+      
+    # CIM_EnabledLogicalElement: RequestStateChange
+    #
+    # This class extends LogicalElement to abstract the concept of an
+    # element that is enabled and disabled, such as a LogicalDevice or a
+    # ServiceAccessPoint.
+    #
+    def request_state_change( context, result, reference, requested_state, timeout_period )
+      @trace_file.puts "request_state_change #{context}, #{result}, #{reference}, #{requested_state}, #{timeout_period}"
+      result = nil # uint32
+      job = nil # CIM_ConcreteJob ref
+      #  function body goes here
+      return [result, job]
+    end
+      
     def enum_instance_names( context, result, reference )
       @trace_file.puts "enum_instance_names ref #{reference}"
       each(reference) do |ref|
