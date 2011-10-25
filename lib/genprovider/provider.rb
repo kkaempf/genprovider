@@ -369,15 +369,51 @@ module Genprovider
       @out.puts("class Method").inc
       methods :all do |method, klass|
 	@out.comment "#{klass.name}: #{method.name}"
-	@out.def "#{method.name.decamelize}", "context", "result", "reference", "argsin", "argsout"
-	@out.puts "#{LOG} \"#{method.name.decamelize} \#{context}, \#{result}, \#{reference}, \#{argsin}, \#{argsout}\""
+	@out.comment
+	input = []
+	output = []
+	method.parameters.each do |p|
+	  input << p if p.in
+	  output << p if p.out
+	end
+	d = klass.description.value rescue nil
+	if d
+	  @out.comment "#{d}"
+	  @out.comment
+	end
+	args = ["#{method.name.decamelize}", "context", "result", "reference"]
+	input.each do |arg|
+	  args << arg.name.decamelize
+	end
+	@out.def *args
+	args.shift
+	log = ""
+	args.each do |arg|
+	  log << ", " unless log.empty?
+	  log << "\#{#{arg}}"
+	end
+	@out.puts "#{LOG} \"#{method.name.decamelize} #{log}\""
+	args = [ "result" ]
+        @out.puts "result = nil # #{method.type}"
+	output.each do |arg|
+	  name = arg.name.decamelize
+	  @out.puts "#{name} = nil # #{arg.type}"
+	  args << name
+	end
+	@out.comment " function body goes here"
+	if args.size > 1
+	  @out.puts "return [#{args.join(', ')}]"
+	else
+	  @out.puts "return #{args[0]}"
+	end
 	@out.end
+	@out.puts
       end
       @out.end
-      @out.puts
-      @out.def "invoke_method", "context", "result", "reference", "method", "argsin", "argsout"
-      @out.puts "#{LOG} \"invoke_method \#{context}, \#{result}, \#{reference}, \#{method}, \#{argsin}, \#{argsout}\""
-      @out.end
+#      @out.puts
+#      @out.def "invoke_method", "context", "result", "reference", "method", "argsin", "argsout"
+#      @out.puts "#{LOG} \"invoke_method \#{context}, \#{result}, \#{reference}, \#{method}, \#{argsin}, \#{argsout}\""
+#      @out.end
     end
     
     def mkassociations
