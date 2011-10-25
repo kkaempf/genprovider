@@ -376,13 +376,13 @@ module Genprovider
     end
     
     def mkargs args, name
-	s = ""
-	args.each do |arg|
-	  s << ", " unless s.empty?
-	  s << arg.name.inspect
-	  s << ", #{arg.type.to_cmpi}"
-	end
-	@out.puts "def #{name}_args; [#{s}] end"
+      s = ""
+      args.each do |arg|
+	s << ", " unless s.empty?
+	s << arg.name.inspect
+	s << ", #{arg.type.to_cmpi}"
+      end
+      s
     end
 
     def mkmethods
@@ -398,8 +398,7 @@ module Genprovider
 	  output << p if p.out
 	end
 	mname = method.name.decamelize
-	mkargs input, mname
-	mkargs output, mname
+	@out.puts "def #{mname}_args; [[#{mkargs(input, mname)}],[#{method.type.to_cmpi}, #{mkargs(output, mname)}]] end"
 	d = klass.description.value rescue nil
 	if d
 	  @out.comment "#{d}"

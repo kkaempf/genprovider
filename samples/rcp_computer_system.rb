@@ -83,7 +83,7 @@ module Cmpi
     # Methods
       
     # CIM_ComputerSystem: SetPowerState
-    def set_power_state_args; [["PowerState","Time"]] end
+    def set_power_state_args; [["PowerState", Cmpi::uint32, "Time", Cmpi::dateTime],[Cmpi::uint32, ]] end
     #
     # A class derived from System that is a special collection of
     # ManagedSystemElements. This collection is related to the providing
@@ -92,24 +92,24 @@ module Cmpi
     # OperatingSystem, Processor and Memory (Volatile and/or NonVolatile
     # Storage).
     #
-    def set_power_state( context, result, reference, power_state, time )
-      @trace_file.puts "set_power_state #{context}, #{result}, #{reference}, #{power_state}, #{time}"
+    def set_power_state( context, reference, power_state, time )
+      @trace_file.puts "set_power_state #{context}, #{reference}, #{power_state}, #{time}"
       result = nil # uint32
       #  function body goes here
       return result
     end
       
     # CIM_EnabledLogicalElement: RequestStateChange
-    def request_state_change_args; [["RequestedState","TimeoutPeriod"],["Job"]] end
+    def request_state_change_args; [["RequestedState", Cmpi::uint16, "TimeoutPeriod", Cmpi::dateTime],[Cmpi::uint32, "Job", Cmpi::ref]] end
     #
     # This class extends LogicalElement to abstract the concept of an
     # element that is enabled and disabled, such as a LogicalDevice or a
     # ServiceAccessPoint.
     #
-    def request_state_change( context, result, reference, requested_state, timeout_period )
-      @trace_file.puts "request_state_change #{context}, #{result}, #{reference}, #{requested_state.inspect}, #{timeout_period.inspect}"
-      result = nil # uint32
-      job = nil # CIM_ConcreteJob ref
+    def request_state_change( context, reference, requested_state, timeout_period )
+      @trace_file.puts "request_state_change #{context}, #{reference}, #{requested_state}, #{timeout_period}"
+      result = 42 # uint32
+      job = Cmpi::CMPIObjectPath.new reference.classname, "CIM_ConcreteJob" # CIM_ConcreteJob ref
       #  function body goes here
       return [result, job]
     end
