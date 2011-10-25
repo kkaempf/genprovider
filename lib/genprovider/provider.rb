@@ -39,12 +39,12 @@ module Genprovider
     #  filter = :keys  # keys only
     #           :nokey # non-keys only
     #           :all   # all
-    def features discriminator, filter
+    def features predicate, filter
       overrides = {}
       c = @klass
       while c
 	c.features.each do |f|
-	  next unless f.send(discriminator)
+	  next unless f.send(predicate)
 	  f_override = overrides[f.name] # overriden in child class ?
 	  if f_override # Y: f_override = overriding feature
 	    # copy qualifiers from overridden to overriding feature
