@@ -15,6 +15,22 @@ class String
 end
 
 module CIM
+  class ReferenceType
+    def to_cmpi
+      "Cmpi::ref"
+    end
+  end
+  class Type
+    def to_cmpi
+      t = type
+      a = ""
+      if array?
+	a = "A"
+	t = t.type
+      end
+      "Cmpi::#{t}#{a}"
+    end
+  end
   class ClassFeature
     def method_missing name
       qualifiers[name]
@@ -281,17 +297,12 @@ module Genprovider
       @out.puts("{").inc
       properties :all do |property, klass|
 	t = property.type
-	a = ""
-	if t.array?
-	  a = "A"
-	  t = t.type
-	end
+	s = t.to_cmpi
 	if t.is_a? CIM::ReferenceType
 	  # use t.name to stay Ruby-compatible. t.to_s would print MOF syntax
 	  @out.comment t.to_s
-	  t = "ref"
 	end
-	@out.puts "#{property.name.inspect} => Cmpi::#{t}#{a},"
+	@out.puts "#{property.name.inspect} => #{s},"
       end
       @out.dec.puts "}"
       @out.end
@@ -364,18 +375,19 @@ module Genprovider
       mkquery
     end
     
-    def mkargs args, name, suffix
+    def mkargs args, name
 	s = ""
 	args.each do |arg|
-	  s << "," unless s.empty?
+	  s << ", " unless s.empty?
 	  s << arg.name.inspect
+	  s << ", #{arg.type.to_cmpi}"
 	end
-	@out.puts "@@#{name}_#{suffix} = [#{s}]"
+	@out.puts "def #{name}_args; [#{s}] end"
     end
 
     def mkmethods
       @out.comment "Methods"
-      @out.puts("class Method").inc
+      @out.puts
       methods :all do |method, klass|
 	@out.comment "#{klass.name}: #{method.name}"
 	@out.comment
@@ -386,14 +398,14 @@ module Genprovider
 	  output << p if p.out
 	end
 	mname = method.name.decamelize
-	mkargs input, mname, "argsin"
-	mkargs output, mname, "argsout"
+	mkargs input, mname
+	mkargs output, mname
 	d = klass.description.value rescue nil
 	if d
 	  @out.comment "#{d}"
 	  @out.comment
 	end
-	args = ["#{mname}", "context", "result", "reference"]
+	args = ["#{mname}", "context", "reference"]
 	input.each do |arg|
 	  args << arg.name.decamelize
 	end
@@ -421,7 +433,7 @@ module Genprovider
 	@out.end
 	@out.puts
       end
-      @out.end
+
 #      @out.puts
 #      @out.def "invoke_method", "context", "result", "reference", "method", "argsin", "argsout"
 #      @out.puts "#{LOG} \"invoke_method \#{context}, \#{result}, \#{reference}, \#{method}, \#{argsin}, \#{argsout}\""
