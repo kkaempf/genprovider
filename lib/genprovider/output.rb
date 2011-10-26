@@ -60,14 +60,14 @@ class Output
   def end
     self.dec
     self.puts "end"
-  end    
-  def comment str=nil
+  end
+  def comment str=nil, lmargin = nil
     if str =~ /\\n/
-      comment $`
-      comment $' #'
+      comment $`, lmargin
+      comment $', lmargin  #' <- colorize helper
       return self
     end
-    wrap = @wrap - (@depth * @indent + 2)
+    wrap = @wrap - (@depth * @indent + 2) - ((lmargin)?lmargin:0)
     if str && str.size > wrap # must wrap
 #      puts "#{str.size} > #{wrap}"
       pivot = wrap
@@ -82,13 +82,14 @@ class Output
       end
       if 0 < pivot && pivot < str.size
 #        puts "-wrap @ #{pivot}-"
-        comment str[0,pivot]
-	comment str[pivot+1..-1]
+        comment str[0,pivot], lmargin
+	comment str[pivot+1..-1], lmargin
 	return self
       end
     end
     indent
     @file.write "#"
+    @file.write(" " * lmargin) if lmargin
     @file.write " #{str}" if str
     @file.puts
     self
