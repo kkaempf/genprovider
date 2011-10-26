@@ -94,7 +94,7 @@ module Cmpi
     #
     def set_power_state( context, reference, power_state, time )
       @trace_file.puts "set_power_state #{context}, #{reference}, #{power_state}, #{time}"
-      result = nil # uint32
+      result = 12345 # uint32
       #  function body goes here
       return result
     end
@@ -109,7 +109,7 @@ module Cmpi
     def request_state_change( context, reference, requested_state, timeout_period )
       @trace_file.puts "request_state_change #{context}, #{reference}, #{requested_state}, #{timeout_period}"
       result = 42 # uint32
-      job = Cmpi::CMPIObjectPath.new reference.classname, "CIM_ConcreteJob" # CIM_ConcreteJob ref
+      job = Cmpi::CMPIObjectPath.new reference.namespace, "CIM_ConcreteJob" # CIM_ConcreteJob ref
       #  function body goes here
       return [result, job]
     end
