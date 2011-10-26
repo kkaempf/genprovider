@@ -71,7 +71,7 @@ module Genprovider
 	    end
 	    next
 	  end
-	  q_override = f.qualifiers["override"]
+	  q_override = f.override
 	  if q_override
 	    overrides[f.name] = f
 	  end
@@ -156,8 +156,8 @@ module Genprovider
       @out.comment "Instance: Set non-key properties"
       @out.puts
       properties :nokeys do |prop, klass|
-	deprecated = prop.qualifiers["deprecated"]
-	required = prop.qualifiers["required"]
+	deprecated = prop.deprecated
+	required = prop.required
 	if required
 	  @out.comment "Required !"
 	  @out.puts "#{property_setter_line prop, klass}"
@@ -395,10 +395,41 @@ module Genprovider
       s
     end
 
+    def explain_args args, text
+      @out.comment "#{text} args"
+      args.each do |arg|
+	@out.comment "#{arg.name} : #{arg.type}", 1
+	d = arg.description
+	@out.comment("#{d.value}", 3) if d
+	valuemap = arg.valuemap
+	# values might be nil, then only ValueMap given
+	if valuemap
+	  @out.comment "Value can be one of", 3
+	  valuemap = valuemap.value
+	  values = arg.values
+	  if values
+	    values = values.value
+	    loop do
+	      s = values.shift
+	      v = valuemap.shift
+	      break unless v && s
+	      @out.comment "#{s}: #{v}", 5
+	    end
+	  else
+	    valuemap.each do |v|
+	       @out.comment v, 5
+	     end
+	  end
+	end
+      end
+      @out.comment
+    end
+    
     def mkmethods
       @out.comment "Methods"
       @out.puts
       methods :all do |method, klass|
+	next if method.deprecated
 	@out.comment "#{klass.name}: #{method.name}"
 	@out.comment
 	input = []
@@ -420,8 +451,7 @@ module Genprovider
 	  @out.comment "#{d}"
 	  @out.comment
 	end
-	v = method.valuemap
-#	STDERR.puts "#{name}.valuemap #{v.inspect}"
+	v = method.values
 	default_return_value = "nil"
 	if v
 	  @out.comment "See class #{method.name} for return values"
@@ -432,6 +462,8 @@ module Genprovider
 	  end
 	  default_return_value = "#{name}.#{firstval}"
 	end
+	explain_args input, "Input"
+	explain_args output, "Additional output"
 	args = ["#{decam}", "context", "reference"]
 	input.each do |arg|
 	  args << arg.name.decamelize
@@ -582,6 +614,10 @@ module Genprovider
 	mkinstance
 	@out.puts
       end
+      @out.comment
+      @out.comment "----------------- valuemaps following, don't touch -----------------"
+      @out.comment
+      
       mkvaluemaps
       @out.end # class
       @out.end # module
