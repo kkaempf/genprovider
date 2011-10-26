@@ -308,14 +308,14 @@ module Genprovider
       @out.end
     end
     #
-    # Generate valuemap classes
+    # make_valuemap
+    # make one ValueMap class
     #
-    def mkvaluemaps
-      properties :all do |property, klass|
+    def make_valuemap property
 	t = property.type
 	# get the Values and ValueMap qualifiers
 	valuemap = property.ValueMap
-	next unless valuemap
+	return unless valuemap
 	values = property.Values
 	@out.puts
 	@out.puts("class #{property.name} < Cmpi::ValueMap").inc
@@ -354,6 +354,16 @@ module Genprovider
 	@out.dec.puts "}"
 	@out.end
 	@out.end
+    end
+    #
+    # Generate valuemap classes
+    #
+    def mkvaluemaps
+      properties :all do |property, klass|
+	make_valuemap property
+      end
+      methods :all do |method, klass|
+	make_valuemap method
       end
     end
 
@@ -397,14 +407,32 @@ module Genprovider
 	  input << p if p.in
 	  output << p if p.out
 	end
-	mname = method.name.decamelize
-	@out.puts "def #{mname}_args; [[#{mkargs(input, mname)}],[#{method.type.to_cmpi}, #{mkargs(output, mname)}]] end"
-	d = klass.description.value rescue nil
+	name = method.name
+	decam = name.decamelize
+	# write type and argument information
+	# must be array since order here is order of args passed to function
+	# first element is list of input args (alternating name and type)
+	# second is list of output args (starting with return type, then name and type of additional out args)
+	@out.puts "def #{decam}_args; [[#{mkargs(input, decam)}],[#{method.type.to_cmpi}, #{mkargs(output, decam)}]] end"
+	@out.comment
+	d = method.description.value rescue nil
 	if d
 	  @out.comment "#{d}"
 	  @out.comment
 	end
-	args = ["#{mname}", "context", "reference"]
+	v = method.valuemap
+#	STDERR.puts "#{name}.valuemap #{v.inspect}"
+	default_return_value = "nil"
+	if v
+	  @out.comment "See class #{method.name} for return values"
+	  @out.comment
+	  firstval = v[0]
+	  if firstval.to_s =~ /\s/
+	    firstval = "send(#{firstval.to_sym.inspect})"
+	  end
+	  default_return_value = "#{name}.#{firstval}"
+	end
+	args = ["#{decam}", "context", "reference"]
 	input.each do |arg|
 	  args << arg.name.decamelize
 	end
@@ -415,9 +443,9 @@ module Genprovider
 	  log << ", " unless log.empty?
 	  log << "\#{#{arg}}"
 	end
-	@out.puts "#{LOG} \"#{mname} #{log}\""
+	@out.puts "#{LOG} \"#{decam} #{log}\""
 	args = [ "result" ]
-        @out.puts "result = nil # #{method.type}"
+        @out.puts "result = #{default_return_value} # #{method.type}"
 	output.each do |arg|
 	  name = arg.name.decamelize
 	  @out.puts "#{name} = nil # #{arg.type}"
