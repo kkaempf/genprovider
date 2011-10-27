@@ -26,7 +26,6 @@ module CIM
       a = ""
       if array?
 	a = "A"
-	t = t.type
       end
       "Cmpi::#{t}#{a}"
     end
