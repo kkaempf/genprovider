@@ -75,109 +75,118 @@ module Cmpi
     end
     
     private
+    def each_dmi
+      IO.popen("dmidecode -t memory") do |f|
+	key = nil
+	memory_device = nil
+	while l = f.gets
+	  if l =~ /^Memory Device/
+	    yield memory_device if memory_device
+	    memory_device = {}
+	    next
+	  else
+	    next unless memory_device
+	  end
+	  if l =~ /^\s*([^:]+):\s*(.*)\s*$/
+	    memory_device[$1] = $2.strip
+	  end
+	end
+	yield memory_device if memory_device
+      end
+    end
     #
     # Iterator for names and instances
     #  yields references matching reference and properties
     #
     def each( context, reference, properties = nil, want_instance = false )
-      dmi = {}
-      IO.popen("dmidecode -t memory") do |f|
-	k = nil
-	while l = f.gets
-	  if l =~ /^\s*([^:]+):\s*(.*)\s*$/
-	    if $1
-	      k = $1
-	      if $2.empty?
-		dmi[k] = []
-	      else
-		dmi[k] = $2.strip
-	      end
-	    end
-	  elsif k
-	    dmi[k] << l.strip
-	  end
+      tag = reference.Tag rescue nil
+      each_dmi do |dmi|
+	STDERR.puts "dmi #{dmi.inspect}"
+	if want_instance
+	  result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_PhysicalMemory"
+	  result = Cmpi::CMPIInstance.new result
+	else
+	  result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_PhysicalMemory"
 	end
-      end
-      @trace_file.puts "dmi #{dmi.inspect}"
       
-      device_id = reference.DeviceID rescue nil
-      if want_instance
-        result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_PhysicalMemory"
-        result = Cmpi::CMPIInstance.new result
-      else
-        result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_PhysicalMemory"
-      end
+        # Set key properties
       
-      # Set key properties
+        result.Tag = dmi["Locator"] # string MaxLen 256  (-> CIM_PhysicalElement)
+	if tag
+	  next unless tag == result.Tag
+	end
+	result.CreationClassName = "RCP_PhysicalMemory" # string MaxLen 256  (-> CIM_PhysicalElement)
+	unless want_instance
+	  yield result
+	  next
+	end
       
-      result.Tag = nil # string MaxLen 256  (-> CIM_PhysicalElement)
-      result.CreationClassName = nil # string MaxLen 256  (-> CIM_PhysicalElement)
-      unless want_instance
-        yield result
-        return
-      end
+        # Instance: Set non-key properties
       
-      # Instance: Set non-key properties
-      
-      # result.FormFactor = FormFactor.Unknown # uint16  (-> CIM_PhysicalMemory)
-      # result.MemoryType = MemoryType.Unknown # uint16  (-> CIM_PhysicalMemory)
-      # result.TotalWidth = nil # uint16  (-> CIM_PhysicalMemory)
-      # result.DataWidth = nil # uint16  (-> CIM_PhysicalMemory)
-      # result.Speed = nil # uint32  (-> CIM_PhysicalMemory)
-      # result.Capacity = nil # uint64  (-> CIM_PhysicalMemory)
-      # result.BankLabel = nil # string MaxLen 64  (-> CIM_PhysicalMemory)
-      # result.PositionInRow = nil # uint32  (-> CIM_PhysicalMemory)
-      # result.InterleavePosition = nil # uint32  (-> CIM_PhysicalMemory)
-      # result.RemovalConditions = RemovalConditions.Unknown # uint16  (-> CIM_PhysicalComponent)
-      # Deprecated !
-      # result.Removable = nil # boolean  (-> CIM_PhysicalComponent)
-      # Deprecated !
-      # result.Replaceable = nil # boolean  (-> CIM_PhysicalComponent)
-      # Deprecated !
-      # result.HotSwappable = nil # boolean  (-> CIM_PhysicalComponent)
-      # result.Description = nil # string  (-> CIM_PhysicalElement)
+        result.FormFactor = FormFactor.send(dmi["Form Factor"]) # uint16  (-> CIM_PhysicalMemory)
+        result.MemoryType = MemoryType.send(dmi["Type"]) # uint16  (-> CIM_PhysicalMemory)
+        result.TotalWidth = dmi["Total Width"].to_i # uint16  (-> CIM_PhysicalMemory)
+        result.DataWidth = dmi["Data Width"].to_i # uint16  (-> CIM_PhysicalMemory)
+	# convert MHz to ns
+	# (1 MHz = 10^6 cycles / sec = 10^3 cycles / msec = 10 cycles / nsec)
+	# (1000 MHz = 10^9 cycles / sec = 10^6 cycles / msec = 10^3 cycles / nsec)
+        result.Speed = (10**3 / dmi["Speed"].to_f).round.to_i # uint32  (-> CIM_PhysicalMemory)
+	if dmi["Size"] =~ /(\d+)\s+(\S+)/ # i.e. 2048 MB
+	  factor = case $2
+	    when "KB": 1024
+	    when "MB": 1024**2
+	    when "GB": 1024**3
+	    when "TB": 1024**4
+	    else
+	      raise "Cannot handle size of '#{dmi['Size']}'"
+	    end
+	  result.Capacity = $1.to_i * factor
+	end
+        result.BankLabel = dmi["Bank Locator"] # string MaxLen 64  (-> CIM_PhysicalMemory)
+	# result.PositionInRow = nil # uint32  (-> CIM_PhysicalMemory)
+	# result.InterleavePosition = nil # uint32  (-> CIM_PhysicalMemory)
+	# result.RemovalConditions = RemovalConditions.Unknown # uint16  (-> CIM_PhysicalComponent)
+	# Deprecated !
+	# result.Removable = nil # boolean  (-> CIM_PhysicalComponent)
+	# Deprecated !
+	# result.Replaceable = nil # boolean  (-> CIM_PhysicalComponent)
+	# Deprecated !
+	# result.HotSwappable = nil # boolean  (-> CIM_PhysicalComponent)
+	result.Description = dmi["Size"] + " " + dmi["Form Factor"] # string  (-> CIM_PhysicalElement)
       # result.ElementName = nil # string  (-> CIM_PhysicalElement)
-      # result.Manufacturer = nil # string MaxLen 256  (-> CIM_PhysicalElement)
+        result.Manufacturer = dmi["Manufacturer"] # string MaxLen 256  (-> CIM_PhysicalElement)
       # result.Model = nil # string MaxLen 256  (-> CIM_PhysicalElement)
       # result.SKU = nil # string MaxLen 64  (-> CIM_PhysicalElement)
-      # result.SerialNumber = nil # string MaxLen 256  (-> CIM_PhysicalElement)
+        result.SerialNumber = dmi["Serial Number"] # string MaxLen 256  (-> CIM_PhysicalElement)
       # result.Version = nil # string MaxLen 64  (-> CIM_PhysicalElement)
-      # result.PartNumber = nil # string MaxLen 256  (-> CIM_PhysicalElement)
-      # result.OtherIdentifyingInfo = nil # string  (-> CIM_PhysicalElement)
-      # result.PoweredOn = nil # boolean  (-> CIM_PhysicalElement)
-      # result.ManufactureDate = nil # dateTime  (-> CIM_PhysicalElement)
-      # result.VendorEquipmentType = nil # string  (-> CIM_PhysicalElement)
-      # result.UserTracking = nil # string  (-> CIM_PhysicalElement)
-      # result.CanBeFRUed = nil # boolean  (-> CIM_PhysicalElement)
-      # result.InstallDate = nil # dateTime  (-> CIM_ManagedSystemElement)
-      # result.Name = nil # string MaxLen 1024  (-> CIM_ManagedSystemElement)
-      # result.OperationalStatus = [OperationalStatus.Unknown] # uint16[]  (-> CIM_ManagedSystemElement)
-      # result.StatusDescriptions = [nil] # string[]  (-> CIM_ManagedSystemElement)
-      # Deprecated !
-      # result.Status = Status.OK # string MaxLen 10  (-> CIM_ManagedSystemElement)
-      # result.HealthState = HealthState.Unknown # uint16  (-> CIM_ManagedSystemElement)
-      # result.CommunicationStatus = CommunicationStatus.Unknown # uint16  (-> CIM_ManagedSystemElement)
-      # result.DetailedStatus = DetailedStatus.send(:"Not Available") # uint16  (-> CIM_ManagedSystemElement)
-      # result.OperatingStatus = OperatingStatus.Unknown # uint16  (-> CIM_ManagedSystemElement)
-      # result.PrimaryStatus = PrimaryStatus.Unknown # uint16  (-> CIM_ManagedSystemElement)
-      # result.InstanceID = nil # string  (-> CIM_ManagedElement)
-      # result.Caption = nil # string MaxLen 64  (-> CIM_ManagedElement)
-      yield result
+        result.PartNumber = dmi["Part Number"] # string MaxLen 256  (-> CIM_PhysicalElement)
+	# result.OtherIdentifyingInfo = nil # string  (-> CIM_PhysicalElement)
+	# result.PoweredOn = nil # boolean  (-> CIM_PhysicalElement)
+	# result.ManufactureDate = nil # dateTime  (-> CIM_PhysicalElement)
+	# result.VendorEquipmentType = nil # string  (-> CIM_PhysicalElement)
+	# result.UserTracking = nil # string  (-> CIM_PhysicalElement)
+	# result.CanBeFRUed = nil # boolean  (-> CIM_PhysicalElement)
+	# result.InstallDate = nil # dateTime  (-> CIM_ManagedSystemElement)
+	result.Name = "Memory Device" # string MaxLen 1024  (-> CIM_ManagedSystemElement)
+        result.OperationalStatus = [OperationalStatus.OK] # uint16[]  (-> CIM_ManagedSystemElement)
+	# result.StatusDescriptions = [nil] # string[]  (-> CIM_ManagedSystemElement)
+	# Deprecated !
+	# result.Status = Status.OK # string MaxLen 10  (-> CIM_ManagedSystemElement)
+	# result.HealthState = HealthState.Unknown # uint16  (-> CIM_ManagedSystemElement)
+	# result.CommunicationStatus = CommunicationStatus.Unknown # uint16  (-> CIM_ManagedSystemElement)
+	# result.DetailedStatus = DetailedStatus.send(:"Not Available") # uint16  (-> CIM_ManagedSystemElement)
+	# result.OperatingStatus = OperatingStatus.Unknown # uint16  (-> CIM_ManagedSystemElement)
+	# result.PrimaryStatus = PrimaryStatus.Unknown # uint16  (-> CIM_ManagedSystemElement)
+	# result.InstanceID = nil # string  (-> CIM_ManagedElement)
+	# result.Caption = nil # string MaxLen 64  (-> CIM_ManagedElement)
+	yield result
+      end
     end
     public
-    
-    def create_instance( context, result, reference, newinst )
-      @trace_file.puts "create_instance ref #{reference}, newinst #{newinst.inspect}"
-      # Create instance according to reference and newinst
-      result.return_objectpath reference
-      result.done
-      true
-    end
     
     def enum_instance_names( context, result, reference )
       @trace_file.puts "enum_instance_names ref #{reference}"
       each(context, reference) do |ref|
-        @trace_file.puts "ref #{ref}"
         result.return_objectpath ref
       end
       result.done
@@ -187,7 +196,6 @@ module Cmpi
     def enum_instances( context, result, reference, properties )
       @trace_file.puts "enum_instances ref #{reference}, props #{properties.inspect}"
       each(context, reference, properties, true) do |instance|
-        @trace_file.puts "instance #{instance}"
         result.return_instance instance
       end
       result.done
@@ -201,30 +209,6 @@ module Cmpi
         result.return_instance instance
         break # only return first instance
       end
-      result.done
-      true
-    end
-    
-    def set_instance( context, result, reference, newinst, properties )
-      @trace_file.puts "set_instance ref #{reference}, newinst #{newinst.inspect}, props #{properties.inspect}"
-      properties.each do |prop|
-        newinst.send "#{prop.name}=".to_sym, FIXME
-      end
-      result.return_instance newinst
-      result.done
-      true
-    end
-    
-    def delete_instance( context, result, reference )
-      @trace_file.puts "delete_instance ref #{reference}"
-      result.done
-      true
-    end
-    
-    # query : String
-    # lang : String
-    def exec_query( context, result, reference, query, lang )
-      @trace_file.puts "exec_query ref #{reference}, query #{query}, lang #{lang}"
       result.done
       true
     end
