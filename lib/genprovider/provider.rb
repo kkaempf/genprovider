@@ -306,6 +306,14 @@ module Genprovider
       @out.dec.puts "}"
       @out.end
     end
+    
+    def make_valuemap_header
+      return if @valuemap_headers_done
+      @out.comment
+      @out.comment "----------------- valuemaps following, don't touch -----------------"
+      @out.comment
+      @valuemap_headers_done = true
+    end
     #
     # make_valuemap
     # make one ValueMap class
@@ -315,6 +323,7 @@ module Genprovider
 	# get the Values and ValueMap qualifiers
 	valuemap = property.ValueMap
 	return unless valuemap
+	make_valuemap_header
 	values = property.Values
 	@out.puts
 	@out.puts("class #{property.name} < Cmpi::ValueMap").inc
@@ -354,6 +363,7 @@ module Genprovider
 	@out.end
 	@out.end
     end
+    
     #
     # Generate valuemap classes
     #
@@ -613,9 +623,6 @@ module Genprovider
 	mkinstance
 	@out.puts
       end
-      @out.comment
-      @out.comment "----------------- valuemaps following, don't touch -----------------"
-      @out.comment
       
       mkvaluemaps
       @out.end # class
