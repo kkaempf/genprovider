@@ -390,7 +390,7 @@ module Genprovider
     end
 
     def mkinstance
-      mkbaseintance
+      mkbaseinstance
       mkcreate
       @out.puts
       mkset_instance
