@@ -101,7 +101,6 @@ module Cmpi
     def each( context, reference, properties = nil, want_instance = false )
       tag = reference.Tag rescue nil
       each_dmi do |dmi|
-	STDERR.puts "dmi #{dmi.inspect}"
 	if want_instance
 	  result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_PhysicalMemory"
 	  result = Cmpi::CMPIInstance.new result
@@ -130,7 +129,10 @@ module Cmpi
 	# convert MHz to ns
 	# (1 MHz = 10^6 cycles / sec = 10^3 cycles / msec = 10 cycles / nsec)
 	# (1000 MHz = 10^9 cycles / sec = 10^6 cycles / msec = 10^3 cycles / nsec)
-        result.Speed = (10**3 / dmi["Speed"].to_f).round.to_i # uint32  (-> CIM_PhysicalMemory)
+	speed = dmi["Speed"].to_i
+	if speed > 0  # might be 'Unknown'
+	  result.Speed = (10**3 / speed.to_f).round.to_i # uint32  (-> CIM_PhysicalMemory)
+	end
 	if dmi["Size"] =~ /(\d+)\s+(\S+)/ # i.e. 2048 MB
 	  factor = case $2
 	    when "KB": 1024
