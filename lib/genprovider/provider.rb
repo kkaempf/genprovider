@@ -376,16 +376,22 @@ module Genprovider
       end
     end
 
-    def mkinstance
+    # base instance callbacks
+    # use by association and instance providers
+    def mkbaseinstance
       mkeach
-      @out.puts
-      mkcreate
       @out.puts
       mkenum_instance_names
       @out.puts
       mkenum_instances
       @out.puts
       mkget_instance
+      @out.puts
+    end
+
+    def mkinstance
+      mkbaseintance
+      mkcreate
       @out.puts
       mkset_instance
       @out.puts
@@ -545,7 +551,6 @@ module Genprovider
 	mask |= METHOD_MASK if c.method?
 	if c.association?
 	  mask |= ASSOCIATION_MASK
-	  mask |= INSTANCE_MASK # associations are instances
 	end
 	mask |= INDICATION_MASK if c.indication?
 	c = c.parent
@@ -611,6 +616,7 @@ module Genprovider
       end
       if (mask & ASSOCIATION_MASK) != 0
 	STDERR.puts "  Generating Association provider"
+	mkbaseinstance
 	mkassociations
       end
       if (mask & INDICATION_MASK) != 0
