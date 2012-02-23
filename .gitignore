@@ -6,3 +6,4 @@ generated
 pkg
 doc
 generated/doc
+Gemfile.lock
