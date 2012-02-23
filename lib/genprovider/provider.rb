@@ -14,8 +14,10 @@ class String
   end
 end
 
+require 'cim'
+
 module CIM
-  class ReferenceType
+  class ReferenceType < Type
     def to_cmpi
       "Cmpi::ref"
     end
