@@ -581,6 +581,10 @@ module Genprovider
       @klass = c
       @out = out
 
+      if name[0,1] == name[0,1].downcase
+        raise "Provider name (#{name}) must start with upper case"
+      end
+
       #
       # Header: class name, provider name (Class qualifier 'provider')
       #

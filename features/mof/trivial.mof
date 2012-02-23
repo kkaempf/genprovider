@@ -10,7 +10,7 @@
 // 	Cmpi_Swig
 // ===================================================================
 
-[ Provider("cmpi:cmpi_swig"),
+[ Provider("cmpi:Cmpi_Swig"),
   Description ("A sample class to demonstrate cmpi/swig" )
 ]
 class Cmpi_Swig : CIM_ManagedElement
