@@ -68,10 +68,10 @@ module Genprovider
     def mkdef out, feature
       Genprovider::Class.mkdescription out, feature
       case feature
-      when CIM::Property:
+      when CIM::Property
       # skip
-      when CIM::Reference: out.comment "Reference"
-      when CIM::Method: out.comment "Method"
+      when CIM::Reference then out.comment "Reference"
+      when CIM::Method then out.comment "Method"
       else
 	raise "Unknown feature class #{feature.class}"
       end
@@ -133,9 +133,9 @@ module Genprovider
       features.each do |f|
 	next unless f.instance_of? match
 	case f
-	when CIM::Property: mkproperty f, out
-	when CIM::Reference: mkreference f, out
-	when CIM::Method: mkmethod f, out
+	when CIM::Property then mkproperty f, out
+	when CIM::Reference then mkreference f, out
+	when CIM::Method then mkmethod f, out
 	else
 	  raise "Unknown feature class #{f.class}"
 	end

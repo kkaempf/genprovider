@@ -97,9 +97,9 @@ module Genprovider
 	  header = nil
 	end
 	case f
-	when CIM::Property: doc_property f
-	when CIM::Reference: doc_reference f
-	when CIM::Method: doc_method f
+	when CIM::Property then doc_property f
+	when CIM::Reference then doc_reference f
+	when CIM::Method then doc_method f
 	else
 	  raise "Unknown feature class #{f.class}"
 	end

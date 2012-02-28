@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency("cim", ["~> 1.0"])
   s.add_dependency("mof", ["~> 1.0"])
+  s.add_dependency("rdoc")
 
   s.add_development_dependency('rake')
   s.add_development_dependency('bundler')

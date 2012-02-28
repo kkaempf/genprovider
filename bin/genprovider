@@ -27,7 +27,6 @@
 #
 
 require 'rubygems'
-require 'rdoc/usage'
 
 require 'mof'
 require 'pathname'
@@ -118,7 +117,6 @@ if options[:namespace].nil? || options[:namespace].empty?
   $stderr.puts "** skipping registration"
   $stderr.puts "   Provide a namespace (-n <namespace>) to generate registration file"
 end
-#RDoc::usage 
 
 #
 # parse genprovider arguments
