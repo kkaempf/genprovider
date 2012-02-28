@@ -181,7 +181,7 @@ module Genprovider
       @out.comment
       @out.def "initialize", "name", "broker", "context"
       @out.puts "@trace_file = STDERR"
-      @out.puts "super name, broker, context"
+      @out.puts "super broker"
       @out.end
     end
 
