@@ -13,7 +13,21 @@
 
 == SYNOPSIS:
 
-  genprovider.rb [-d] [-h] [-q] [-I <includedir>] [-o <output>] <moffile> [<moffile> ...]
+  genprovider.rb [-d] [-h] [-q] [-I <includedir>] [-o <output>] [-n <namespace>] <moffile> [<moffile> ...]
+
+== EXAMPLE:
+
+  # generate .registration and .rb file
+  bin/genprovider -n root/cimv2 sample.mof
+  # convert .registration to sfcb .reg file
+  # copy .reg to /var/lib/sfcb/stage/regs
+  # copy .mof to /var/lib/sfcb/mofs/<namespace>/
+  # run sfcbrepos -f
+  sudo provider-register.sh -t sfcb -n root/cimv2 -r generated/sample.registration -m sample.mof
+  # copy provider template
+  cp generated/sample.rb /usr/share/cmpi
+  # reload sfcb to pick up provider information
+  sudo rcsfcb restart
 
 == REQUIREMENTS:
 
