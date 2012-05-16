@@ -120,10 +120,10 @@ module Genprovider
 	  firstval = "send(#{firstval.to_sym.inspect})"
 	end
 	default = "#{property.name}.#{firstval}"
+        default = "[#{default}]" if type.array?
       else
-	default = "nil"
+	default = type.array? ? "[]" : "nil"
       end
-      default = "[#{default}]" if type.array?
       bounds = bounds property, :MaxLen, :Max, :Min
       "#{result_name}.#{property.name} = #{default} # #{type} #{bounds} (-> #{klass.name})"
     end
