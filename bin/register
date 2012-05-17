@@ -1,0 +1,95 @@
+#!/usr/bin/env ruby
+#
+# register
+#
+# Helper to register a 'genprovider' Ruby provider
+#
+
+$mofdir = "features/mof"
+$providerdir = "/usr/share/cmpi"
+$generateddir = "generated"
+
+#
+# Convert CamelCase to underline_case
+#
+
+class String
+  def decamelize
+    # CamelCase -> under_score
+    self.gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+	 gsub(/([a-z\d])([A-Z])/,'\1_\2').
+	 tr("-", "_").
+	 downcase
+  end
+end
+
+
+def usage msg = nil
+  STDERR.puts "** Error: #{msg}" if msg
+  STDERR.puts "register [-h] [-c <cimom>] <name>"
+  STDERR.puts "\tregisters #{$generateddir}/<name>.rb via #{generateddir}/<name>.registration to <cimom> (defaults to sfcb)"
+  exit 1
+end
+
+cimom = "sfcb"
+name = nil
+symlink = false # symlink provider, don't install
+
+loop do
+  arg = ARGV.shift
+  break unless arg
+  case arg
+  when "-h" then usage
+  when "-c" then cimom = ARGV.shift
+  when "-l" then symlink = true
+  else
+    usage("Unknown option #{arg}") if arg[0,1] == "-"
+    name = arg
+  end
+end
+
+moffile = "#{$mofdir}/#{name}.mof"
+providerfile = "#{$generateddir}/#{name.decamelize}.rb"
+registrationfile = "#{$generateddir}/#{name}.registration"
+
+puts "Registering #{moffile} implemented by #{providerfile} via #{registrationfile} to #{cimom}"
+
+classname = namespace = providername = libraryname = nil
+
+File.open registrationfile do |reg|
+  while line = reg.gets
+    next if line[0,1] == "#"
+    # Classname - Namespace - Providername - Libraryname - Capabilities ...
+    #RCP_SimpleDataTypes root/cimv2 RCP_SimpleDataTypes rbCmpiProvider instance
+    values = line.split(" ")
+    next if values.size < 5
+    next unless values[0] == name
+    classname = values[0]
+    namespace = values[1]
+    providername = values[2]
+    libraryname = values[3]
+    break
+  end
+end
+
+cmd = "provider-register.sh -t #{cimom} -n #{namespace} -r #{registrationfile} -m #{moffile}"
+unless system cmd
+  STDERR.puts "** Failed"
+  STDERR.puts cmd
+  exit 1
+end
+
+if symlink
+  File.symlink File.expand_path(providerfile), $providerdir
+else
+  cmd = "cp #{providerfile} #{$providerdir}"
+  unless system cmd
+    STDERR.puts "** Failed"
+    STDERR.puts cmd
+    exit 1
+  end
+end
+
+puts "Success !"
+
+  
