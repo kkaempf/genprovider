@@ -73,8 +73,9 @@ File.open registrationfile do |reg|
 end
 
 cmd = "provider-register.sh -t #{cimom} -n #{namespace} -r #{registrationfile} -m #{moffile}"
-unless system cmd
-  STDERR.puts "** Failed"
+result = system cmd
+unless $?.success?
+  STDERR.puts "** Failed: #{result}"
   STDERR.puts cmd
   exit 1
 end
@@ -83,8 +84,9 @@ if symlink
   File.symlink File.expand_path(providerfile), $providerdir
 else
   cmd = "cp #{providerfile} #{$providerdir}"
-  unless system cmd
-    STDERR.puts "** Failed"
+  result = system cmd
+  unless $?.success?
+    STDERR.puts "** Failed: #{result}"
     STDERR.puts cmd
     exit 1
   end
