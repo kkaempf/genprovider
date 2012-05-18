@@ -7,9 +7,9 @@ module Genprovider
     # return Ruby type equivalent
     def rubytype type
       case type.to_sym
-      when :boolean then return "Boolean"
+      when :boolean then return ""
       when :string then return "String"
-      when :char16 then return "String"
+      when :char16 then return "Integer"
       when :uint8 then return "Integer"
       when :uint16 then return "Integer"
       when :uint32 then return "Integer"
@@ -59,7 +59,13 @@ module Genprovider
       c.features.each do |p|
         next unless p.property?
         out.puts "assert instance.#{p.name}"
-        out.puts "assert_kind_of #{rubytype p.type}, instance.#{p.name} # #{p.type}"
+        rtype = rubytype p.type
+        raise "Unsupported type #{p.type} [#{rtype.class}]" if rtype.nil?
+        if rtype.empty?
+          out.puts "assert instance.#{p.name}.is_a?(TrueClass) || instance.#{p.name}.is_a?(FalseClass)"
+        else
+          out.puts "assert_kind_of #{rubytype p.type}, instance.#{p.name} # #{p.type}"
+        end
       end
       out.end
       out.end
