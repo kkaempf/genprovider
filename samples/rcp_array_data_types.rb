@@ -32,11 +32,11 @@ module Cmpi
         "Name" => Cmpi::string,
         "bool" => Cmpi::booleanA,
         "text" => Cmpi::stringA,
-        "wchar" => Cmpi::char16A,
-        "unsigned_char_8" => Cmpi::uint8A,
-        "unsigned_char_16" => Cmpi::uint16A,
-        "unsigned_char_32" => Cmpi::uint32A,
-        "unsigned_char_64" => Cmpi::uint64A,
+        "char_16" => Cmpi::char16A,
+        "unsigned_int_8" => Cmpi::uint8A,
+        "unsigned_int_16" => Cmpi::uint16A,
+        "unsigned_int_32" => Cmpi::uint32A,
+        "unsigned_int_64" => Cmpi::uint64A,
         "byte" => Cmpi::sint8A,
         "short" => Cmpi::sint16A,
         "int" => Cmpi::sint32A,
@@ -80,11 +80,11 @@ module Cmpi
       
           result.bool = [] # boolean[]  (-> RCP_ArrayDataTypes)
           result.text = [] # string[]  (-> RCP_ArrayDataTypes)
-          result.wchar = [] # char16[]  (-> RCP_ArrayDataTypes)
-          result.unsigned_char_8 = [] # uint8[]  (-> RCP_ArrayDataTypes)
-          result.unsigned_char_16 = [] # uint16[]  (-> RCP_ArrayDataTypes)
-          result.unsigned_char_32 = [] # uint32[]  (-> RCP_ArrayDataTypes)
-          result.unsigned_char_64 = [] # uint64[]  (-> RCP_ArrayDataTypes)
+          result.char_16 = [] # char16[]  (-> RCP_ArrayDataTypes)
+          result.unsigned_int_8 = [] # uint8[]  (-> RCP_ArrayDataTypes)
+          result.unsigned_int_16 = [] # uint16[]  (-> RCP_ArrayDataTypes)
+          result.unsigned_int_32 = [] # uint32[]  (-> RCP_ArrayDataTypes)
+          result.unsigned_int_64 = [] # uint64[]  (-> RCP_ArrayDataTypes)
           result.byte = [] # sint8[]  (-> RCP_ArrayDataTypes)
           result.short = [] # sint16[]  (-> RCP_ArrayDataTypes)
           result.int = [] # sint32[]  (-> RCP_ArrayDataTypes)
@@ -98,11 +98,11 @@ module Cmpi
           @trace_file.puts "result for #{name}"
           result.bool = [true] # boolean[]  (-> RCP_ArrayDataTypes)
           result.text = ["One element"] # string[]  (-> RCP_ArrayDataTypes)
-          result.wchar = [""] # char16[]  (-> RCP_ArrayDataTypes)
-          result.unsigned_char_8 = [1] # uint8[]  (-> RCP_ArrayDataTypes)
-          result.unsigned_char_16 = [1] # uint16[]  (-> RCP_ArrayDataTypes)
-          result.unsigned_char_32 = [1] # uint32[]  (-> RCP_ArrayDataTypes)
-          result.unsigned_char_64 = [1] # uint64[]  (-> RCP_ArrayDataTypes)
+          result.char_16 = [65535] # char16[]  (-> RCP_ArrayDataTypes)
+          result.unsigned_int_8 = [1] # uint8[]  (-> RCP_ArrayDataTypes)
+          result.unsigned_int_16 = [1] # uint16[]  (-> RCP_ArrayDataTypes)
+          result.unsigned_int_32 = [1] # uint32[]  (-> RCP_ArrayDataTypes)
+          result.unsigned_int_64 = [1] # uint64[]  (-> RCP_ArrayDataTypes)
           result.byte = [1] # sint8[]  (-> RCP_ArrayDataTypes)
           result.short = [1] # sint16[]  (-> RCP_ArrayDataTypes)
           result.int = [1] # sint32[]  (-> RCP_ArrayDataTypes)
@@ -115,11 +115,11 @@ module Cmpi
       
           result.bool = [true,false,true] # boolean[]  (-> RCP_ArrayDataTypes)
           result.text = ["Element one", "Element two", "Element three"] # string[]  (-> RCP_ArrayDataTypes)
-          result.wchar = ["", "", ""] # char16[]  (-> RCP_ArrayDataTypes)
-          result.unsigned_char_8 = [1,2,3] # uint8[]  (-> RCP_ArrayDataTypes)
-          result.unsigned_char_16 = [1,2,3] # uint16[]  (-> RCP_ArrayDataTypes)
-          result.unsigned_char_32 = [1,2,3] # uint32[]  (-> RCP_ArrayDataTypes)
-          result.unsigned_char_64 = [1,2,3] # uint64[]  (-> RCP_ArrayDataTypes)
+          result.char_16 = [65535, 32768, -1] # char16[]  (-> RCP_ArrayDataTypes)
+          result.unsigned_int_8 = [1,2,3] # uint8[]  (-> RCP_ArrayDataTypes)
+          result.unsigned_int_16 = [1,2,3] # uint16[]  (-> RCP_ArrayDataTypes)
+          result.unsigned_int_32 = [1,2,3] # uint32[]  (-> RCP_ArrayDataTypes)
+          result.unsigned_int_64 = [1,2,3] # uint64[]  (-> RCP_ArrayDataTypes)
           result.byte = [1,2,3] # sint8[]  (-> RCP_ArrayDataTypes)
           result.short = [1,2,3] # sint16[]  (-> RCP_ArrayDataTypes)
           result.int = [1,2,3] # sint32[]  (-> RCP_ArrayDataTypes)

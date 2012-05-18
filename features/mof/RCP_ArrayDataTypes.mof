@@ -8,12 +8,12 @@ class RCP_ArrayDataTypes
   boolean bool[];
   
   string text[];
-  char16 wchar[];
+  char16 char_16[];
   
-  uint8  unsigned_char_8[];
-  uint16 unsigned_char_16[];
-  uint32 unsigned_char_32[];
-  uint64 unsigned_char_64[];
+  uint8  unsigned_int_8[];
+  uint16 unsigned_int_16[];
+  uint32 unsigned_int_32[];
+  uint64 unsigned_int_64[];
   
   sint8  byte[];
   sint16 short[];

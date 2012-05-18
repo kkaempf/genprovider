@@ -29,11 +29,11 @@ module Cmpi
         "Name" => Cmpi::string,
         "bool" => Cmpi::boolean,
         "text" => Cmpi::string,
-        "wchar" => Cmpi::char16,
-        "unsigned_char_8" => Cmpi::uint8,
-        "unsigned_char_16" => Cmpi::uint16,
-        "unsigned_char_32" => Cmpi::uint32,
-        "unsigned_char_64" => Cmpi::uint64,
+        "char_16" => Cmpi::char16,
+        "unsigned_int_8" => Cmpi::uint8,
+        "unsigned_int_16" => Cmpi::uint16,
+        "unsigned_int_32" => Cmpi::uint32,
+        "unsigned_int_64" => Cmpi::uint64,
         "byte" => Cmpi::sint8,
         "short" => Cmpi::sint16,
         "int" => Cmpi::sint32,
@@ -69,11 +69,11 @@ module Cmpi
       
       result.bool = true
       result.text = "This is new text"
-      result.wchar = "\0T\0h\0i\0s\0 \0i\0s\0 \0w\0c\0h\0a\0r\0"
-      result.unsigned_char_8 = 123
-      result.unsigned_char_16 = 12345
-      result.unsigned_char_32 = 1234567890
-      result.unsigned_char_64 = 1234567891011121314
+      result.char_16 = 65535
+      result.unsigned_int_8 = 123
+      result.unsigned_int_16 = 12345
+      result.unsigned_int_32 = 1234567890
+      result.unsigned_int_64 = 1234567891011121314
       result.byte = -1
       result.short = -1
       result.int = -1
