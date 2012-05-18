@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
-require "genprovider"
+require "genprovider/version"
 
 Gem::Specification.new do |s|
   s.name        = "genprovider"
@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency("rdoc")
 
   s.add_development_dependency('rake')
+  s.add_development_dependency('sfcc')
   s.add_development_dependency('bundler')
   s.add_development_dependency('cucumber')
   
