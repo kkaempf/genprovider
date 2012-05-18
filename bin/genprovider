@@ -10,7 +10,7 @@
 #
 # == Usage
 #
-# genprovider [-d] [-h] [-q] [-n <namespace>] [-I <includedir>] [-o <output>] <moffile> [<moffile> ...]
+# genprovider [-d] [-h] [-q] [-t] [-n <namespace>] [-I <includedir>] [-o <output>] <moffile> [<moffile> ...]
 #
 # -d:
 #   turn on debugging
@@ -22,6 +22,8 @@
 #   additional include directories to search
 # -o <outputdir>
 #   directory to write generated files, defaults to 'generated'
+# -t
+#   generate testcase
 # <moffile>
 #   .mof files to read
 #
@@ -103,9 +105,10 @@ CIM_CURRENT = "/usr/share/mof/cim-current"
 ####
 ## argv handling
 
+generate_test = ARGV.delete("-t")
 
 #
-# parse mofparge arguments
+# parse mofparse arguments
 #
 
 moffiles, options = MOF::Parser.argv_handler "genprovider", ARGV
@@ -113,7 +116,11 @@ if moffiles.empty?
   $stderr.puts "No .mof files given"
   exit 1
 end
-if options[:namespace].nil? || options[:namespace].empty?
+if !options[:namespace].nil? && options[:namespace].empty?
+  options[:namespace] = nil
+end
+
+if options[:namespace].nil?
   $stderr.puts "** skipping registration"
   $stderr.puts "   Provide a namespace (-n <namespace>) to generate registration file"
 end
@@ -122,10 +129,11 @@ end
 # parse genprovider arguments
 #
 
-options[:style] ||= :cim;
+options[:style] ||= :cim
 options[:includes] ||= []
 options[:includes].unshift(Pathname.new ".")
 options[:includes].unshift(Pathname.new CIM_CURRENT)
+options[:testcase] = generate_test
 
 #
 # Extend include pathes with all directories below CIM_CURRENT
@@ -217,9 +225,15 @@ to_generate.each do |c|
     Genprovider::RDoc.new c, out
   end
 
-  if options[:namespace] && !options[:namespace].empty?
+  if options[:namespace]
     Genprovider::Output.new File.join(outdir,"#{c.name}.registration"), options[:force] do |out|
       Genprovider::Registration.new c, options[:namespace], providername, out
+    end
+  end
+  
+  if options[:testcase]
+    Genprovider::Output.new File.join(outdir,"test_#{c.name.decamelize}.rb"), options[:force] do |out|
+      Genprovider::Testcase.new c, options[:namespace]||"root/cimv2", out
     end
   end
 end
