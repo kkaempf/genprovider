@@ -58,14 +58,23 @@ module Genprovider
       out.puts
       c.features.each do |p|
         next unless p.property?
-        out.puts "assert instance.#{p.name}"
+        element = "instance.#{p.name}"
+        out.puts "assert #{element}"
+        if p.type.array?
+          out.puts "assert_kind_of Array, #{element} # #{p.type}"
+          out.puts "tmp = #{element}[0]"
+          element = "tmp"
+        end
         rtype = rubytype p.type
         raise "Unsupported type #{p.type} [#{rtype.class}]" if rtype.nil?
+        out.puts "if #{element}"
+        out.inc
         if rtype.empty?
-          out.puts "assert instance.#{p.name}.is_a?(TrueClass) || instance.#{p.name}.is_a?(FalseClass)"
+          out.puts "assert #{element}.is_a?(TrueClass) || #{element}.is_a?(FalseClass)"
         else
-          out.puts "assert_kind_of #{rubytype p.type}, instance.#{p.name} # #{p.type}"
+          out.puts "assert_kind_of #{rubytype p.type}, #{element} # #{p.type}"
         end
+        out.end
       end
       out.end
       out.end
