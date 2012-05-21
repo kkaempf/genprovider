@@ -115,7 +115,7 @@ module Cmpi
       
           result.bool = [true,false,true] # boolean[]  (-> RCP_ArrayDataTypes)
           result.text = ["Element one", "Element two", "Element three"] # string[]  (-> RCP_ArrayDataTypes)
-          result.char_16 = [65535, 32768, -1] # char16[]  (-> RCP_ArrayDataTypes)
+          result.char_16 = ["1", "2", "3"] #[49, 50, 51] # '1','2','3' char16[]  (-> RCP_ArrayDataTypes)
           result.unsigned_int_8 = [1,2,3] # uint8[]  (-> RCP_ArrayDataTypes)
           result.unsigned_int_16 = [1,2,3] # uint16[]  (-> RCP_ArrayDataTypes)
           result.unsigned_int_32 = [1,2,3] # uint32[]  (-> RCP_ArrayDataTypes)
@@ -126,10 +126,10 @@ module Cmpi
           result.long = [1,2,3] # sint64[]  (-> RCP_ArrayDataTypes)
           result.float = [Math::PI,Math::PI,Math::PI] # real32[]  (-> RCP_ArrayDataTypes)
           result.double = [Math::PI,Math::PI,Math::PI] # real64[]  (-> RCP_ArrayDataTypes)
-          result.date_time = [Time.now, 0, -31536000] # dateTime[]  (-> RCP_ArrayDataTypes)
+          result.date_time = [Time.now, Time.now, Time.now] # dateTime[]  (-> RCP_ArrayDataTypes)
         end
         end # if want_instance
-        @trace_file.puts "yield #{result}"
+        @trace_file.puts "\tyield #{result}"
         yield result        
       end
     end
