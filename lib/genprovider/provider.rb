@@ -107,6 +107,16 @@ module Genprovider
     end
 
     #
+    # Return reasonable default for type
+    #
+    def default_for_type type
+      if type.array? then "[]"
+      elsif type == :boolean then "false"
+      else "nil"
+      end
+    end
+    
+    #
     # generate line to set a property
     # i.e. result.Property = nil # property_type + valuemap
     #
@@ -122,7 +132,7 @@ module Genprovider
 	default = "#{property.name}.#{firstval}"
         default = "[#{default}]" if type.array?
       else
-	default = type.array? ? "[]" : "nil"
+        default = default_for_type type
       end
       bounds = bounds property, :MaxLen, :Max, :Min
       "#{result_name}.#{property.name} = #{default} # #{type} #{bounds} (-> #{klass.name})"
@@ -469,7 +479,7 @@ module Genprovider
 	  @out.comment
 	end
 	v = method.values
-	default_return_value = "nil"
+	default_return_value = default_for_type method.type
 	if v
 	  @out.comment "See class #{method.name} for return values"
 	  @out.comment
