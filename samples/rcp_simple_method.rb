@@ -43,7 +43,7 @@ module Cmpi
     #
     def return_true( context, reference )
       @trace_file.puts "return_true #{context}, #{reference}"
-      result = false # boolean
+      result = true # boolean
       #  function body goes here
       return result
     end
