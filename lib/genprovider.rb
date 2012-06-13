@@ -8,5 +8,6 @@ module Genprovider
   require 'genprovider/provider'
   require 'genprovider/registration'
   require 'genprovider/testcase'
+  require 'genprovider/classinfo'
   require 'genprovider/rdoc'
 end
