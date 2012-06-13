@@ -1,5 +1,5 @@
 #
-# testcase.rb
+# testcase.rb
 #
 
 module Genprovider
