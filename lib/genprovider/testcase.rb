@@ -45,7 +45,7 @@ module Genprovider
       out.def "test_registered"
       out.puts "cimclass = @client.get_class(@op)"
       out.puts "assert cimclass"
-      out.end
+      out.end # test_registered
       out.puts
       out.def "test_instance_names"
       out.puts "names = @client.instance_names(@op)"
@@ -56,6 +56,9 @@ module Genprovider
       out.puts "instance = @client.get_instance ref"
       out.puts "assert instance"
       out.puts
+      #
+      # Properties
+      #
       c.features.each do |p|
         next unless p.property?
         element = "instance.#{p.name}"
@@ -76,8 +79,59 @@ module Genprovider
         end
         out.end
       end
-      out.end
-      out.end
+      out.end #     names.each
+      out.end #   test_instance_names
+      #
+      # References
+      #
+      out.puts
+      c.features.each do |r|
+        next unless r.reference?
+      end
+      #
+      # Methods
+      #
+      out.puts
+      c.features.each do |m|
+        next unless m.method?
+        out.puts
+        out.def "test_method_#{m.name}"
+        if m.static?
+          # class-level method
+        else
+          # instance level method
+          out.puts "@client.instances(@op).each do |inst|"
+          out.inc
+          m.parameters.each do |p|
+            desc = p.description
+            out.comment desc if desc
+            if p.out?
+              out.puts "p_out_#{p.name} = {} # #{p.type}"
+            else
+              out.puts "p_in_#{p.name} = nil # #{p.type}"
+            end
+          end
+          s = "res = inst.#{m.name}("
+          first = true
+          m.parameters.each do |p|
+            if first
+              first = false
+            else
+              s << ", "
+            end
+            if p.includes? :out
+              s << "p_out_#{p.name}"
+            else
+              s << "p_in_#{p.name}"
+            end
+          end
+          s << ")"
+          out.puts s
+          out.puts "assert_kind_of #{rubytype m.type}, res"
+          out.end
+        end
+        out.end # test_method_<name>
+      end
       out.puts
       out.end # class
     end
