@@ -25,7 +25,7 @@
 # -o <outputdir>
 #   directory to write generated files, defaults to 'generated'
 # -t
-#   generate testcase
+#   generate testcase only
 # <moffile>
 #   .mof files to read
 #
@@ -230,6 +230,13 @@ to_generate.each do |c|
     next
   end
   
+  if options[:testcase]
+    Genprovider::Output.new File.join(outdir,"test_#{c.name.decamelize}.rb"), options[:force] do |out|
+      Genprovider::Testcase.new c, options[:namespace]||"root/cimv2", out
+    end
+    next
+  end
+
   providerprop = c.qualifiers["provider", :string]
   providername = (providerprop ? providerprop.value.sub("cmpi:","") : c.name)
   Genprovider::Output.new File.join(outdir,"#{providername.decamelize}.rb"), options[:force] do |out|
@@ -243,12 +250,6 @@ to_generate.each do |c|
   if options[:namespace]
     Genprovider::Output.new File.join(outdir,"#{c.name}.registration"), options[:force] do |out|
       Genprovider::Registration.new c, options[:namespace], providername, out
-    end
-  end
-  
-  if options[:testcase]
-    Genprovider::Output.new File.join(outdir,"test_#{c.name.decamelize}.rb"), options[:force] do |out|
-      Genprovider::Testcase.new c, options[:namespace]||"root/cimv2", out
     end
   end
   
