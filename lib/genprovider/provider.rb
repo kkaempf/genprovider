@@ -457,20 +457,22 @@ module Genprovider
       @out.puts
       methods :all do |method, klass|
 	next if method.deprecated
-	@out.comment "#{klass.name}: #{method.name}"
+	@out.comment "#{klass.name}: #{method.type} #{method.name}(...)"
 	@out.comment
 	input = []
 	output = []
 	method.parameters.each do |p|
-	  input << p if p.in
-	  output << p if p.out
+	  input << p if p.in?
+	  output << p if p.out?
 	end
 	name = method.name
 	decam = name.decamelize
-	# write type and argument information
+        # type and argument information
 	# must be array since order here is order of args passed to function
 	# first element is list of input args (alternating name and type)
 	# second is list of output args (starting with return type, then name and type of additional out args)
+        # -> used by cmpi_bindings !
+        @out.comment "type information for #{name}(...)"
 	@out.puts "def #{decam}_args; [[#{mkargs(input, decam)}],[#{method.type.to_cmpi}, #{mkargs(output, decam)}]] end"
 	@out.comment
 	d = method.description.value rescue nil
@@ -503,14 +505,27 @@ module Genprovider
 	  log << "\#{#{arg}}"
 	end
 	@out.puts "#{LOG} \"#{decam} #{log}\""
-	args = [ "result" ]
-        @out.puts "result = #{default_return_value} # #{method.type}"
-	output.each do |arg|
-	  name = arg.name.decamelize
-	  @out.puts "#{name} = nil # #{arg.type}"
-	  args << name
-	end
+        
+        # Empty arrays are not transferred by sfcc/cimxml, end up as nil
+        input.each do |arg|
+          next unless arg.type.array?
+          @out.puts "#{arg.name.decamelize} ||= []"
+        end
+        
+	args = [ "method_return_value" ]
+        @out.puts "method_return_value = #{default_return_value} # #{method.type}"
+        if output.size > 0
+          @out.puts
+          @out.comment "Output arguments"
+          output.each do |arg|
+            name = arg.name.decamelize
+            @out.puts "#{name} = nil # #{arg.type}"
+            args << name
+          end
+        end
+        @out.puts
 	@out.comment " function body goes here"
+        @out.puts
 	if args.size > 1
 	  @out.puts "return [#{args.join(', ')}]"
 	else
