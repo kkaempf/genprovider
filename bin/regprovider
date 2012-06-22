@@ -27,7 +27,7 @@ end
 def usage msg = nil
   STDERR.puts "** Error: #{msg}" if msg
   STDERR.puts "register [-h] [-c <cimom>] <name>"
-  STDERR.puts "\tregisters #{$generateddir}/<name>.rb via #{generateddir}/<name>.registration to <cimom> (defaults to sfcb)"
+  STDERR.puts "\tregisters #{$generateddir}/<name>.rb via #{$generateddir}/<name>.registration to <cimom> (defaults to sfcb)"
   exit 1
 end
 
@@ -46,6 +46,10 @@ loop do
     usage("Unknown option #{arg}") if arg[0,1] == "-"
     name = arg
   end
+end
+
+unless name
+  usage "Class name missing"
 end
 
 moffile = "#{$mofdir}/#{name}.mof"
@@ -93,5 +97,3 @@ else
 end
 
 puts "Success !"
-
-  
