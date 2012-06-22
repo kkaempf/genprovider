@@ -16,12 +16,20 @@ module Genprovider
       s = c
       while s.parent
         s = s.parent
-        out.puts "require '#{s.name}'"
+        out.puts "require 'mof/#{s.name}'"
       end
       out.puts
       s = c.superclass ? " < #{c.superclass}" : ""
+      
+      # module MOF
+      out.puts "module MOF"
+      out.inc
+      
+      # class <Class>
       out.puts "class #{c.name}#{s}"
       out.inc
+      
+      # methods
       method_count = 0
       s = nil
       c.features.each do |f|
@@ -40,7 +48,7 @@ module Genprovider
           
           have_in = 0          
           f.parameters.each do |p|
-            next unless p.qualifiers.include? :in
+            next if p.out? # non-out parameters are input
             if have_in == 0
               s << ":in => ["
             else
@@ -53,10 +61,10 @@ module Genprovider
 
           have_out = 0
           f.parameters.each do |p|
-            next unless p.qualifiers.include? :out
+            next unless p.out? # output parameters must have explicit qualifier
             if have_out == 0
               s << ", " if have_in > 0
-              s << ":out => [ "
+              s << ":out => ["
             else
               s << ", "
             end
@@ -74,6 +82,7 @@ module Genprovider
         out.dec.puts "}"
       end
       out.end # class
+      out.end # module
     end
   end
 end
