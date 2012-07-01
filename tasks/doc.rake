@@ -2,7 +2,7 @@ task :doc do
   begin
     require 'yard'
     YARD::Rake::YardocTask.new(:doc) do |t|
-      t.files   = ['lib/**/*.rb', *extra_docs]
+      t.files   = ['lib/**/*.rb']
       t.options = ['--no-private']
     end
   rescue LoadError
@@ -10,8 +10,7 @@ task :doc do
     require 'rdoc/task'
     Rake::RDocTask.new(:doc) do |rdoc|
       rdoc.rdoc_dir = "doc"
-      rdoc.title = "dm-bugzilla-adapter #{DataMapper::Adapters::BugzillaAdapter::VERSION}"
-      extra_docs.each { |ex| rdoc.rdoc_files.include ex }
+      rdoc.title = "genprovider #{Genprovider::VERSION}"
     end
   end
 end
