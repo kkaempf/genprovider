@@ -1,6 +1,6 @@
 #!/bin/sh
 rm -f core*
-export RUBY_PROVIDERS_DIR=`pwd`/samples
+export RUBY_PROVIDERS_DIR=`pwd`/samples/provider
 #valgrind --tool=massif --time-unit=ms --detailed-freq=1 --threshold=0.2 /usr/sbin/sfcbd -d
 #valgrind --tool=massif --threshold=0.2 /usr/sbin/sfcbd
 #valgrind -v --undef-value-errors=yes --track-origins=yes --leak-check=full /usr/sbin/sfcbd

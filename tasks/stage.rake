@@ -4,7 +4,7 @@
 
 task :stage do
   STAGEDIR = "/var/lib/sfcb/stage"
-  Dir.glob("samples/*.reg") do |regfile|
+  Dir.glob("samples/sfcb.reg/*.reg") do |regfile|
     moffile = File.basename(regfile, ".reg")
     moffile = "features/mof/#{moffile}.mof"
     puts "Copying #{regfile} and #{moffile}"
