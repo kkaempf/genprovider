@@ -1,3 +1,7 @@
+#
+# Transform generic .registration format to
+#   sfcb-specific .reg format
+#
 def sfcb_transform_to outfile, *regfiles
   File.open(outfile, "a") do |out|
     regfiles.each do |regfile|
