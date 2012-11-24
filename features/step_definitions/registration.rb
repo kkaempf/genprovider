@@ -10,13 +10,13 @@ When /^I register "([^"]*)" using "([^"]*)" with sfcb$/ do |mofname,regname|
     raise unless $? == 0
     cmd = "sfcbrepos -f -s #{$sfcb.stage_dir} -r #{$sfcb.registration_dir}"
     STDERR.puts cmd
-    res = `#{cmd}`
+    res = `#{cmd} 2> #{TMPDIR}/sfcbrepos.err`
     raise unless $? == 0
     $sfcb.start
   end
 end
 
 When /^"([^"]*)" is registered in namespace "([^"]*)"$/ do |arg1,arg2| #"
-  out = `wbemecn #{$sfcb.url}/#{arg2}`
+  out = `wbemecn #{$sfcb.url}/#{arg2} 2> #{TMPDIR}/wbemecn.err`
   raise unless out =~ Regexp.new(arg1)
 end

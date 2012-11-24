@@ -1,7 +1,6 @@
 *~
 core
-stdout.out
-stderr.out
+tmp
 generated
 pkg
 doc

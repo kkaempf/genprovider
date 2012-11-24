@@ -7,11 +7,13 @@ require 'uri'
 class Sfcb
   attr_reader :pid, :url, :dir, :stage_dir, :registration_dir, :providers_dir
 
-  def initialize
+  def initialize tmpdir = Dir.tmpdir
     @execfile = "/usr/sbin/sfcbd"
     @port = 27163
 
-    @dir = File.join(Dir.tmpdir, "genprovider-testing")
+    File.directory?(tmpdir) || Dir.mkdir(tmpdir)
+
+    @dir = File.join(tmpdir, "genprovider-testing")
     Dir.mkdir @dir rescue nil
     STDERR.puts "Sfcb directory at #{@dir}"
 
@@ -68,6 +70,8 @@ class Sfcb
       }.each { |k,v| ENV[k] = v }
       File.delete(sfcb_trace_file) rescue nil
       File.delete(sblim_trace_file) rescue nil
+      $stderr.reopen("#{TMPDIR}/sfcbd.err", "w")
+      $stdout.reopen("#{TMPDIR}/sfcbd.out", "w+")
       Kernel.exec "#{@execfile}", "-c", "#{@cfgfile}"#, "-t", "32768"
     end
     @pid

@@ -5,10 +5,15 @@
 require 'rubygems'
 require "test/unit"
 
-require File.join(File.dirname(__FILE__), "sfcb")
+fdirname = File.dirname(__FILE__)
+require File.join(fdirname, "sfcb")
+
+##
+# Assuming __FILE__ lives in features/support
+#
 
 # establish parent for test data
-PARENT = File.expand_path(File.join(File.dirname(__FILE__),".."))
+PARENT = File.expand_path(File.join(fdirname,".."))
 
 # directory with test .mof files
 MOFDIR = File.join(PARENT,"mof")
@@ -24,7 +29,9 @@ GENPROVIDER = File.join(TOPLEVEL,"bin","genprovider")
 
 NAMESPACE = "test/test"
 
-$sfcb = Sfcb.new
+TMPDIR = File.join(TOPLEVEL, "tmp")
+
+$sfcb = Sfcb.new TMPDIR
 $sfcb.start
 at_exit do
   $sfcb.stop
