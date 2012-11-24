@@ -52,56 +52,96 @@ end
 module Genprovider
   class Provider
     #
-    # iterate properties
-    #  filter = :keys  # keys only
-    #           :nokey # non-keys only
-    #           :all   # all
+    # iterate features
+    # **internal**
+    #  predicate: feature predicate symbol, like :property?
+    #  filter:    :keys  # keys only
+    #             :nokey # non-keys only
+    #             :all   # all
+    #
+    # yields { |feature, klass| } if block_given?
+    # returns Array of [feature,klass] pairs else
+    #
     def features predicate, filter
+      result = nil
+      #
+      # We start to iterate features from the child class and
+      # climb up the parent chain
+      #   overrides = { name => features }
+      # collects information about overridden features along
+      # the parent chain
       overrides = {}
-      c = @klass
-      while c
-	c.features.each do |f|
-	  next unless f.send(predicate)
-	  f_override = overrides[f.name] # overriden in child class ?
+      
+      # climb up parent chain
+      klass = @klass
+      while klass
+	klass.features.each do |feature|
+	  next unless feature.send(predicate)
+
+          # overriden in child class ?
+	  f_override = overrides[feature.name]
 	  if f_override # Y: f_override = overriding feature
 	    # copy qualifiers from overridden to overriding feature
-	    f.qualifiers.each do |q|
+	    feature.qualifiers.each do |q|
 	      unless f_override.qualifiers[q.name] # non-overridden qualifier
 		f_override.qualifiers << q
 	      end
 	    end
-	    next
+	    next # skip this feature
 	  end
-	  q_override = f.override
-	  if q_override
-	    overrides[f.name] = f
-	  end
-	  if f.key?
+
+          # does this feature override a parent feature ?
+          overrides[feature.name] = feature if feature.override
+
+	  if feature.key?
 	    next if filter == :nokeys
 	  else
 	    next if filter == :keys
 	  end
-	  yield f, c
+          if block_given?
+            yield feature, klass
+          else
+            result ||= Array.new
+            result << [feature,klass]
+          end
 	end
-        c = c.parent
+        klass = klass.parent
       end
+      result
     end
 
+    # iterate properties
+    #  filter:    :keys  # keys only
+    #             :nokey # non-keys only
+    #             :all   # all
+    #
+    # accepts optional block
+    #
     def properties filter, &block
       features :property?, filter, &block
     end
 
-    def methods filter, &block
-      features :method?, filter, &block
+    # iterate methods
+    #
+    # accepts optional block
+    #
+    def methods &block
+      features :method?, :all, &block
     end
 
     LOG = "@trace_file.puts" # "@log.info"
     
+    #
+    # Find bounds for property values
+    #
+    #  Usage:
+    #      bounds property, :MaxLen, :Max, :Min
+    #
     def bounds property, *args
       s = ""
       args.each do |n|
 	v = property.send(n)
-	s << "#{n} #{v.value} " if v
+	s << "#{n} #{v} " if v
       end
       s
     end
@@ -383,7 +423,7 @@ module Genprovider
       properties :all do |property, klass|
 	make_valuemap property
       end
-      methods :all do |method, klass|
+      methods do |method, klass|
 	make_valuemap method
       end
     end
@@ -455,7 +495,7 @@ module Genprovider
     def mkmethods
       @out.comment "Methods"
       @out.puts
-      methods :all do |method, klass|
+      methods do |method, klass|
 	next if method.deprecated
 	@out.comment "#{klass.name}: #{method.type} #{method.name}(...)"
 	@out.comment
