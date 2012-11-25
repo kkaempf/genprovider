@@ -31,11 +31,19 @@ When /^I run genprovider with no arguments$/ do
   raise if $? == 0
 end
 
-When /^I pass "([^"]*)" to genprovider$/ do |arg1| #"
-  cmd = "ruby -I #{LIBDIR} #{GENPROVIDER} -f -n #{NAMESPACE} -o #{$sfcb.providers_dir} #{TOPLEVEL}/samples/mof/qualifiers.mof #{File.join(TOPLEVEL, arg1)} 2> #{TMPDIR}/std.err"
-  STDERR.puts "Run #{cmd}"
+def generate_provider_for mof
+  cmd = "ruby -I #{LIBDIR} #{GENPROVIDER} -f -n #{NAMESPACE} -o #{$sfcb.providers_dir} #{TOPLEVEL}/samples/mof/qualifiers.mof #{File.join(TOPLEVEL, mof)} 2> #{TMPDIR}/std.err"
+#  STDERR.puts "Run #{cmd}"
   @output = `#{cmd}`
   raise unless $? == 0
+end
+
+When /^I pass "([^"]*)" to genprovider$/ do |arg1| #"
+  generate_provider_for arg1
+end
+
+Given /^a generated provider for "(.*?)"$/ do |arg1|
+  raise unless File.exists?(File.join(TOPLEVEL,arg1))
 end
 
 When /^I run genprovider with "([^"]*)"$/ do |arg1| #"

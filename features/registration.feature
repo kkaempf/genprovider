@@ -8,5 +8,5 @@ Feature: Ability to register a provider with sfcb
     Then I should see "<class>" in namespace "<namespace>"
 
   Examples:
-    | mof         | registration           | class     | namespace |
-    | trivial.mof | Cmpi_Swig.registration | Cmpi_Swig | test/test |
+    | mof                      | registration           | class     | namespace |
+    | features/mof/trivial.mof | Cmpi_Swig.registration | Cmpi_Swig | test/test |

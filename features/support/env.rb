@@ -31,7 +31,8 @@ NAMESPACE = "test/test"
 
 TMPDIR = File.join(TOPLEVEL, "tmp")
 
-$sfcb = Sfcb.new TMPDIR
+$sfcb = Sfcb.new :tmpdir => TMPDIR,
+                 :provider => "#{TOPLEVEL}/samples/provider"
 $sfcb.start
 at_exit do
   $sfcb.stop

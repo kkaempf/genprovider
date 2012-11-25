@@ -7,27 +7,29 @@ require 'uri'
 class Sfcb
   attr_reader :pid, :url, :dir, :stage_dir, :registration_dir, :providers_dir
 
-  def initialize tmpdir = Dir.tmpdir
+  def initialize args = {}
     @execfile = "/usr/sbin/sfcbd"
     @port = 27163
 
+    tmpdir = args[:tmpdir] || Dir.tmpdir
+
     File.directory?(tmpdir) || Dir.mkdir(tmpdir)
 
-    @dir = File.join(tmpdir, "genprovider-testing")
+    @dir = File.join(tmpdir, "sfcb")
     Dir.mkdir @dir rescue nil
-    STDERR.puts "Sfcb directory at #{@dir}"
 
+#    STDERR.puts "Sfcb directory at #{@dir}"
+
+    @providers_dir = args[:provider] || File.join(dir, 'provider')
+    
     @stage_dir = File.join(dir, "stage")
     Dir.mkdir @stage_dir rescue nil
     File.symlink("/var/lib/sfcb/stage/default.reg", File.join(@stage_dir, "default.reg")) rescue nil
-    @mofs_dir = File.join(@stage_dir, "mofs")
+    @mofs_dir = args[:mof] || File.join(@stage_dir, "mofs")
     Dir.mkdir @mofs_dir rescue nil
     
-    @registration_dir = File.join(dir, "registration")
+    @registration_dir = args[:registration] || File.join(dir, "registration")
     Dir.mkdir @registration_dir rescue nil
-
-    @providers_dir = File.join(dir, 'providers')
-    Dir.mkdir @providers_dir rescue nil
 
     Kernel.system "sfcbrepos", "-s", @stage_dir, "-r", @registration_dir, "-f"
     
@@ -36,6 +38,7 @@ class Sfcb
       # create sfcb config file
 
       {
+        "argvDebug" => true,
 	"enableHttp" => true,
 	"httpPort" => @port,
 	"enableHttps" => false,
