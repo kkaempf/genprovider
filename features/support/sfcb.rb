@@ -71,7 +71,7 @@ class Sfcb
       File.delete(sfcb_trace_file) rescue nil
       File.delete(sblim_trace_file) rescue nil
       $stderr.reopen("#{TMPDIR}/sfcbd.err", "w")
-      $stdout.reopen("#{TMPDIR}/sfcbd.out", "w+")
+      $stdout.reopen("#{TMPDIR}/sfcbd.out", "w")
       Kernel.exec "#{@execfile}", "-c", "#{@cfgfile}"#, "-t", "32768"
     end
     @pid
