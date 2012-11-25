@@ -187,11 +187,9 @@ module Genprovider
       @out.comment " yields references matching reference and properties"
       @out.comment
       @out.def "each", "context", "reference", "properties = nil", "want_instance = false"
+      @out.puts "result = Cmpi::CMPIObjectPath.new reference.namespace, #{@klass.name.inspect}"
       @out.puts("if want_instance").inc
-      @out.puts "result = Cmpi::CMPIObjectPath.new reference.namespace, #{@klass.name.inspect}"
       @out.puts "result = Cmpi::CMPIInstance.new result"
-      @out.dec.puts("else").inc
-      @out.puts "result = Cmpi::CMPIObjectPath.new reference.namespace, #{@klass.name.inspect}"
       @out.end
       @out.puts
       @out.comment "Set key properties"
