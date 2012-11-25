@@ -142,12 +142,12 @@ module Cmpi
         result.Name = stat[1]
         result.Priority = stat[17]
 	result.ExecutionState = case stat[2]
-          when "R": ExecutionState.Running # R is running
-          when "S": ExecutionState.Ready # S is sleeping in an interruptible wait
-          when "D": ExecutionState.Blocked # D is waiting in uninterruptible disk sleep
-          when "Z": ExecutionState.Terminated # Z is zombie
-          when "T": ExecutionState.Stopped # T is traced or stopped (on a signal)
-          when "W": ExecutionState.send(:"Suspended Ready") # W is paging.
+          when "R" then ExecutionState.Running # R is running
+          when "S" then ExecutionState.Ready # S is sleeping in an interruptible wait
+          when "D" then ExecutionState.Blocked # D is waiting in uninterruptible disk sleep
+          when "Z" then ExecutionState.Terminated # Z is zombie
+          when "T" then ExecutionState.Stopped # T is traced or stopped (on a signal)
+          when "W" then ExecutionState.send(:"Suspended Ready") # W is paging.
 	  else
 	    ExecutionState.Unknown
 	  end

@@ -49,10 +49,10 @@ module Cmpi
       
       # Instance: Set non-key properties
       result.OSType = case release.first
-      when /openSUSE.*64/: OSType.send("SUSE 64-Bit")
-      when /openSUSE/: OSType.send("SUSE")
-      when /SLES.*64/: OSType.send("SLES 64-Bit")
-      when /SLES/: OSType.send("SLES")      
+      when /openSUSE.*64/ then OSType.send("SUSE 64-Bit")
+      when /openSUSE/ then OSType.send("SUSE")
+      when /SLES.*64/ then OSType.send("SLES 64-Bit")
+      when /SLES/ then OSType.send("SLES")      
       else
 	result.OtherTypeDescription = release
         OSType.Other

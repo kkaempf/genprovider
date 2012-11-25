@@ -93,10 +93,10 @@ module Cmpi
 	  end # next_cpu
 	  
 	  case k
-	  when /address sizes/:  result.AddressWidth = v
-	  when /stepping/: result.Stepping = v
-	  when /cpu cores/: result.NumberOfEnabledCores = v unless dmi["Core Enabled"]
-	  when /cpu MHz/: result.CurrentClockSpeed = v # dmi["Current Speed"] is unreliable
+	  when /address sizes/ then result.AddressWidth = v
+	  when /stepping/ then result.Stepping = v
+	  when /cpu cores/ then result.NumberOfEnabledCores = v unless dmi["Core Enabled"]
+	  when /cpu MHz/ then result.CurrentClockSpeed = v # dmi["Current Speed"] is unreliable
 	  when /flags/
 	    #
 	    #"64-bit Capable" => 2,
@@ -110,8 +110,8 @@ module Cmpi
 	    characteristics << 2 if v.include? "lm"
 	    characteristics << 3 if datawidth >= 32
 	    case dmi["Manufacturer"]
-	    when "Intel": characteristics << 4 if v.include? "vmx"
-	    when "AMD": characteristics << 4 if v.include? "svm"
+	    when "Intel" then characteristics << 4 if v.include? "vmx"
+	    when "AMD" then characteristics << 4 if v.include? "svm"
 	    end
 	    characteristics << 5 if v.include? "ht"
 	    characteristics << 6 if v.include? "nx"

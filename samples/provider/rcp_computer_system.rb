@@ -5,8 +5,6 @@ require 'syslog'
 
 require 'cmpi/provider'
 
-require 'socket'
-
 module Cmpi
   #
   # Realisation of CIM_ComputerSystem in Ruby
@@ -19,17 +17,17 @@ module Cmpi
     #  yields references matching reference and properties
     #
     def each( reference, properties = nil, want_instance = false )
+#      require 'socket'
+
+      result = Cmpi::CMPIObjectPath.new reference.namespace, reference.classname
       if want_instance
-	result = Cmpi::CMPIObjectPath.new reference.namespace, reference.classname
 	result = Cmpi::CMPIInstance.new result
-      else
-	result = Cmpi::CMPIObjectPath.new reference
       end
 
       # Set key properties
       
       result.CreationClassName = "RCP_ComputerSystem" # string (-> CIM_System)
-      result.Name = Socket.gethostbyname(Socket.gethostname).first
+      result.Name = "hostname" #Socket.gethostbyname(Socket.gethostname).first
       unless want_instance
         yield result
         return

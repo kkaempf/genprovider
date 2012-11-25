@@ -135,10 +135,10 @@ module Cmpi
 	end
 	if dmi["Size"] =~ /(\d+)\s+(\S+)/ # i.e. 2048 MB
 	  factor = case $2
-	    when "KB": 1024
-	    when "MB": 1024**2
-	    when "GB": 1024**3
-	    when "TB": 1024**4
+            when "KB" then 1024
+            when "MB" then 1024**2
+            when "GB" then 1024**3
+            when "TB" then 1024**4
 	    else
 	      raise "Cannot handle size of '#{dmi['Size']}'"
 	    end
