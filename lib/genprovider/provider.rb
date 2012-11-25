@@ -462,6 +462,9 @@ module Genprovider
 
     def explain_args args, text
       @out.comment "#{text} args"
+      if args.empty?
+        @out.comment "  - none -"
+      end
       args.each do |arg|
 	@out.comment "#{arg.name} : #{arg.type}", 1
 	d = arg.description
