@@ -382,10 +382,10 @@ module Genprovider
 	@out.def "self.map"
 	@out.puts("{").inc
 	# get to the array
-	valuemap = valuemap.value
+	valuemap = valuemap
 	# values might be nil, then only ValueMap given
 	if values
-	  values = values.value
+	  values = values
 	elsif !t.matches?(String)
 	  raise "ValueMap missing Values for property #{property.name} with non-string type #{t}"
 	end
@@ -467,15 +467,15 @@ module Genprovider
       args.each do |arg|
 	@out.comment "#{arg.name} : #{arg.type}", 1
 	d = arg.description
-	@out.comment("#{d.value}", 3) if d
+	@out.comment("#{d}", 3) if d
 	valuemap = arg.valuemap
 	# values might be nil, then only ValueMap given
 	if valuemap
 	  @out.comment "Value can be one of", 3
-	  valuemap = valuemap.value
+	  valuemap = valuemap
 	  values = arg.values
 	  if values
-	    values = values.value
+	    values = values
 	    loop do
 	      s = values.shift
 	      v = valuemap.shift

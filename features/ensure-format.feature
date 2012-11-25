@@ -10,5 +10,19 @@ Feature: Ensure genprovider output format
     And its output should be accepted by Ruby
 
   Examples:
-    | mof                      |
-    | features/mof/trivial.mof |
+    | mof                                |
+    | features/mof/trivial.mof           |
+    | samples/mof/qualifiers.mof         |
+    | samples/mof/RCP_ArrayDataTypes.mof |
+    | samples/mof/RCP_ClassMethod.mof    |
+    | samples/mof/RCP_ComplexMethod.mof  |
+    | samples/mof/RCP_ComputerSystem.mof |
+    | samples/mof/RCP_OperatingSystem.mof|
+    | samples/mof/RCP_OSProcess.mof      |
+    | samples/mof/RCP_PhysicalMemory.mof |
+    | samples/mof/RCP_Processor.mof      |
+    | samples/mof/RCP_RunningOS.mof      |
+    | samples/mof/RCP_SimpleClass.mof    |
+    | samples/mof/RCP_SimpleDataTypes.mof|
+    | samples/mof/RCP_SimpleMethod.mof   |
+    | samples/mof/RCP_UnixProcess.mof    |
