@@ -75,7 +75,7 @@ module Cmpi
     #
     def initialize( name, broker, context )      
       @trace_file = STDERR
-      super name, broker, context
+      super broker
     end
     
     # Methods

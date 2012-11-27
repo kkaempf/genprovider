@@ -20,7 +20,7 @@ module Cmpi
     #
     def initialize( name, broker, context )
       @trace_file = STDERR
-      super name, broker, context
+      super broker
     end
     
     def cleanup( context, terminating )
@@ -76,9 +76,8 @@ module Cmpi
     
     private
     def each_dmi
+      memory_device = nil
       IO.popen("dmidecode -t memory") do |f|
-	key = nil
-	memory_device = nil
 	while l = f.gets
 	  if l =~ /^Memory Device/
 	    yield memory_device if memory_device
@@ -93,6 +92,7 @@ module Cmpi
 	end
 	yield memory_device if memory_device
       end
+      raise "dmidecode didn't find memory devices" unless memory_device
     end
     #
     # Iterator for names and instances
@@ -101,11 +101,9 @@ module Cmpi
     def each( context, reference, properties = nil, want_instance = false )
       tag = reference.Tag rescue nil
       each_dmi do |dmi|
+        result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_PhysicalMemory"
 	if want_instance
-	  result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_PhysicalMemory"
 	  result = Cmpi::CMPIInstance.new result
-	else
-	  result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_PhysicalMemory"
 	end
       
         # Set key properties
