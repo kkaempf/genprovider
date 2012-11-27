@@ -22,7 +22,7 @@ module Cmpi
       cs_Name = reference.CSName
       unless cs_CreationClassName && cs_Name
 	enum = Cmpi.broker.enumInstanceNames(context, Cmpi::CMPIObjectPath.new(reference.namespace, "RCP_ComputerSystem"))
-	raise "Couldn't get RCP_ComputerSystem" unless enum.has_next
+	raise "Upcall to RCP_ComputerSystem failed for RCP_UnixProcess" unless enum.has_next
 	cs = enum.next_element
 	cs_CreationClassName = cs.CreationClassName
 	cs_Name = cs.Name
@@ -31,7 +31,7 @@ module Cmpi
       os_Name = reference.OSName
       unless os_CreationClassName && os_Name
 	enum = Cmpi.broker.enumInstanceNames(context, Cmpi::CMPIObjectPath.new(reference.namespace, "RCP_OperatingSystem"))
-	raise "Couldn't get RCP_OperatingSystem" unless enum.has_next
+	raise "Upcall to RCP_OperatingSystem failed for RCP_UnixProcess" unless enum.has_next
 	os = enum.next_element
 	os_CreationClassName = os.CreationClassName
 	os_Name = os.Name

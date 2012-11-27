@@ -17,11 +17,9 @@ module Cmpi
     #  yields references matching reference and properties
     #
     def each( context, reference, properties = nil, want_instance = false )
+      result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_OperatingSystem"
       if want_instance
-        result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_OperatingSystem"
         result = Cmpi::CMPIInstance.new result
-      else
-        result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_OperatingSystem"
       end
       
       # Set key properties
@@ -30,8 +28,10 @@ module Cmpi
       cs_Name = reference.CSName
       unless cs_CreationClassName && cs_Name
 	# Upcall to RCP_ComputerSystem
+#        GC.disable
 	enum = Cmpi.broker.enumInstanceNames(context, Cmpi::CMPIObjectPath.new(reference.namespace, "RCP_ComputerSystem"))
-	raise "Couldn't get RCP_ComputerSystem" unless enum.has_next
+#        GC.enable
+	raise "Upcall to RCP_ComputerSystem failed for RCP_OperatingSystem" unless enum.has_next
 	cs = enum.next_element
 	cs_CreationClassName = cs.CreationClassName
 	cs_Name = cs.Name

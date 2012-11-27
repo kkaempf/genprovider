@@ -12,9 +12,8 @@ Feature: Test providers with known instances
   Examples:
     | class |
     | RCP_ComputerSystem |
-    
-#    | RCP_OperatingSystem|
-#    | RCP_PhysicalMemory |
-#    | RCP_Processor      |
-#    | RCP_RunningOS      |
-#    | RCP_UnixProcess    |
+    | RCP_OperatingSystem|
+    | RCP_PhysicalMemory |
+    | RCP_Processor      |
+    | RCP_RunningOS      |
+    | RCP_UnixProcess    |
