@@ -26,8 +26,11 @@ end
 
 def usage msg = nil
   STDERR.puts "** Error: #{msg}" if msg
-  STDERR.puts "register [-h] [-c <cimom>] <name>"
-  STDERR.puts "\tregisters #{$generateddir}/<name>.rb via #{$generateddir}/<name>.registration to <cimom> (defaults to sfcb)"
+  STDERR.puts "register [-h] [-c <cimom>] [-m <mofdir>] [-p <provdir] [-r <regdir>] <name>"
+  STDERR.puts "\tregisters <mofdir>/<name>.mof implemented by <provdir>/<name>.rb via <regdir>/<name>.registration to <cimom> (defaults to sfcb)"
+  STDERR.puts "\t<mofdir> defaults to #{$mofdir}"
+  STDERR.puts "\t<provdir> defaults to #{$generateddir}"
+  STDERR.puts "\t<regdir> defaults to #{$generateddir}"
   exit 1
 end
 
@@ -41,6 +44,9 @@ loop do
   case arg
   when "-h" then usage
   when "-c" then cimom = ARGV.shift
+  when "-m" then mofdir = ARGV.shift
+  when "-r" then regdir = ARGV.shift
+  when "-p" then provdir = ARGV.shift
   when "-l" then symlink = true
   else
     usage("Unknown option #{arg}") if arg[0,1] == "-"
@@ -52,9 +58,9 @@ unless name
   usage "Class name missing"
 end
 
-moffile = "#{$mofdir}/#{name}.mof"
-providerfile = "#{$generateddir}/#{name.decamelize}.rb"
-registrationfile = "#{$generateddir}/#{name}.registration"
+moffile = "#{mofdir || $mofdir}/#{name}.mof"
+providerfile = "#{provdir || $generateddir}/#{name.decamelize}.rb"
+registrationfile = "#{regdir || $generateddir}/#{name}.registration"
 
 puts "Registering #{moffile} implemented by #{providerfile} via #{registrationfile} to #{cimom}"
 
