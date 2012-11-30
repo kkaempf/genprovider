@@ -8,12 +8,15 @@ require 'test/unit'
 
 class Test_RCP_ClassMethod < Test::Unit::TestCase
   def setup
-    @client = Sfcc::Cim::Client.connect(:uri => 'https://wsman:secret@localhost:5989', :verify => false)
-    @op = Sfcc::Cim::ObjectPath.new('root/cimv2', 'RCP_ClassMethod', @client)
+    @client, @op = Helper.setup 'RCP_ClassMethod'
     assert @op.client
     assert_equal @client, @op.client
   end
   
+  def teardown
+    Helper.teardown
+  end
+
   def test_registered
     cimclass = @client.get_class(@op)
     assert cimclass
