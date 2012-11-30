@@ -7,7 +7,7 @@ require 'uri'
 require_relative "./env"
 
 class Sfcb
-  attr_reader :pid, :url, :dir, :stage_dir, :registration_dir, :providers_dir
+  attr_reader :pid, :uri, :dir, :stage_dir, :registration_dir, :providers_dir
 
   def initialize args = {}
     @execfile = "/usr/sbin/sfcbd"
@@ -35,7 +35,7 @@ class Sfcb
 
 #    Kernel.system "sfcbrepos", "-s", @stage_dir, "-r", @registration_dir, "-f"
     
-    @url = URI::HTTP.build :host => 'localhost', :port => @port, :userinfo => "wsman:secret"
+    @uri = URI::HTTP.build :host => 'localhost', :port => @port, :userinfo => "wsman:secret"
   end
 
   def mkcfg

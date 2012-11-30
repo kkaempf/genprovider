@@ -6,8 +6,9 @@ file "tmp/sfcb/sfcb.cfg" => ["tmp/sfcb", :mksfcb] do
 end
 
 task :mksfcb do
-  require_relative "../test/sfcb"
-  $sfcb = Sfcb.new :tmpdir => TMPDIR, :provider => "#{TOPLEVEL}/samples/provider"
+  require_relative "../test/helper"
+  Helper.sfcb
+  puts "$sfcb #{$sfcb}"
 end
 
 task :prepstage => ["tmp/sfcb/sfcb.cfg"] do
