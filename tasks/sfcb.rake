@@ -1,3 +1,3 @@
-task :sfcb do
-  require_relative "../test/sfcb"
+task :sfcb => ["tmp/sfcb/sfcb.cfg", :registration] do
+  $sfcb.start
 end

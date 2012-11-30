@@ -4,6 +4,8 @@
 require 'tmpdir'
 require 'uri'
 
+require_relative "./env"
+
 class Sfcb
   attr_reader :pid, :url, :dir, :stage_dir, :registration_dir, :providers_dir
 
@@ -31,8 +33,12 @@ class Sfcb
     @registration_dir = args[:registration] || File.join(dir, "registration")
     Dir.mkdir @registration_dir rescue nil
 
-    Kernel.system "sfcbrepos", "-s", @stage_dir, "-r", @registration_dir, "-f"
+#    Kernel.system "sfcbrepos", "-s", @stage_dir, "-r", @registration_dir, "-f"
     
+    @url = URI::HTTP.build :host => 'localhost', :port => @port, :userinfo => "wsman:secret"
+  end
+
+  def mkcfg
     @cfgfile = File.join(@dir, "sfcb.cfg")
     File.open(@cfgfile, "w+") do |f|
       # create sfcb config file
@@ -52,8 +58,6 @@ class Sfcb
 	f.puts "#{k}: #{v}"
       end
     end
-
-    @url = URI::HTTP.build :host => 'localhost', :port => @port
   end
 
   def start
