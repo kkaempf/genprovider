@@ -5,7 +5,7 @@ class RCP_ShowContext
   [Key]
   string name;
   [ Description ("Array of alternating key, value strings from"
-                 "CMPIContext." ),
+                 "CMPIContext." )
   ]
   string context[];
 };
