@@ -3,7 +3,7 @@
 #   sfcb-specific .reg format
 #
 def mkreg from, out
-  STDERR.puts "mkreg #{from}"
+#  STDERR.puts "mkreg #{from}"
   File.open(from, "r") do |f|
     while (l = f.gets)
       next if l =~ /^\s*#.*$/
@@ -23,7 +23,7 @@ def mkreg from, out
 end  
 
 def convert_registrations outfile, *regfiles
-  STDERR.puts "convert_registrations => #{outfile}"
+#  STDERR.puts "convert_registrations => #{outfile}"
   File.open(outfile, "w+") do |out|
     regfiles.each do |regfile|
       mkreg regfile, out

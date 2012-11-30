@@ -24,14 +24,14 @@ def register_klass args
 
   # stage .reg+.mof to namespace
   cmd = "sfcbstage -s #{$sfcb.stage_dir} -n #{args[:namespace]} -r #{tmpregname} #{File.join(args[:mofdir],args[:klass])}.mof"
-  STDERR.puts cmd
+#  STDERR.puts cmd
   res = `#{cmd} 2> #{TMPDIR}/sfcbstage.err`
   raise "Failed: #{cmd}" unless $? == 0
 end
 
 def mkrepos
   cmd = "sfcbrepos -f -s #{$sfcb.stage_dir} -r #{$sfcb.registration_dir}"
-  STDERR.puts cmd
+#  STDERR.puts cmd
   res = `#{cmd} 2> #{TMPDIR}/sfcbrepos.err`
   raise "Failed: #{cmd}" unless $? == 0
 end
