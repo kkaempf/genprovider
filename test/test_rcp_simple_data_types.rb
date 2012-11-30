@@ -5,13 +5,17 @@
 require 'rubygems'
 require 'sfcc'
 require 'test/unit'
+require 'helper'
 
 class Test_RCP_SimpleDataTypes < Test::Unit::TestCase
   def setup
-    @client = Sfcc::Cim::Client.connect(:uri => 'https://wsman:secret@localhost:5989', :verify => false)
-    @op = Sfcc::Cim::ObjectPath.new('root/cimv2', 'RCP_SimpleDataTypes')
+    @client, @op = Helper.setup 'RCP_SimpleDataTypes'
   end
   
+  def teardown
+    Helper.teardown
+  end
+
   def test_registered
     cimclass = @client.get_class(@op)
     assert cimclass

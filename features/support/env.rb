@@ -5,31 +5,12 @@
 require 'rubygems'
 require "test/unit"
 
-fdirname = File.dirname(__FILE__)
-require File.join(fdirname, "sfcb")
+require_relative "../../test/env"
 
-##
-# Assuming __FILE__ lives in features/support
-#
-
-# establish parent for test data
-PARENT = File.expand_path(File.join(fdirname,".."))
+require_relative "./sfcb"
 
 # directory with test .mof files
-MOFDIR = File.join(PARENT,"mof")
-
-# toplevel directory
-TOPLEVEL = File.expand_path(File.join(PARENT,".."))
-
-# use local version for testing
-LIBDIR = File.join(TOPLEVEL, "lib")
-
-# genprovider cli binary
-GENPROVIDER = File.join(TOPLEVEL,"bin","genprovider")
-
-NAMESPACE = "test/test"
-
-TMPDIR = File.join(TOPLEVEL, "tmp")
+MOFDIR = File.join(TOPLEVEL,"features","mof")
 
 $sfcb = Sfcb.new :tmpdir => TMPDIR,
                  :provider => "#{TOPLEVEL}/samples/provider"

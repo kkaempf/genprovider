@@ -8,10 +8,14 @@ require 'test/unit'
 
 class Test_RCP_ArrayDataTypes < Test::Unit::TestCase
   def setup
-    @client = Sfcc::Cim::Client.connect(:uri => 'https://wsman:secret@localhost:5989', :verify => false)
-    @op = Sfcc::Cim::ObjectPath.new('root/cimv2', 'RCP_ArrayDataTypes')
+    @client, @op = Helper.setup 'RCP_ArrayDataTypes'
   end
-  
+
+  def teardown
+    Helper.teardown
+  end
+
+
   def test_registered
     cimclass = @client.get_class(@op)
     assert cimclass
