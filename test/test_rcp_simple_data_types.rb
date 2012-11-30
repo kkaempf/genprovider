@@ -5,7 +5,7 @@
 require 'rubygems'
 require 'sfcc'
 require 'test/unit'
-require 'helper'
+require_relative './helper'
 
 class Test_RCP_SimpleDataTypes < Test::Unit::TestCase
   def setup
