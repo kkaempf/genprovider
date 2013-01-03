@@ -50,6 +50,7 @@ class Sfcb
 	"enableHttps" => false,
 	"enableSlp" => false,
 	"providerTimeoutInterval" => 10,
+        "providerSampleInterval" => 5,
 	"registrationDir" => @registration_dir,
 	"localSocketPath" => File.join(@dir, "sfcbLocalSocket"),
 	"httpSocketPath" => File.join(@dir, "sfcbHttpSocket"),
