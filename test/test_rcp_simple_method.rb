@@ -6,6 +6,7 @@ require 'rubygems'
 require 'sfcc'
 require 'test/unit'
 require_relative "./helper"
+$: << File.dirname(__FILE__)
 
 class Test_RCP_SimpleMethod < Test::Unit::TestCase
   def setup
