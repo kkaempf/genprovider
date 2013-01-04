@@ -44,7 +44,6 @@ class Sfcb
       # create sfcb config file
 
       {
-        "argvDebug" => true,
 	"enableHttp" => true,
 	"httpPort" => @port,
 	"enableHttps" => false,
