@@ -12,6 +12,7 @@ class Sfcb
   def initialize args = {}
     @execfile = "/usr/sbin/sfcbd"
     @port = 12345
+    @pid = nil
 
     tmpdir = args[:tmpdir] || Dir.tmpdir
 
