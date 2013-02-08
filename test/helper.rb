@@ -17,7 +17,7 @@ class Helper
     return client, op
   end
   def self.teardown
-#    $sfcb.stop
+    $sfcb.stop
   end
 end
 
