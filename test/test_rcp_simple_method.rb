@@ -38,8 +38,6 @@ class Test_RCP_SimpleMethod < Test::Unit::TestCase
       if instance.Name
         assert_kind_of String, instance.Name # string
       end
-      argout = {}
-      argin = {}
       result = instance.ReturnTrue()
       assert result
       assert_equal true, result
