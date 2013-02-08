@@ -131,9 +131,8 @@ class Test_RCP_ArrayDataTypes < Test::Unit::TestCase
         end
         assert instance.date_time
         assert_kind_of Array, instance.date_time # dateTime[]
-        tmp = instance.date_time[0]
-        if tmp
-          assert_kind_of Time, tmp # dateTime[]
+        instance.date_time.each do |t|
+          assert_kind_of Time, t # dateTime[]
         end
       end
     end
