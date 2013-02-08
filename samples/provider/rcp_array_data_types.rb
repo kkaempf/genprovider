@@ -126,7 +126,7 @@ module Cmpi
           result.long = [1,2,3] # sint64[]  (-> RCP_ArrayDataTypes)
           result.float = [Math::PI,Math::PI,Math::PI] # real32[]  (-> RCP_ArrayDataTypes)
           result.double = [Math::PI,Math::PI,Math::PI] # real64[]  (-> RCP_ArrayDataTypes)
-          result.date_time = [Time.now, Time.now, Time.now] # dateTime[]  (-> RCP_ArrayDataTypes)
+          result.date_time = [Time.now, 31536000000000, "-31536000", "19520311040242.424242-060", "12345678010203.123456:000"] # dateTime[]  (-> RCP_ArrayDataTypes)
         end
         end # if want_instance
         @trace_file.puts "\tyield #{result}"
