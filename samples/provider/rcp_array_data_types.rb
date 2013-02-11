@@ -61,7 +61,7 @@ module Cmpi
       end
 
       @trace_file.puts "reference(#{reference.class}:#{reference})"
-      ["Empty", "One", "More"].each do |name|
+      ["Empty", "One", "More", "Null"].each do |name|
 
         if reference.Name
           @trace_file.puts "Expect Name = #{reference.Name.inspect}, have #{name.inspect}"
@@ -127,6 +127,23 @@ module Cmpi
           result.float = [Math::PI,Math::PI,Math::PI] # real32[]  (-> RCP_ArrayDataTypes)
           result.double = [Math::PI,Math::PI,Math::PI] # real64[]  (-> RCP_ArrayDataTypes)
           result.date_time = [Time.now, 31536000000000, "-31536000", "19520311040242.424242-060", "12345678010203.123456:000"] # dateTime[]  (-> RCP_ArrayDataTypes)
+        when "Null"
+          # Instance: Set non-key properties
+
+          result.bool = nil # boolean[]  (-> RCP_ArrayDataTypes)
+          result.text = nil # string[]  (-> RCP_ArrayDataTypes)
+          result.char_16 = nil # char16[]  (-> RCP_ArrayDataTypes)
+          result.unsigned_int_8 = nil # uint8[]  (-> RCP_ArrayDataTypes)
+          result.unsigned_int_16 = nil # uint16[]  (-> RCP_ArrayDataTypes)
+          result.unsigned_int_32 = nil # uint32[]  (-> RCP_ArrayDataTypes)
+          result.unsigned_int_64 = nil # uint64[]  (-> RCP_ArrayDataTypes)
+          result.byte = nil # sint8[]  (-> RCP_ArrayDataTypes)
+          result.short = nil # sint16[]  (-> RCP_ArrayDataTypes)
+          result.int = nil # sint32[]  (-> RCP_ArrayDataTypes)
+          result.long = nil # sint64[]  (-> RCP_ArrayDataTypes)
+          result.float = nil # real32[]  (-> RCP_ArrayDataTypes)
+          result.double = nil # real64[]  (-> RCP_ArrayDataTypes)
+          result.date_time = nil # dateTime[]  (-> RCP_ArrayDataTypes)
         end
         end # if want_instance
         @trace_file.puts "\tyield #{result}"

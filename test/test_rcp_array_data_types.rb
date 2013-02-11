@@ -34,7 +34,7 @@ class Test_RCP_ArrayDataTypes < Test::Unit::TestCase
         assert_kind_of String, instance.Name # string
       end
       case instance.Name
-      when "Empty"
+      when "Empty", "Null"
         assert_nil instance.bool
         assert_nil instance.text
         assert_nil instance.char_16
