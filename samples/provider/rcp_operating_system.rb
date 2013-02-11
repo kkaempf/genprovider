@@ -10,7 +10,7 @@ module Cmpi
   # Realisation of CIM_OperatingSystem in Ruby
   #
   class RCP_OperatingSystem < InstanceProvider
-    
+   
     private
     #
     # Iterator for names and instances
@@ -21,7 +21,7 @@ module Cmpi
       if want_instance
         result = Cmpi::CMPIInstance.new result
       end
-      
+     
       # Set key properties
 
       cs_CreationClassName = reference.CSCreationClassName
@@ -46,18 +46,18 @@ module Cmpi
         yield result
         return
       end
-      
+     
       # Instance: Set non-key properties
       result.OSType = case release.first
       when /openSUSE.*64/ then OSType.send("SUSE 64-Bit")
       when /openSUSE/ then OSType.send("SUSE")
       when /SLES.*64/ then OSType.send("SLES 64-Bit")
-      when /SLES/ then OSType.send("SLES")      
+      when /SLES/ then OSType.send("SLES")     
       else
 	result.OtherTypeDescription = release
         OSType.Other
       end
-      
+     
       #  # uint16  (-> CIM_OperatingSystem)
       release.each do |l|
 	if l =~ /VERSION\s*=\s*([^\n]*)/
@@ -121,7 +121,7 @@ module Cmpi
       yield result
     end
     public
-    
+   
     #
     # Provider initialization
     #
@@ -129,7 +129,7 @@ module Cmpi
       @trace_file = STDERR
       super broker
     end
-    
+   
     # Methods
     # Wrap into Method class to prevent name clashes with provider functions
     class Method
@@ -149,7 +149,7 @@ module Cmpi
     def invoke_method( context, result, reference, method, argsin, argsout )
       @trace_file.puts "invoke_method #{context}, #{result}, #{reference}, #{method}, #{argsin}, #{argsout}"
     end
-    
+   
     def enum_instance_names( context, result, reference )
       @trace_file.puts "enum_instance_names ref #{reference}"
       each(context, reference) do |ref|
@@ -159,7 +159,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def enum_instances( context, result, reference, properties )
       @trace_file.puts "enum_instances ref #{reference}, props #{properties.inspect}"
       each(context, reference, properties, true) do |instance|
@@ -169,7 +169,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def get_instance( context, result, reference, properties )
       @trace_file.puts "get_instance ref #{reference}, props #{properties.inspect}"
       each(context, reference, properties, true) do |instance|
@@ -188,12 +188,12 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def cleanup( context, terminating )
       @trace_file.puts "cleanup terminating? #{terminating}"
       true
     end
-    
+   
     def self.typemap
       {
         "CSCreationClassName" => Cmpi::string,
@@ -242,8 +242,8 @@ module Cmpi
         "ElementName" => Cmpi::string,
       }
     end
-    
-    
+   
+   
     class OSType < Cmpi::ValueMap
       def self.map
         {
@@ -361,7 +361,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class EnabledState < Cmpi::ValueMap
       def self.map
         {
@@ -381,7 +381,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class RequestedState < Cmpi::ValueMap
       def self.map
         {
@@ -402,7 +402,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class EnabledDefault < Cmpi::ValueMap
       def self.map
         {
@@ -417,7 +417,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class AvailableRequestedStates < Cmpi::ValueMap
       def self.map
         {
@@ -434,7 +434,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class TransitioningToState < Cmpi::ValueMap
       def self.map
         {
@@ -454,7 +454,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class OperationalStatus < Cmpi::ValueMap
       def self.map
         {
@@ -483,7 +483,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class Status < Cmpi::ValueMap
       def self.map
         {
@@ -503,7 +503,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class HealthState < Cmpi::ValueMap
       def self.map
         {
@@ -519,7 +519,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class CommunicationStatus < Cmpi::ValueMap
       def self.map
         {
@@ -533,7 +533,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class DetailedStatus < Cmpi::ValueMap
       def self.map
         {
@@ -548,7 +548,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class OperatingStatus < Cmpi::ValueMap
       def self.map
         {
@@ -574,7 +574,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class PrimaryStatus < Cmpi::ValueMap
       def self.map
         {

@@ -10,7 +10,7 @@ module Cmpi
   # Passing CDATA string property values
   #
   class RCP_PassCData < InstanceProvider
-    
+   
     #
     # Provider initialization
     #
@@ -18,12 +18,12 @@ module Cmpi
       @trace_file = STDERR
       super broker
     end
-    
+   
     def cleanup( context, terminating )
       @trace_file.puts "cleanup terminating? #{terminating}"
       true
     end
-    
+   
     def self.typemap
       {
         "Name" => Cmpi::string,
@@ -32,7 +32,7 @@ module Cmpi
         "XmlData" => Cmpi::string,
       }
     end
-    
+   
     private
     #
     # Iterator for names and instances
@@ -45,24 +45,24 @@ module Cmpi
       else
         result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_PassCData"
       end
-      
+     
       # Set key properties
-      
+     
       result.Name = nil # string  (-> RCP_PassCData)
       unless want_instance
         yield result
         return
       end
-      
+     
       # Instance: Set non-key properties
-      
+     
       # result.Strange = nil # string  (-> RCP_PassCData)
       # result.CData = nil # string  (-> RCP_PassCData)
       # result.XmlData = nil # string  (-> RCP_PassCData)
       yield result
     end
     public
-    
+   
     def enum_instance_names( context, result, reference )
       @trace_file.puts "enum_instance_names ref #{reference}"
       each(context, reference) do |ref|
@@ -72,7 +72,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def enum_instances( context, result, reference, properties )
       @trace_file.puts "enum_instances ref #{reference}, props #{properties.inspect}"
       each(context, reference, properties, true) do |instance|
@@ -82,7 +82,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def get_instance( context, result, reference, properties )
       @trace_file.puts "get_instance ref #{reference}, props #{properties.inspect}"
       each(context, reference, properties, true) do |instance|
@@ -93,7 +93,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def create_instance( context, result, reference, newinst )
       @trace_file.puts "create_instance ref #{reference}, newinst #{newinst.inspect}"
       # Create instance according to reference and newinst
@@ -101,7 +101,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def set_instance( context, result, reference, newinst, properties )
       @trace_file.puts "set_instance ref #{reference}, newinst #{newinst.inspect}, props #{properties.inspect}"
       properties.each do |prop|
@@ -111,13 +111,13 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def delete_instance( context, result, reference )
       @trace_file.puts "delete_instance ref #{reference}"
       result.done
       true
     end
-    
+   
     # query : String
     # lang : String
     def exec_query( context, result, reference, query, lang )
@@ -125,6 +125,6 @@ module Cmpi
       result.done
       true
     end
-    
+   
   end
 end

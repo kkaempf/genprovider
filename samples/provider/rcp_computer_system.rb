@@ -10,7 +10,7 @@ module Cmpi
   # Realisation of CIM_ComputerSystem in Ruby
   #
   class RCP_ComputerSystem < InstanceProvider
-    
+   
     private
     #
     # Iterator for names and instances
@@ -25,14 +25,14 @@ module Cmpi
       end
 
       # Set key properties
-      
+     
       result.CreationClassName = "RCP_ComputerSystem" # string (-> CIM_System)
       result.Name = "hostname" #Socket.gethostbyname(Socket.gethostname).first
       unless want_instance
         yield result
         return
       end
-      
+     
       # Set non-key properties
 
       result.NameFormat = NameFormat.Other # string (-> CIM_ComputerSystem)
@@ -69,17 +69,17 @@ module Cmpi
       yield result
     end
     public
-    
+   
     #
     # Provider initialization
     #
-    def initialize( name, broker, context )      
+    def initialize( name, broker, context )     
       @trace_file = STDERR
       super broker
     end
-    
+   
     # Methods
-      
+     
     # CIM_ComputerSystem: SetPowerState
     def set_power_state_args; [["PowerState", Cmpi::uint32, "Time", Cmpi::dateTime],[Cmpi::uint32, ]] end
     #
@@ -96,7 +96,7 @@ module Cmpi
       #  function body goes here
       return result
     end
-      
+     
     # CIM_EnabledLogicalElement: RequestStateChange
     def request_state_change_args; [["RequestedState", Cmpi::uint16, "TimeoutPeriod", Cmpi::dateTime],[Cmpi::uint32, "Job", Cmpi::ref]] end
     #
@@ -111,7 +111,7 @@ module Cmpi
       #  function body goes here
       return [result, job]
     end
-      
+     
     def enum_instance_names( context, result, reference )
       @trace_file.puts "enum_instance_names ref #{reference}"
       each(reference) do |ref|
@@ -121,7 +121,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def enum_instances( context, result, reference, properties )
       @trace_file.puts "enum_instances ref #{reference}, props #{properties.inspect}"
       each(reference, properties, true) do |instance|
@@ -131,7 +131,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def get_instance( context, result, reference, properties )
       @trace_file.puts "get_instance ref #{reference}, props #{properties.inspect}"
       each(reference, properties, true) do |instance|
@@ -142,7 +142,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     # query : String
     # lang : String
     def exec_query( context, result, reference, query, lang )
@@ -150,12 +150,12 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def cleanup( context, terminating )
       @trace_file.puts "cleanup terminating? #{terminating}"
       true
     end
-    
+   
     def self.typemap
       {
         "NameFormat" => Cmpi::string,
@@ -192,8 +192,8 @@ module Cmpi
         "ElementName" => Cmpi::string,
       }
     end
-    
-    
+   
+   
     class NameFormat < Cmpi::ValueMap
       def self.map
         {
@@ -217,7 +217,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class Dedicated < Cmpi::ValueMap
       def self.map
         {
@@ -265,7 +265,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class ResetCapability < Cmpi::ValueMap
       def self.map
         {
@@ -277,7 +277,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class PowerManagementCapabilities < Cmpi::ValueMap
       def self.map
         {
@@ -292,7 +292,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class EnabledState < Cmpi::ValueMap
       def self.map
         {
@@ -312,7 +312,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class RequestedState < Cmpi::ValueMap
       def self.map
         {
@@ -333,7 +333,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class EnabledDefault < Cmpi::ValueMap
       def self.map
         {
@@ -348,7 +348,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class AvailableRequestedStates < Cmpi::ValueMap
       def self.map
         {
@@ -365,7 +365,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class TransitioningToState < Cmpi::ValueMap
       def self.map
         {
@@ -385,7 +385,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class OperationalStatus < Cmpi::ValueMap
       def self.map
         {
@@ -414,7 +414,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class Status < Cmpi::ValueMap
       def self.map
         {
@@ -434,7 +434,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class HealthState < Cmpi::ValueMap
       def self.map
         {
@@ -450,7 +450,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class CommunicationStatus < Cmpi::ValueMap
       def self.map
         {
@@ -464,7 +464,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class DetailedStatus < Cmpi::ValueMap
       def self.map
         {
@@ -479,7 +479,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class OperatingStatus < Cmpi::ValueMap
       def self.map
         {
@@ -505,7 +505,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class PrimaryStatus < Cmpi::ValueMap
       def self.map
         {

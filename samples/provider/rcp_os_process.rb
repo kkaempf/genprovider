@@ -14,7 +14,7 @@ module Cmpi
   # context of this OperatingSystem.
   #
   class RCP_OSProcess < AssociationProvider
-    
+   
     #
     # Provider initialization
     #
@@ -22,12 +22,12 @@ module Cmpi
       @trace_file = STDERR
       super broker
     end
-    
+   
     def cleanup( context, terminating )
       @trace_file.puts "cleanup terminating? #{terminating}"
       true
     end
-    
+   
     def self.typemap
       {
         # CIM_OperatingSystem ref
@@ -36,7 +36,7 @@ module Cmpi
         "PartComponent" => Cmpi::ref,
       }
     end
-    
+   
     private
     #
     # Iterator for names and instances
@@ -44,13 +44,13 @@ module Cmpi
     #
     def each( context, reference, properties = nil, want_instance = false )
       os_ref = nil # OperatingSystem for result.GroupComponent
-      
+     
       # construct reference for upcall
       upref = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_UnixProcess"
       refclass = reference.classname
       if refclass == "RCP_ComputerSystem"
 	upref.CSCreationClassName = reference.classname
-	upref.CSName = reference.Name      
+	upref.CSName = reference.Name     
       elsif refclass == "RCP_OperatingSystem"
 	upref.OSCreationClassName = reference.classname
 	upref.OSName = reference.Name
@@ -73,7 +73,7 @@ module Cmpi
 	else
 	  result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_OSProcess"
 	end
-      
+     
 	# Set key properties
 	result.GroupComponent = os_ref # CIM_OperatingSystem
 	result.PartComponent = res # CIM_Process
@@ -91,11 +91,11 @@ module Cmpi
     end
     #
     # Calling reference_names for RCP_ComputerSystem calls:
-    #   RCP_OSProcess.reference_names ref root/cimv2:RCP_ComputerSystem.CreationClassName="RCP_ComputerSystem",Name="linux-lkbf.site", result_class , role 
+    #   RCP_OSProcess.reference_names ref root/cimv2:RCP_ComputerSystem.CreationClassName="RCP_ComputerSystem",Name="linux-lkbf.site", result_class , role
     #
     # Calling reference_names for RCP_OperatingSystem calls:
-    # RCP_OSProcess.reference_names ref root/cimv2:RCP_OperatingSystem.CreationClassName="RCP_OperatingSystem",CSName="linux-lkbf.site",CSCreationClassName="RCP_ComputerSystem",Name="openSUSE 11.4 (x86_64)", result_class , role 
-    
+    # RCP_OSProcess.reference_names ref root/cimv2:RCP_OperatingSystem.CreationClassName="RCP_OperatingSystem",CSName="linux-lkbf.site",CSCreationClassName="RCP_ComputerSystem",Name="openSUSE 11.4 (x86_64)", result_class , role
+   
     def reference_names( context, result, reference, result_class, role )
       @trace_file.puts "RCP_OSProcess.reference_names ctx #{context}, res #{result}, ref #{reference}, result_class #{result_class}, role #{role}"
       @trace_file.puts "Called from #{reference.CreationClassName}"
@@ -115,7 +115,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     # Instance
 
     def create_instance( context, result, reference, newinst )
@@ -125,7 +125,7 @@ module Cmpi
       # result.done
       # true
     end
-    
+   
     def enum_instance_names( context, result, reference )
       @trace_file.puts "enum_instance_names ref #{reference}"
       each(context, reference) do |ref|
@@ -134,7 +134,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def enum_instances( context, result, reference, properties )
       @trace_file.puts "enum_instances ref #{reference}, props #{properties.inspect}"
       each(context, reference, properties, true) do |instance|
@@ -143,7 +143,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def get_instance( context, result, reference, properties )
       @trace_file.puts "get_instance ref #{reference}, props #{properties.inspect}"
       each(context, reference, properties, true) do |instance|
@@ -153,7 +153,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def set_instance( context, result, reference, newinst, properties )
       @trace_file.puts "set_instance ref #{reference}, newinst #{newinst.inspect}, props #{properties.inspect}"
       properties.each do |prop|
@@ -163,13 +163,13 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def delete_instance( context, result, reference )
       @trace_file.puts "delete_instance ref #{reference}"
       result.done
       true
     end
-    
+   
     # query : String
     # lang : String
     def exec_query( context, result, reference, query, lang )

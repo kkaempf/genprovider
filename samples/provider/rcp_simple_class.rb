@@ -10,7 +10,7 @@ module Cmpi
   # A simple class to detect memory leaks in cmpi-bindings
   #
   class RCP_SimpleClass < InstanceProvider
-    
+   
     #
     # Provider initialization
     #
@@ -18,18 +18,18 @@ module Cmpi
       @trace_file = STDERR
       super broker
     end
-    
+   
     def cleanup( context, terminating )
       @trace_file.puts "cleanup terminating? #{terminating}"
       true
     end
-    
+   
     def self.typemap
       {
         "Name" => Cmpi::string,
       }
     end
-    
+   
     private
     #
     # Iterator for names and instances
@@ -42,9 +42,9 @@ module Cmpi
       else
         result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_SimpleClass"
       end
-      
+     
       # Set key properties
-      
+     
       result.Name = "simple class" # string  (-> RCP_SimpleClass)
       unless want_instance
         yield result
@@ -87,7 +87,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def create_instance( context, result, reference, newinst )
       @trace_file.puts "create_instance ref #{reference}, newinst #{newinst.inspect}"
       # Create instance according to reference and newinst
@@ -95,7 +95,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def set_instance( context, result, reference, newinst, properties )
       @trace_file.puts "set_instance ref #{reference}, newinst #{newinst.inspect}, props #{properties.inspect}"
       properties.each do |prop|
@@ -105,13 +105,13 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def delete_instance( context, result, reference )
       @trace_file.puts "delete_instance ref #{reference}"
       result.done
       true
     end
-    
+   
     # query : String
     # lang : String
     def exec_query( context, result, reference, query, lang )
@@ -119,6 +119,6 @@ module Cmpi
       result.done
       true
     end
-    
+   
   end
 end

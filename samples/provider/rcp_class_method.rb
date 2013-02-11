@@ -10,7 +10,7 @@ module Cmpi
   # A class method
   #
   class RCP_ClassMethod < MethodProvider
-    
+   
     #
     # Provider initialization
     #
@@ -18,19 +18,19 @@ module Cmpi
       @trace_file = STDERR
       super broker
     end
-    
+   
     def cleanup( context, terminating )
       @trace_file.puts "cleanup terminating? #{terminating}"
       true
     end
-    
+   
     def self.typemap
       {
       }
     end
-    
+   
     # Methods
-    
+   
     # RCP_ClassMethod: string Classname(...)
     #
     # type information for Classname(...)
@@ -43,12 +43,12 @@ module Cmpi
     def classname( context, reference )
       @trace_file.puts "classname #{context}, #{reference}"
       method_return_value = "RCP_ClassMethod" # string
-      
+     
       #  function body goes here
-      
+     
       return method_return_value
     end
-    
-    
+   
+   
   end
 end

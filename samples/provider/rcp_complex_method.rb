@@ -10,7 +10,7 @@ module Cmpi
   # A class to implement complex methods
   #
   class RCP_ComplexMethod < MethodProvider
-    
+   
     include InstanceProviderIF
     #
     # Provider initialization
@@ -19,20 +19,20 @@ module Cmpi
       @trace_file = STDERR
       super broker
     end
-    
+   
     def cleanup( context, terminating )
       @trace_file.puts "cleanup terminating? #{terminating}"
       true
     end
-    
+   
     def self.typemap
       {
         "Name" => Cmpi::string,
       }
     end
-    
+   
     # Methods
-    
+   
     # RCP_ComplexMethod: uint32 InOut(...)
     #
     def in_out_args; [["count", Cmpi::uint32, "str", Cmpi::string],[Cmpi::uint32, "result", Cmpi::string]] end
@@ -54,7 +54,7 @@ module Cmpi
 
       return [return_value, result]
     end
-    
+   
     # RCP_ComplexMethod: uint32 Size(...)
     #
     # type information for Size(...)
@@ -69,13 +69,13 @@ module Cmpi
       @trace_file.puts "size #{context}, #{reference}, #{str_a.inspect}"
       str_a ||= []
       method_return_value = str_a.size # uint32
-      
+     
       #  function body goes here
-      
+     
       return method_return_value
     end
-    
-    
+   
+   
     private
     #
     # Iterator for names and instances
@@ -88,21 +88,21 @@ module Cmpi
       else
         result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_ComplexMethod"
       end
-      
+     
       # Set key properties
-      
+     
       result.Name = "Method" # string  (-> RCP_ComplexMethod)
       unless want_instance
         yield result
         return
       end
-      
+     
       # Instance: Set non-key properties
-      
+     
       yield result
     end
     public
-    
+   
     def enum_instance_names( context, result, reference )
       @trace_file.puts "enum_instance_names ref #{reference}"
       each(context, reference) do |ref|
@@ -112,7 +112,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def enum_instances( context, result, reference, properties )
       @trace_file.puts "enum_instances ref #{reference}, props #{properties.inspect}"
       each(context, reference, properties, true) do |instance|
@@ -122,7 +122,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def get_instance( context, result, reference, properties )
       @trace_file.puts "get_instance ref #{reference}, props #{properties.inspect}"
       each(context, reference, properties, true) do |instance|
@@ -133,7 +133,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def create_instance( context, result, reference, newinst )
       @trace_file.puts "create_instance ref #{reference}, newinst #{newinst.inspect}"
       # Create instance according to reference and newinst
@@ -141,7 +141,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def set_instance( context, result, reference, newinst, properties )
       @trace_file.puts "set_instance ref #{reference}, newinst #{newinst.inspect}, props #{properties.inspect}"
       properties.each do |prop|
@@ -151,13 +151,13 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def delete_instance( context, result, reference )
       @trace_file.puts "delete_instance ref #{reference}"
       result.done
       true
     end
-    
+   
     # query : String
     # lang : String
     def exec_query( context, result, reference, query, lang )
@@ -165,6 +165,6 @@ module Cmpi
       result.done
       true
     end
-    
+   
   end
 end

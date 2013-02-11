@@ -12,7 +12,7 @@ module Cmpi
   # Realisation of CIM_Processor in Ruby
   #
   class RCP_Processor < InstanceProvider
-    
+   
     private
     #
     # Iterator for names and instances
@@ -91,7 +91,7 @@ module Cmpi
 
 	    next_cpu = false
 	  end # next_cpu
-	  
+	 
 	  case k
 	  when /address sizes/ then result.AddressWidth = v
 	  when /stepping/ then result.Stepping = v
@@ -121,7 +121,7 @@ module Cmpi
 	  when /model name/
 	    result.Name = v
 	    result.Description = v
-	    
+	   
 	  # result.EnabledProcessorCharacteristics = [EnabledProcessorCharacteristics.Unknown] # uint16[] (-> CIM_Processor)
 	  # Deprecated(["CIM_PowerManagementCapabilities"])result.PowerManagementSupported = nil # boolean (-> CIM_LogicalDevice)
 	  # Deprecated(["CIM_PowerManagementCapabilities.PowerCapabilities"])result.PowerManagementCapabilities = [PowerManagementCapabilities.Unknown] # uint16[] (-> CIM_LogicalDevice)
@@ -137,12 +137,12 @@ module Cmpi
 	  # result.OtherEnabledState = nil # string (-> CIM_EnabledLogicalElement)
 	  # result.AvailableRequestedStates = [AvailableRequestedStates.Enabled] # uint16[] (-> CIM_EnabledLogicalElement)
 	  # result.TransitioningToState = TransitioningToState.Unknown # uint16 (-> CIM_EnabledLogicalElement)
-	  # result.InstallDate = nil # dateTime (-> CIM_ManagedSystemElement)      
+	  # result.InstallDate = nil # dateTime (-> CIM_ManagedSystemElement)     
 	  # result.StatusDescriptions = [nil] # string[] (-> CIM_ManagedSystemElement)
 	  # Deprecated(["CIM_ManagedSystemElement.OperationalStatus"])result.Status = nil # string (-> CIM_ManagedSystemElement)
 	  # result.CommunicationStatus = CommunicationStatus.Unknown # uint16 (-> CIM_ManagedSystemElement)
 	  # result.DetailedStatus = DetailedStatus.Not Available # uint16 (-> CIM_ManagedSystemElement)
-	  # result.OperatingStatus = OperatingStatus.Unknown # uint16 (-> CIM_ManagedSystemElement)      
+	  # result.OperatingStatus = OperatingStatus.Unknown # uint16 (-> CIM_ManagedSystemElement)     
 	  # result.InstanceID = nil # string (-> CIM_ManagedElement)
 	  # result.ElementName = nil # string (-> CIM_ManagedElement)
 	  end # case k
@@ -151,7 +151,7 @@ module Cmpi
       end # File.open
     end # each
     public
-    
+   
     #
     # Provider initialization
     #
@@ -159,7 +159,7 @@ module Cmpi
       @trace_file = STDERR
       super broker
     end
-    
+   
     def enum_instance_names( context, result, reference )
       @trace_file.puts "enum_instance_names ref #{reference}"
       each(reference) do |ref|
@@ -169,7 +169,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def enum_instances( context, result, reference, properties )
       @trace_file.puts "enum_instances ref #{reference}, props #{properties.inspect}"
       each(reference, properties, true) do |instance|
@@ -179,7 +179,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def get_instance( context, result, reference, properties )
       @trace_file.puts "get_instance ref #{reference}, props #{properties.inspect}"
       each(reference, properties, true) do |instance|
@@ -190,7 +190,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     # query : String
     # lang : String
     def exec_query( context, result, reference, query, lang )
@@ -198,7 +198,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def cleanup( context, terminating )
       @trace_file.puts "cleanup terminating? #{terminating}"
       true
@@ -264,7 +264,7 @@ module Cmpi
         "Generation" => Cmpi::uint64,
       }
     end
-    
+   
     class Family < Cmpi::ValueMap
       def self.map
         {
@@ -446,7 +446,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class UpgradeMethod < Cmpi::ValueMap
       def self.map
         {
@@ -478,7 +478,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class CPUStatus < Cmpi::ValueMap
       def self.map
         {
@@ -491,7 +491,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class Characteristics < Cmpi::ValueMap
       def self.map
         {
@@ -509,7 +509,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class EnabledProcessorCharacteristics < Cmpi::ValueMap
       def self.map
         {
@@ -522,7 +522,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class PowerManagementCapabilities < Cmpi::ValueMap
       def self.map
         {
@@ -537,7 +537,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class Availability < Cmpi::ValueMap
       def self.map
         {
@@ -565,7 +565,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class StatusInfo < Cmpi::ValueMap
       def self.map
         {
@@ -577,7 +577,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class AdditionalAvailability < Cmpi::ValueMap
       def self.map
         {
@@ -605,7 +605,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class LocationIndicator < Cmpi::ValueMap
       def self.map
         {
@@ -616,7 +616,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class EnabledState < Cmpi::ValueMap
       def self.map
         {
@@ -636,7 +636,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class RequestedState < Cmpi::ValueMap
       def self.map
         {
@@ -657,7 +657,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class EnabledDefault < Cmpi::ValueMap
       def self.map
         {
@@ -672,7 +672,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class AvailableRequestedStates < Cmpi::ValueMap
       def self.map
         {
@@ -688,7 +688,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class TransitioningToState < Cmpi::ValueMap
       def self.map
         {
@@ -707,7 +707,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class OperationalStatus < Cmpi::ValueMap
       def self.map
         {
@@ -735,7 +735,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class HealthState < Cmpi::ValueMap
       def self.map
         {
@@ -750,7 +750,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class PrimaryStatus < Cmpi::ValueMap
       def self.map
         {
@@ -763,7 +763,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class DetailedStatus < Cmpi::ValueMap
       def self.map
         {
@@ -778,7 +778,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class OperatingStatus < Cmpi::ValueMap
       def self.map
         {
@@ -804,7 +804,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class CommunicationStatus < Cmpi::ValueMap
       def self.map
         {

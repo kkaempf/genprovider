@@ -12,7 +12,7 @@ module Cmpi
   # A dummy class to represent array data types
   #
   class RCP_ArrayDataTypes < InstanceProvider
-    
+
     #
     # Provider initialization
     #
@@ -21,12 +21,12 @@ module Cmpi
       @trace_file.puts "#{self.class}.new #{name}"
       super broker
     end
-    
+
     def cleanup( context, terminating )
       @trace_file.puts "cleanup terminating? #{terminating}"
       true
     end
-    
+
     def self.typemap
       {
         "Name" => Cmpi::string,
@@ -46,7 +46,7 @@ module Cmpi
         "date_time" => Cmpi::dateTimeA,
       }
     end
-    
+
     private
     #
     # Iterator for names and instances
@@ -59,10 +59,10 @@ module Cmpi
       else
         result = Cmpi::CMPIObjectPath.new reference.namespace, "RCP_ArrayDataTypes"
       end
-      
+
       @trace_file.puts "reference(#{reference.class}:#{reference})"
       ["Empty", "One", "More"].each do |name|
-        
+
         if reference.Name
           @trace_file.puts "Expect Name = #{reference.Name.inspect}, have #{name.inspect}"
           next unless name == reference.Name
@@ -77,7 +77,7 @@ module Cmpi
         case name
         when "Empty"
           # Instance: Set non-key properties
-      
+
           result.bool = [] # boolean[]  (-> RCP_ArrayDataTypes)
           result.text = [] # string[]  (-> RCP_ArrayDataTypes)
           result.char_16 = [] # char16[]  (-> RCP_ArrayDataTypes)
@@ -94,7 +94,7 @@ module Cmpi
           result.date_time = [] # dateTime[]  (-> RCP_ArrayDataTypes)
         when "One"
           # Instance: Set non-key properties
-      
+
           @trace_file.puts "result for #{name}"
           result.bool = [true] # boolean[]  (-> RCP_ArrayDataTypes)
           result.text = ["One element"] # string[]  (-> RCP_ArrayDataTypes)
@@ -112,7 +112,7 @@ module Cmpi
           result.date_time = [Time.now] # dateTime[]  (-> RCP_ArrayDataTypes)
         when "More"
           # Instance: Set non-key properties
-      
+
           result.bool = [true,false,true] # boolean[]  (-> RCP_ArrayDataTypes)
           result.text = ["Element one", "Element two", "Element three"] # string[]  (-> RCP_ArrayDataTypes)
           result.char_16 = ["1", "2", "3"] #[49, 50, 51] # '1','2','3' char16[]  (-> RCP_ArrayDataTypes)
@@ -130,11 +130,11 @@ module Cmpi
         end
         end # if want_instance
         @trace_file.puts "\tyield #{result}"
-        yield result        
+        yield result
       end
     end
     public
-    
+
     def enum_instance_names( context, result, reference )
       @trace_file.puts "enum_instance_names ref #{reference}"
       each(context, reference) do |ref|
@@ -144,7 +144,7 @@ module Cmpi
       result.done
       true
     end
-    
+
     def enum_instances( context, result, reference, properties )
       @trace_file.puts "enum_instances ref #{reference}, props #{properties.inspect}"
       each(context, reference, properties, true) do |instance|
@@ -154,7 +154,7 @@ module Cmpi
       result.done
       true
     end
-    
+
     def get_instance( context, result, reference, properties )
       @trace_file.puts "get_instance ref #{reference}, props #{properties.inspect}"
       each(context, reference, properties, true) do |instance|
@@ -165,7 +165,7 @@ module Cmpi
       result.done
       true
     end
-    
+
     def create_instance( context, result, reference, newinst )
       @trace_file.puts "create_instance ref #{reference}, newinst #{newinst.inspect}"
       # Create instance according to reference and newinst
@@ -173,7 +173,7 @@ module Cmpi
       result.done
       true
     end
-    
+
     def set_instance( context, result, reference, newinst, properties )
       @trace_file.puts "set_instance ref #{reference}, newinst #{newinst.inspect}, props #{properties.inspect}"
       properties.each do |prop|
@@ -183,13 +183,13 @@ module Cmpi
       result.done
       true
     end
-    
+
     def delete_instance( context, result, reference )
       @trace_file.puts "delete_instance ref #{reference}"
       result.done
       true
     end
-    
+
     # query : String
     # lang : String
     def exec_query( context, result, reference, query, lang )
@@ -197,6 +197,6 @@ module Cmpi
       result.done
       true
     end
-    
+
   end
 end

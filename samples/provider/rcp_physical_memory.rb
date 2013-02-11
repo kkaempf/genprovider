@@ -14,7 +14,7 @@ module Cmpi
   # devices - SIMMS, DIMMs, raw memory chips, etc.
   #
   class RCP_PhysicalMemory < InstanceProvider
-    
+   
     #
     # Provider initialization
     #
@@ -22,12 +22,12 @@ module Cmpi
       @trace_file = STDERR
       super broker
     end
-    
+   
     def cleanup( context, terminating )
       @trace_file.puts "cleanup terminating? #{terminating}"
       true
     end
-    
+   
     def self.typemap
       {
         "FormFactor" => Cmpi::uint16,
@@ -73,7 +73,7 @@ module Cmpi
         "Caption" => Cmpi::string,
       }
     end
-    
+   
     private
     def each_dmi
       memory_device = nil
@@ -105,9 +105,9 @@ module Cmpi
 	if want_instance
 	  result = Cmpi::CMPIInstance.new result
 	end
-      
+     
         # Set key properties
-      
+     
         result.Tag = dmi["Locator"] # string MaxLen 256  (-> CIM_PhysicalElement)
 	if tag
 	  next unless tag == result.Tag
@@ -117,9 +117,9 @@ module Cmpi
 	  yield result
 	  next
 	end
-      
+     
         # Instance: Set non-key properties
-      
+     
         result.FormFactor = FormFactor.send(dmi["Form Factor"]) # uint16  (-> CIM_PhysicalMemory)
         result.MemoryType = MemoryType.send(dmi["Type"]) # uint16  (-> CIM_PhysicalMemory)
         result.TotalWidth = dmi["Total Width"].to_i # uint16  (-> CIM_PhysicalMemory)
@@ -183,7 +183,7 @@ module Cmpi
       end
     end
     public
-    
+   
     def enum_instance_names( context, result, reference )
       @trace_file.puts "enum_instance_names ref #{reference}"
       each(context, reference) do |ref|
@@ -192,7 +192,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def enum_instances( context, result, reference, properties )
       @trace_file.puts "enum_instances ref #{reference}, props #{properties.inspect}"
       each(context, reference, properties, true) do |instance|
@@ -201,7 +201,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def get_instance( context, result, reference, properties )
       @trace_file.puts "get_instance ref #{reference}, props #{properties.inspect}"
       each(context, reference, properties, true) do |instance|
@@ -212,11 +212,11 @@ module Cmpi
       result.done
       true
     end
-    
+   
     #
     # ----------------- valuemaps following, don't touch -----------------
     #
-    
+   
     class FormFactor < Cmpi::ValueMap
       def self.map
         {
@@ -247,7 +247,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class MemoryType < Cmpi::ValueMap
       def self.map
         {
@@ -282,7 +282,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class RemovalConditions < Cmpi::ValueMap
       def self.map
         {
@@ -293,7 +293,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class OperationalStatus < Cmpi::ValueMap
       def self.map
         {
@@ -322,7 +322,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class Status < Cmpi::ValueMap
       def self.map
         {
@@ -342,7 +342,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class HealthState < Cmpi::ValueMap
       def self.map
         {
@@ -358,7 +358,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class CommunicationStatus < Cmpi::ValueMap
       def self.map
         {
@@ -372,7 +372,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class DetailedStatus < Cmpi::ValueMap
       def self.map
         {
@@ -387,7 +387,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class OperatingStatus < Cmpi::ValueMap
       def self.map
         {
@@ -413,7 +413,7 @@ module Cmpi
         }
       end
     end
-    
+   
     class PrimaryStatus < Cmpi::ValueMap
       def self.map
         {

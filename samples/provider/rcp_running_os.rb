@@ -16,7 +16,7 @@ module Cmpi
   # booted, or its OperatingSystem may be unknown.
   #
   class RCP_RunningOS < AssociationProvider
-    
+   
     include InstanceProviderIF
     #
     # Provider initialization
@@ -25,12 +25,12 @@ module Cmpi
       @trace_file = STDERR
       super broker
     end
-    
+   
     def cleanup( context, terminating )
       @trace_file.puts "cleanup terminating? #{terminating}"
       true
     end
-    
+   
     def self.typemap
       {
         # CIM_OperatingSystem ref
@@ -39,7 +39,7 @@ module Cmpi
         "Dependent" => Cmpi::ref,
       }
     end
-    
+   
     private
     #
     # Iterator for names and instances
@@ -60,7 +60,7 @@ module Cmpi
       end
       # Set key properties
       result.Dependent = cs_ref # CIM_ComputerSystem
-      result.Antecedent = os_ref # CIM_OperatingSystem 
+      result.Antecedent = os_ref # CIM_OperatingSystem
       yield result
 
     end
@@ -70,11 +70,11 @@ module Cmpi
     def associator_names( context, result, reference, assoc_class, result_class, role, result_role )
       @trace_file.puts "associator_names #{context}, #{result}, #{reference}, #{assoc_class}, #{result_class}, #{role}, #{result_role}"
     end
-    
+   
     def associators( context, result, reference, assoc_class, result_class, role, result_role, properties )
       @trace_file.puts "associators #{context}, #{result}, #{reference}, #{assoc_class}, #{result_class}, #{role}, #{result_role}, #{properties}"
     end
-    
+   
     def reference_names( context, result, reference, result_class, role )
       @trace_file.puts "reference_names #{context}, #{result}, #{reference}, #{result_class}, #{role}"
       each(context, reference) do |ref|
@@ -83,7 +83,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def references( context, result, reference, result_class, role, properties )
       @trace_file.puts "references #{context}, #{result}, #{reference}, #{result_class}, #{role}, #{properties}"
       each(context, reference, properties, true) do |instance|
@@ -92,7 +92,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def enum_instance_names( context, result, reference )
       @trace_file.puts "enum_instance_names ref #{reference}"
       each(context, reference) do |ref|
@@ -101,7 +101,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def enum_instances( context, result, reference, properties )
       @trace_file.puts "enum_instances ref #{reference}, props #{properties.inspect}"
       each(context, reference, properties, true) do |instance|
@@ -110,7 +110,7 @@ module Cmpi
       result.done
       true
     end
-    
+   
     def get_instance( context, result, reference, properties )
       @trace_file.puts "get_instance ref #{reference}, props #{properties.inspect}"
       each(context, reference, properties, true) do |instance|
@@ -128,6 +128,6 @@ module Cmpi
       result.done
       true
     end
-    
+   
   end
 end

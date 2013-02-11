@@ -47,10 +47,10 @@ module Cmpi
 	end
 
         # Set key properties
-  
+ 
         result.CSCreationClassName = cs_CreationClassName
 	result.CSName = cs_Name
-  
+ 
         result.OSCreationClassName = os_CreationClassName
         result.OSName = os_Name
 
@@ -60,7 +60,7 @@ module Cmpi
 	  yield result
 	  next
 	end
-  
+ 
         # Set non-key properties
 
 	stat = File.read("#{proc}/stat").split(" ")
@@ -85,7 +85,7 @@ module Cmpi
 	#		      -2  to  -100,  corresponding  to real-time priorities 1 to 99.  For processes running under a non-real-time scheduling policy, this is the raw nice value (setpriority(2)) as represented in the kernel.  The
 	#	              kernel stores nice values as numbers in the range 0 (high) to 39 (low), corresponding to the user-visible nice range of -20 to 19.
 	#	              Before Linux 2.6, this was a scaled value based on the scheduler weighting given to this process.
-	#  
+	# 
 	# 18: nice %ld    The nice value (see setpriority(2)), a value in the range 19 (low priority) to -20 (high priority).
 	# 19: num_threads %ld  Number of threads in this process (since Linux 2.6).  Before kernel 2.6, this field was hard coded to 0 as a placeholder for an earlier removed field.
 	# 20: itrealvalue %ld  The time in jiffies before the next SIGALRM is sent to the process due to an interval timer.  Since kernel 2.6.17, this field is no longer maintained, and is hard coded a
@@ -124,7 +124,7 @@ module Cmpi
 	end
 	
 
-			 
+			
         # Required !
 	result.ParentProcessID = stat[3]
 	# Required !
@@ -197,7 +197,7 @@ module Cmpi
     def invoke_method( context, result, reference, method, argsin, argsout )
       @trace_file.puts "invoke_method #{context}, #{result}, #{reference}, #{method}, #{argsin}, #{argsout}"
     end
-    
+   
     # Instance
     def create_instance( context, result, reference, newinst )
       @trace_file.puts "create_instance ref #{reference}, newinst #{newinst.inspect}"
