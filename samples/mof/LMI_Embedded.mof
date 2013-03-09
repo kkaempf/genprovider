@@ -1,6 +1,6 @@
 class LMI_Embedded
 {
     [Key] string InstanceID;
-    [EmbeddedInstance("CIM_ManagedElement")] string Embedded;
+    [EmbeddedObject("CIM_ManagedElement")] string Embedded;
     string Str;
 };

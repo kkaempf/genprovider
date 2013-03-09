@@ -47,17 +47,17 @@ class Test_LMI_Embedded < Test::Unit::TestCase
     instances = @client.instances(@op)
     assert instances.size > 0
     instances.each do |instance|
-      assert instance
       puts "Instance #{instance}"
+      assert instance
+      puts "instance.InstanceID #{instance.InstanceID.inspect}"
       assert instance.InstanceID
       assert_kind_of String, instance.InstanceID # string
-      puts "instance.InstanceID #{instance.InstanceID.inspect}"
-      assert instance.Embedded
-      assert_kind_of String, instance.Embedded # string
       puts "instance.Embedded #{instance.Embedded.inspect}"
+      assert instance.Embedded
+      assert_kind_of Sfcc::Cim::Instance, instance.Embedded # string
+      puts "instance.Str #{instance.Str.inspect}"
       assert instance.Str
       assert_kind_of String, instance.Str # string
-      puts "instance.Str #{instance.Str.inspect}"
     end
   end
 

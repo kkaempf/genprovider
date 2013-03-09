@@ -347,9 +347,21 @@ module Genprovider
       properties :all do |property, klass|
 	t = property.type
 	s = t.to_cmpi
-	if t.is_a? CIM::ReferenceType
+	if t == CIM::ReferenceType
 	  # use t.name to stay Ruby-compatible. t.to_s would print MOF syntax
 	  @out.comment t.to_s
+        elsif t == :string # check for Embedded{Instance,Object}
+          if property.embeddedinstance?
+            s = "Cmpi::embedded_instance"
+          elsif property.embeddedobject?
+            s = "Cmpi::embedded_object"
+          end
+        elsif t == :stringA # check for Embedded{Instance,Object}
+          if property.embeddedinstance?
+            s = "Cmpi::embedded_instanceA"
+          elsif property.embeddedobject?
+            s = "Cmpi::embedded_objectA"
+          end
 	end
 	@out.puts "#{property.name.inspect} => #{s},"
       end

@@ -38,11 +38,11 @@ module Cmpi
     def self.typemap
       {
         "InstanceID" => Cmpi::string,
-        "Embedded" => Cmpi::string,
+        "Embedded" => Cmpi::embedded_instance,
         "Str" => Cmpi::string,
       }
     end
-    
+
     private
     #
     # Iterator for names and instances
