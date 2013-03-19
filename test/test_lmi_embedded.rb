@@ -22,7 +22,7 @@ class Test_LMI_Embedded < Test::Unit::TestCase
     assert cimclass
   end
   
-  def xtest_instance_names
+  def test_instance_names
     names = @client.instance_names(@op)
     assert names.size > 0
     names.each do |ref|
@@ -43,7 +43,7 @@ class Test_LMI_Embedded < Test::Unit::TestCase
     end
   end
 
-  def test_instances
+  def xtest_instances
     instances = @client.instances(@op)
     assert instances.size > 0
     instances.each do |instance|
