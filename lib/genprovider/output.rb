@@ -69,14 +69,14 @@ class Output
     end
     wrap = @wrap - (@depth * @indent + 2) - ((lmargin)?lmargin:0)
     if str && str.size > wrap # must wrap
-#      puts "#{str.size} > #{wrap}"
+#      STDERR.puts "#{str.size} > #{wrap}"
       pivot = wrap
-      while pivot > 0 && str[pivot] != 32 # search space left of wrap
+      while pivot > 0 && str[pivot,1] != " " # search space left of wrap
         pivot -= 1
       end
       if pivot == 0 # no space left of wrap
         pivot = wrap
-        while pivot < str.size && str[pivot] != 32 # search space right of wrap
+        while pivot < str.size && str[pivot,1] != " " # search space right of wrap
           pivot += 1
         end
       end
