@@ -55,9 +55,9 @@ module Genprovider
     # iterate features
     # **internal**
     #  predicate: feature predicate symbol, like :property?
-    #  filter:    :keys  # keys only
-    #             :nokey # non-keys only
-    #             :all   # all
+    #  filter:    :keys   # keys only
+    #             :nokeys # non-keys only
+    #             :all    # all
     #
     # yields { |feature, klass| } if block_given?
     # returns Array of [feature,klass] pairs else
@@ -111,9 +111,9 @@ module Genprovider
     end
 
     # iterate properties
-    #  filter:    :keys  # keys only
-    #             :nokey # non-keys only
-    #             :all   # all
+    #  filter:    :keys   # keys only
+    #             :nokeys # non-keys only
+    #             :all    # all
     #
     # accepts optional block
     #
@@ -326,6 +326,21 @@ module Genprovider
       @out.comment "lang : String"
       @out.def "exec_query", "context", "result", "reference", "query", "lang"
       @out.puts "#{LOG} \"exec_query ref \#{reference}, query \#{query}, lang \#{lang}\""
+      @out.printf "keys = ["
+      first = true
+      properties :keys do |property, klass|
+        @out.write ", " unless first
+        first = false
+        @out.write "\"#{property.name}\""
+      end
+      @out.puts "]"
+      @out.puts "expr = CMPISelectExp.new query, lang, keys"
+      @out.puts("each(context, reference, nil, true) do |instance|").inc
+      @out.puts(  "if expr.match(instance)").inc
+      @out.puts     "instance.set_property_filter expr.filter"
+      @out.puts     "result.return_instance instance"
+      @out.end
+      @out.end
       @out.puts "result.done"
       @out.puts "true"
       @out.end
