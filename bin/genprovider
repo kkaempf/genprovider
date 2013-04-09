@@ -24,7 +24,7 @@
 #   additional include directories to search
 # -o <outputdir>
 #   directory to write generated files, defaults to 'generated'
-# -t
+# -t:
 #   generate testcase only
 # <moffile>
 #   .mof files to read
