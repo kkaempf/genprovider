@@ -190,6 +190,7 @@ module Genprovider
       @out.puts "result = Cmpi::CMPIObjectPath.new reference.namespace, #{@klass.name.inspect}"
       @out.puts("if want_instance").inc
       @out.puts "result = Cmpi::CMPIInstance.new result"
+      @out.puts "result.set_property_filter(properties) if properties"
       @out.end
       @out.puts
       @out.comment "Set key properties"
@@ -335,9 +336,8 @@ module Genprovider
       end
       @out.puts "]"
       @out.puts "expr = CMPISelectExp.new query, lang, keys"
-      @out.puts("each(context, reference, nil, true) do |instance|").inc
+      @out.puts("each(context, reference, expr.filter, true) do |instance|").inc
       @out.puts(  "if expr.match(instance)").inc
-      @out.puts     "instance.set_property_filter expr.filter"
       @out.puts     "result.return_instance instance"
       @out.end
       @out.end
