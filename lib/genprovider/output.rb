@@ -44,7 +44,7 @@ class Output
     self
   end
   def puts str=""
-    indent
+    indent unless str.empty?
     @file.puts str
     @newline = true
     self
