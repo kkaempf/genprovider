@@ -10,6 +10,8 @@ module Genprovider
       out.comment.comment "Classname - Namespace - Providername - Libraryname - Capabilities ..."
 
       mask = Genprovider.classmask c
+      # an association provider is also an instance provider
+      mask |= INSTANCE_MASK if ((mask & ASSOCIATION_MASK|INSTANCE_MASK) == ASSOCIATION_MASK)
       capabilities = ""
       capabilities << " instance" if (mask & INSTANCE_MASK) != 0
       capabilities << " method" if (mask & METHOD_MASK) != 0
