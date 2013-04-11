@@ -623,10 +623,20 @@ module Genprovider
       @out.puts
       @out.def "reference_names", "context", "result", "reference", "result_class", "role"
       @out.puts "#{LOG} \"#{@name}.reference_names \#{context}, \#{result}, \#{reference}, \#{result_class}, \#{role}\""
+      @out.puts("each(context, reference) do |ref|").inc
+      @out.puts "result.return_objectpath ref"
+      @out.end
+      @out.puts "result.done"
+      @out.puts "true"
       @out.end
       @out.puts
       @out.def "references", "context", "result", "reference", "result_class", "role", "properties"
       @out.puts "#{LOG} \"#{@name}.references \#{context}, \#{result}, \#{reference}, \#{result_class}, \#{role}, \#{properties}\""
+      @out.puts("each(context, reference, properties, true) do |instance|").inc
+      @out.puts "result.return_instance instance"
+      @out.end
+      @out.puts "result.done"
+      @out.puts "true"
       @out.end
 
     end
