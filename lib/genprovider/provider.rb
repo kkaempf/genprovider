@@ -239,7 +239,7 @@ module Genprovider
     #
     def mkcreate
       @out.def "create_instance", "context", "result", "reference", "newinst"
-      @out.puts "#{LOG} \"#{self.class}.create_instance ref \#{reference}, newinst \#{newinst.inspect}\""
+      @out.puts "#{LOG} \"#{@name}.create_instance ref \#{reference}, newinst \#{newinst.inspect}\""
       @out.comment "Create instance according to reference and newinst"
       @out.puts "result.return_objectpath reference"
       @out.puts "result.done"
@@ -252,7 +252,7 @@ module Genprovider
     #
     def mkenum_instance_names
       @out.def "enum_instance_names", "context", "result", "reference"
-      @out.puts "#{LOG} \"#{self.class}.enum_instance_names ref \#{reference}\""
+      @out.puts "#{LOG} \"#{@name}.enum_instance_names ref \#{reference}\""
       @out.puts("each(context, reference) do |ref|").inc
       @out.puts "#{LOG} \"ref \#{ref}\""
       @out.puts "result.return_objectpath ref"
@@ -267,7 +267,7 @@ module Genprovider
     #
     def mkenum_instances
       @out.def "enum_instances", "context", "result", "reference", "properties"
-      @out.puts "#{LOG} \"#{self.class}.enum_instances ref \#{reference}, props \#{properties.inspect}\""
+      @out.puts "#{LOG} \"#{@name}.enum_instances ref \#{reference}, props \#{properties.inspect}\""
       @out.puts("each(context, reference, properties, true) do |instance|").inc
       @out.puts "#{LOG} \"instance \#{instance}\""
       @out.puts "result.return_instance instance"
@@ -282,7 +282,7 @@ module Genprovider
     #
     def mkget_instance
       @out.def "get_instance", "context", "result", "reference", "properties"
-      @out.puts "#{LOG} \"#{self.class}.get_instance ref \#{reference}, props \#{properties.inspect}\""
+      @out.puts "#{LOG} \"#{@name}.get_instance ref \#{reference}, props \#{properties.inspect}\""
       @out.puts("each(context, reference, properties, true) do |instance|").inc
       @out.puts "#{LOG} \"instance \#{instance}\""
       @out.puts "result.return_instance instance"
@@ -298,7 +298,7 @@ module Genprovider
     #
     def mkset_instance
       @out.def "set_instance", "context", "result", "reference", "newinst", "properties"
-      @out.puts "#{LOG} \"#{self.class}.set_instance ref \#{reference}, newinst \#{newinst.inspect}, props \#{properties.inspect}\""
+      @out.puts "#{LOG} \"#{@name}.set_instance ref \#{reference}, newinst \#{newinst.inspect}, props \#{properties.inspect}\""
       @out.puts("properties.each do |prop|").inc
       @out.puts "newinst.send \"\#{prop.name}=\".to_sym, FIXME"
       @out.end
@@ -313,7 +313,7 @@ module Genprovider
     #
     def mkdelete_instance
       @out.def "delete_instance", "context", "result", "reference"
-      @out.puts "#{LOG} \"#{self.class}.delete_instance ref \#{reference}\""
+      @out.puts "#{LOG} \"#{@name}.delete_instance ref \#{reference}\""
       @out.puts "result.done"
       @out.puts "true"
       @out.end
@@ -326,7 +326,7 @@ module Genprovider
       @out.comment "query : String"
       @out.comment "lang : String"
       @out.def "exec_query", "context", "result", "reference", "query", "lang"
-      @out.puts "#{LOG} \"#{self.class}.exec_query ref \#{reference}, query \#{query}, lang \#{lang}\""
+      @out.puts "#{LOG} \"#{@name}.exec_query ref \#{reference}, query \#{query}, lang \#{lang}\""
       @out.printf "keys = ["
       first = true
       properties :keys do |property, klass|
@@ -351,7 +351,7 @@ module Genprovider
     #
     def mkcleanup
       @out.def "cleanup", "context", "terminating"
-      @out.puts "#{LOG} \"#{self.class}.cleanup terminating? \#{terminating}\""
+      @out.puts "#{LOG} \"#{@name}.cleanup terminating? \#{terminating}\""
       @out.puts "true"
       @out.end
     end
@@ -614,19 +614,19 @@ module Genprovider
     def mkassociations
       @out.comment "Associations"
       @out.def "associator_names", "context", "result", "reference", "assoc_class", "result_class", "role", "result_role"
-      @out.puts "#{LOG} \"#{self.class}.associator_names \#{context}, \#{result}, \#{reference}, \#{assoc_class}, \#{result_class}, \#{role}, \#{result_role}\""
+      @out.puts "#{LOG} \"#{@name}.associator_names \#{context}, \#{result}, \#{reference}, \#{assoc_class}, \#{result_class}, \#{role}, \#{result_role}\""
       @out.end
       @out.puts
       @out.def "associators", "context", "result", "reference", "assoc_class", "result_class", "role", "result_role", "properties"
-      @out.puts "#{LOG} \"#{self.class}.associators \#{context}, \#{result}, \#{reference}, \#{assoc_class}, \#{result_class}, \#{role}, \#{result_role}, \#{properties}\""
+      @out.puts "#{LOG} \"#{@name}.associators \#{context}, \#{result}, \#{reference}, \#{assoc_class}, \#{result_class}, \#{role}, \#{result_role}, \#{properties}\""
       @out.end
       @out.puts
       @out.def "reference_names", "context", "result", "reference", "result_class", "role"
-      @out.puts "#{LOG} \"#{self.class}.reference_names \#{context}, \#{result}, \#{reference}, \#{result_class}, \#{role}\""
+      @out.puts "#{LOG} \"#{@name}.reference_names \#{context}, \#{result}, \#{reference}, \#{result_class}, \#{role}\""
       @out.end
       @out.puts
       @out.def "references", "context", "result", "reference", "result_class", "role", "properties"
-      @out.puts "#{LOG} \"#{self.class}.references \#{context}, \#{result}, \#{reference}, \#{result_class}, \#{role}, \#{properties}\""
+      @out.puts "#{LOG} \"#{@name}.references \#{context}, \#{result}, \#{reference}, \#{result_class}, \#{role}, \#{properties}\""
       @out.end
 
     end
@@ -635,34 +635,14 @@ module Genprovider
       @out.comment "Indications"
     end
 
-    INSTANCE_MASK = 1
-    METHOD_MASK = 2
-    ASSOCIATION_MASK = 4
-    INDICATION_MASK = 8
-    
     def providertypes
-      mask = 0
-      c = @klass
-      while c
-	mask |= INSTANCE_MASK if c.instance?
-	mask |= METHOD_MASK if c.method?
-	if c.association?
-	  mask |= ASSOCIATION_MASK
-	end
-	mask |= INDICATION_MASK if c.indication?
-	c = c.parent
-      end
+      mask = Genprovider.classmask @klass
       res = []
       res << "MethodProvider" if (mask & METHOD_MASK) != 0
       res << "AssociationProvider" if (mask & ASSOCIATION_MASK) != 0
       res << "IndicationProvider" if (mask & INDICATION_MASK) != 0
       res << "InstanceProvider" if (mask & INSTANCE_MASK) != 0
 
-      if res.empty?
-	STDERR.puts "Assuming that #{@klass.name} defines an Instance"
-	res << "InstanceProvider"
-	mask |= INSTANCE_MASK
-      end
       [res, mask]
     end
 
@@ -679,6 +659,7 @@ module Genprovider
       if name[0,1] == name[0,1].downcase
         raise "Provider name (#{name}) must start with upper case"
       end
+      @name = name
 
       #
       # Header: class name, provider name (Class qualifier 'provider')
