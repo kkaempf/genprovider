@@ -38,7 +38,7 @@ module Genprovider
       out.puts "class Test_#{c.name} < Test::Unit::TestCase"
       out.inc
       out.def "setup"
-      out.puts "@client = Sfcc::Cim::Client.connect(:uri => 'https://wsman:secret@localhost:5989', :verify => false)"
+      out.puts "@client = Sfcc::Cim::Client.connect(:uri => 'http://localhost:12345', :verify => false)"
       out.puts "@op = Sfcc::Cim::ObjectPath.new('#{namespace}', '#{c.name}')"
       out.end
       out.puts
