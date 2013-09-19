@@ -1,6 +1,6 @@
 = genprovider
 
-* http://github.com/kkaemof/genprovider
+* http://github.com/kkaempf/genprovider
 
 == DESCRIPTION:
 
@@ -14,6 +14,16 @@
 == SYNOPSIS:
 
   genprovider.rb [-d] [-h] [-q] [-I <includedir>] [-o <output>] [-n <namespace>] <moffile> [<moffile> ...]
+
+  * -d              debug
+  * -h              this help
+  * -I <dir>        include dir
+  * -f              force, overwrite existing files
+  * -n <namespace>  cim namespace, triggers generating .registration file
+  * -o <output>     output file
+  * -s <style>      syntax style (wmi,cim) of input mof
+  * -q  quiet       no progress output
+  * <moffiles>      file(s) to read (else use $stdin)
 
 == EXAMPLE:
 
@@ -39,7 +49,7 @@
 
 == INSTALL:
 
-* gem install gemprovider
+* gem install genprovider
 
 == LICENSE:
 
