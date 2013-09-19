@@ -13,16 +13,18 @@
 
 == SYNOPSIS:
 
-  genprovider.rb [-d] [-h] [-q] [-I <includedir>] [-o <output>] [-n <namespace>] <moffile> [<moffile> ...]
+  genprovider.rb [-c] [-d] [-h] [-q] [-t] [-I <includedir>] [-o <output>] [-n <namespace>] <moffile> [<moffile> ...]
 
+  * -c              generate class files (for method execution)
   * -d              debug
+  * -f              force, overwrite existing files
   * -h              this help
   * -I <dir>        include dir
-  * -f              force, overwrite existing files
   * -n <namespace>  cim namespace, triggers generating .registration file
   * -o <output>     output file
-  * -s <style>      syntax style (wmi,cim) of input mof
   * -q  quiet       no progress output
+  * -s <style>      syntax style (wmi,cim) of input mof
+  * -t              generate test cases (for provider-testing gem)
   * <moffiles>      file(s) to read (else use $stdin)
 
 == EXAMPLE:
