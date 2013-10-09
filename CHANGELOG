@@ -1,3 +1,16 @@
+=== 0.2.2 2013-10-09
+
+* fix method input args
+
+=== 0.2.1 2013-09-18
+
+* support filter (execQuery)
+* fix property filter
+* support methods
+* Ruby 1.9 adaptions
+* Support EmbeddedObject/EmbeddedInstance as string property
+  qualifiers
+              
 === 0.2.0 2013-04-11
 
 * Bugfix release

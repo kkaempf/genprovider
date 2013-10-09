@@ -566,7 +566,7 @@ module Genprovider
 	explain_args input, "Input"
 	explain_args output, "Additional output"
 	args = ["#{decam}", "context", "reference"]
-	method.parameters.each do |arg|
+	input.each do |arg|
 	  args << arg.name.decamelize
 	end
 	@out.def *args
