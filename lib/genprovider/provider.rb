@@ -543,6 +543,8 @@ module Genprovider
 	# second is list of output args (starting with return type, then name and type of additional out args)
         # -> used by cmpi_bindings !
         @out.comment "type information for #{name}(...)"
+        @out.comment "Array of 2 arrys. First array is input arguments as [<in_name1>, <in_type1>, ...]"
+        @out.comment "  Second array is [<return type>, <out_name1>, <out_type1>, <out_name2>, <out_type2>, ...]"
 	@out.puts "def #{decam}_args; [[#{mkargs(input, decam)}],[#{method.type.to_cmpi}, #{mkargs(output, decam)}]] end"
 	@out.comment
 	d = method.description.value rescue nil
