@@ -10,6 +10,7 @@ Gem::Specification.new do |s|
   s.authors     = ["Klaus Kämpf"]
   s.email       = ["kkaempf@suse.de"]
   s.homepage    = "https://github.com/kkaempf/genprovider"
+  s.licenses    = ["Ruby"]
   s.summary     = %q{A generator for Ruby based CIM providers}
   s.description = %q{Generates Ruby provider templates for use with cmpi-bindings}
 
