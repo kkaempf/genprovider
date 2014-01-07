@@ -609,6 +609,7 @@ module Genprovider
 
 #      @out.puts
 #      @out.def "invoke_method", "context", "result", "reference", "method", "argsin", "argsout"
+#      @out.comment "method names and parameter names are case-insensitive !"
 #      @out.puts "#{LOG} \"invoke_method \#{context}, \#{result}, \#{reference}, \#{method}, \#{argsin}, \#{argsout}\""
 #      @out.end
     end
