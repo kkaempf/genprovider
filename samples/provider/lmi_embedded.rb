@@ -7,15 +7,12 @@ require 'cmpi/provider'
 
 module Cmpi
 
-  class CIM_ManagedElement < InstanceProvider
+  class LMI_ManagedElement < InstanceProvider
     # typemap for embedded instance
     def self.typemap
       {
         "InstanceID" => Cmpi::string,
-        "Caption" => Cmpi::string,
-        "Description" => Cmpi::string,
-        "ElementName" => Cmpi::string,
-        "Generation" => Cmpi::uint64,
+        "Description" => Cmpi::string
       }
     end
   end
@@ -50,10 +47,10 @@ module Cmpi
     #
     def each( context, reference, properties = nil, want_instance = false )
       value = "Hello world"
-      
+
       # create embedded instance
       ns = reference.namespace
-      pembedded = Cmpi::CMPIObjectPath.new ns, "CIM_ManagedElement"
+      pembedded = Cmpi::CMPIObjectPath.new ns, "LMI_ManagedElement"
       pembedded.InstanceID = "id"
       @trace_file.puts "pembedded #{pembedded}"
       

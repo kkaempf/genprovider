@@ -1,0 +1,5 @@
+class LMI_ManagedElement
+{
+    [Key] string InstanceID;
+    string Description;
+};

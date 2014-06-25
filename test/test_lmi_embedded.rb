@@ -35,7 +35,8 @@ class Test_LMI_Embedded < Test::Unit::TestCase
       assert_kind_of String, instance.InstanceID # string
       puts "instance.InstanceID #{instance.InstanceID.inspect}"
       assert instance.Embedded
-      assert_kind_of Sfcc::Cim::Instance, instance.Embedded # string
+#      assert_kind_of Sfcc::Cim::Instance, instance.Embedded # string
+      assert_kind_of String, instance.Embedded # Instance
       puts "instance.Embedded #{instance.Embedded.inspect}"
       assert instance.Str
       assert_kind_of String, instance.Str # string
