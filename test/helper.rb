@@ -11,6 +11,7 @@ class Helper
   end
   def self.setup klass, namespace = "test/test"
     self.sfcb
+    puts " - Setting up #{klass}"
     client = Sfcc::Cim::Client.connect(:uri => $sfcb.uri, :verify => false)
     raise "Connection error" unless client
     op = Sfcc::Cim::ObjectPath.new(namespace, klass, client)

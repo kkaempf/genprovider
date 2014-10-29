@@ -64,7 +64,7 @@ class Test_RCP_ArrayDataTypes < Test::Unit::TestCase
         end
         assert instance.char_16
         assert_kind_of Array, instance.char_16 # char16[]
-        puts "char16 #{instance.char_16.inspect}"
+#        puts "char16 #{instance.char_16.inspect}"
         tmp = instance.char_16[0]
         if tmp
           assert_kind_of Integer, tmp # char16[]

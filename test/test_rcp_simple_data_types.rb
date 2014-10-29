@@ -58,7 +58,7 @@ class Test_RCP_SimpleDataTypes < Test::Unit::TestCase
       assert instance.double
       assert_kind_of Float, instance.double # real64
       assert instance.date_time
-      puts "instance.date_time #{instance.date_time}"
+#      puts "instance.date_time #{instance.date_time}"
       assert_kind_of Time, instance.date_time # dateTime
     end
   end

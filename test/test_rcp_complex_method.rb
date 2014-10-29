@@ -46,8 +46,8 @@ class Test_RCP_ComplexMethod < Test::Unit::TestCase
       expected = p_in_str * p_in_count
       p_out_result = {} # string
       res = inst.InOut(p_in_count, p_in_str, p_out_result)
-      puts "InOut.res #{res}"
-      puts "InOut.p_out_result #{p_out_result.inspect}"
+#      puts "InOut.res #{res}"
+#      puts "InOut.p_out_result #{p_out_result.inspect}"
       assert_kind_of Integer, res
       assert_equal expected.size, res
       assert p_out_result[:result]
@@ -56,10 +56,12 @@ class Test_RCP_ComplexMethod < Test::Unit::TestCase
   end
   
   def test_method_Size
+    p_in_str_a = (1..1024).to_a # string[]
+#    puts " - running test_method_Size"
     @client.instances(@op).each do |inst|
-      p_in_str_a = (1..1024).to_a # string[]
+#      puts " - instance #{inst}"
       res = inst.Size(p_in_str_a)
-      puts "Size.res #{res}"
+#      puts "Size.res #{res}"
       assert_kind_of Integer, res
       assert_equal p_in_str_a.size, res
     end

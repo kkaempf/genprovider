@@ -26,21 +26,21 @@ class Test_LMI_Embedded < Test::Unit::TestCase
     names = @client.instance_names(@op)
     assert names.size > 0
     names.each do |ref|
-      puts "ref #{ref}"
+#      puts "ref #{ref}"
       ref.namespace = @op.namespace
       instance = @client.get_instance ref
       assert instance
-      puts "Instance #{instance}"
+#      puts "Instance #{instance}"
       assert instance.InstanceID
       assert_kind_of String, instance.InstanceID # string
-      puts "instance.InstanceID #{instance.InstanceID.inspect}"
+#      puts "instance.InstanceID #{instance.InstanceID.inspect}"
       assert instance.Embedded
 #      assert_kind_of Sfcc::Cim::Instance, instance.Embedded # string
       assert_kind_of String, instance.Embedded # Instance
-      puts "instance.Embedded #{instance.Embedded.inspect}"
+#      puts "instance.Embedded #{instance.Embedded.inspect}"
       assert instance.Str
       assert_kind_of String, instance.Str # string
-      puts "instance.Str #{instance.Str.inspect}"
+#      puts "instance.Str #{instance.Str.inspect}"
     end
   end
 
@@ -48,15 +48,15 @@ class Test_LMI_Embedded < Test::Unit::TestCase
     instances = @client.instances(@op)
     assert instances.size > 0
     instances.each do |instance|
-      puts "Instance #{instance}"
+#      puts "Instance #{instance}"
       assert instance
-      puts "instance.InstanceID #{instance.InstanceID.inspect}"
+#      puts "instance.InstanceID #{instance.InstanceID.inspect}"
       assert instance.InstanceID
       assert_kind_of String, instance.InstanceID # string
-      puts "instance.Embedded #{instance.Embedded.inspect}"
+#      puts "instance.Embedded #{instance.Embedded.inspect}"
       assert instance.Embedded
       assert_kind_of Sfcc::Cim::Instance, instance.Embedded # string
-      puts "instance.Str #{instance.Str.inspect}"
+#      puts "instance.Str #{instance.Str.inspect}"
       assert instance.Str
       assert_kind_of String, instance.Str # string
     end
