@@ -10,10 +10,8 @@
 #
 # == Usage
 #
-# genprovider [-c] [-d] [-h] [-q] [-t] [-n <namespace>] [-I <includedir>] [-o <output>] <moffile> [<moffile> ...]
+# genprovider [-d] [-h] [-q] [-t] [-n <namespace>] [-I <includedir>] [-o <output>] <moffile> [<moffile> ...]
 #
-# -c:
-#   generate classinfo instead
 # -d:
 #   turn on debugging
 # -h:
@@ -108,8 +106,6 @@ CIM_CURRENT = "/usr/share/mof/cim-current"
 ## argv handling
 
 generate_test = ARGV.delete("-t")
-
-generate_classinfo = ARGV.delete("-c")
 
 #
 # parse mofparse arguments
@@ -219,17 +215,6 @@ outdir = options[:output] || "generated"
 Dir.mkdir outdir rescue Errno::EEXIST
 
 to_generate.each do |c|
-  if generate_classinfo
-    klass = c
-    while klass
-      Genprovider::Output.new File.join(outdir,"#{klass.name}.rb"), options[:force] do |out|
-        Genprovider::ClassInfo.new klass, out
-      end
-      klass = klass.parent
-    end
-    next
-  end
-  
   if options[:testcase]
     Genprovider::Output.new File.join(outdir,"test_#{c.name.decamelize}.rb"), options[:force] do |out|
       Genprovider::Testcase.new c, options[:namespace]||"root/cimv2", out
