@@ -1,4 +1,12 @@
-=== 0,2.3 2014-06-25
+=== 0.3.1 2024-12-10
+
+* support building outside of git repo
+
+=== 0.3.0 2015-04-20
+
+* Remove 'genprovide -c' to generate ClassInfo
+
+=== 0.2.3 2014-06-25
 
 * fix LMI_Embedded test case
 
