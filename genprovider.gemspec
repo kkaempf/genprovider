@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
   
   s.rubyforge_project = "genprovider"
 
-  s.files         = `git ls-files`.split("\n")
+  s.files         = `cat FILES`.split("\n")
   s.files.reject! { |fn| fn == '.gitignore' }
   s.extra_rdoc_files    = Dir['README.rdoc', 'CHANGELOG', 'LICENSE']
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
